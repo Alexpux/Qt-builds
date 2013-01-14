@@ -1,0 +1,12 @@
+--- a/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf.orig	2013-01-11 14:18:00 +0300
++++ b/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf	2013-01-11 14:18:07 +0300
+@@ -21,6 +21,9 @@
+ WEBKIT_SUBDIR = $$replace(_PRO_FILE_PWD_, $${ROOT_WEBKIT_DIR},)
+ ROOT_BUILD_DIR = $$replace(OUT_PWD, $${WEBKIT_SUBDIR}$,)
+ 
++# Make sure we process the PKGCONFIG variable if applicable
++!mac: CONFIG += link_pkgconfig
++
+ # Now we're ready to load default_pre from Qt
+ load(default_pre)
+ 

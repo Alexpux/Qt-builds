@@ -1,0 +1,12 @@
+--- libxml2-2.9.0/python/Makefile.am.orig	2012-09-11 07:52:46 +0400
++++ libxml2-2.9.0/python/Makefile.am	2012-09-17 12:06:51 +0400
+@@ -25,7 +25,8 @@
+ 
+ libxml2mod_la_SOURCES = libxml.c libxml_wrap.h libxml2-py.h libxml2-py.c types.c
+ libxml2mod_la_LIBADD  = $(top_builddir)/libxml2.la $(CYGWIN_EXTRA_PYTHON_LIBADD) $(WIN32_EXTRA_PYTHON_LIBADD) $(PYTHON_LIBS) -lpython$(PYTHON_VERSION)
+-libxml2mod_la_LDFLAGS = $(CYGWIN_EXTRA_LDFLAGS) $(WIN32_EXTRA_LDFLAGS) -module -avoid-version
++libxml2mod_la_CPPFLAGS = -shared
++libxml2mod_la_LDFLAGS = $(CYGWIN_EXTRA_LDFLAGS) $(WIN32_EXTRA_LDFLAGS) -module -avoid-version -shared
+ 
+ BUILT_SOURCES = libxml2-export.c libxml2-py.h libxml2-py.c
+ 

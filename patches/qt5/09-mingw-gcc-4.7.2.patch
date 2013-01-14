@@ -1,0 +1,13 @@
+﻿--- a/qtbase/src/gui/painting/qdrawhelper_p.h	2012-12-24 12:46:15 +0300
++++ b/qtbase/src/gui/painting/qdrawhelper_p.h	2012-12-24 12:46:20 +0300
+@@ -73,8 +73,8 @@
+ #  define Q_STATIC_INLINE_FUNCTION static __forceinline
+ #  define Q_DECL_RESTRICT
+ #elif defined(Q_CC_GNU)
+-#  define Q_STATIC_TEMPLATE_FUNCTION static __attribute__((always_inline))
+-#  define Q_STATIC_INLINE_FUNCTION static inline __attribute__((always_inline))
++#  define Q_STATIC_TEMPLATE_FUNCTION static 
++#  define Q_STATIC_INLINE_FUNCTION static inline
+ #  define Q_DECL_RESTRICT __restrict__
+ #else
+ #  define Q_STATIC_TEMPLATE_FUNCTION static

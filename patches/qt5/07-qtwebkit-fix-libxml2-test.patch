@@ -1,0 +1,11 @@
+﻿--- qt5/qtwebkit/Tools/qmake/config.tests/libxml2/libxml2.cpp.orig	2012-12-20 23:47:13 +0400
++++ qt5/qtwebkit/Tools/qmake/config.tests/libxml2/libxml2.cpp	2012-12-20 23:47:18 +0400
+@@ -23,7 +23,7 @@
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
+-#include <libxml2/libxml/xmlreader.h>
++#include <libxml/xmlreader.h>
+ 
+ int main(int, char**)
+ {

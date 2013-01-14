@@ -1,0 +1,12 @@
+--- a/source/config/mh-mingw.orig	2012-11-26 08:45:31 +0400
++++ b/source/config/mh-mingw	2012-11-26 08:45:35 +0400
+@@ -67,7 +67,7 @@
+ A = a
+ 
+ ## An import library is needed for z/OS and MSVC
+-IMPORT_LIB_EXT = .lib
++IMPORT_LIB_EXT = .dll.a
+ 
+ #LIBPREFIX=
+ 
+ 

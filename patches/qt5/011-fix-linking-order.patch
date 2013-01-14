@@ -1,0 +1,69 @@
+From a65d837c40c5a6f19cf983e6614b10030d81dc67 Mon Sep 17 00:00:00 2001
+From: commit-queue@webkit.org <commit-queue@webkit.org>
+Date: Thu, 3 Jan 2013 14:13:44 +0000
+Subject: [PATCH] Fix library linking order https://bugs.webkit.org/show_bug.cgi?id=105818
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Some Qt libraries are linked before the private static libraries
+that depend on them which results in QtWebKit failing to link.
+
+Copy Qt module dependencies from QT to QT_PRIVATE when creating
+module to ensure the Qt libraries are linked after the private
+static libraries that depend on them.
+
+Patch by Jonathan Liu <net147@gmail.com> on 2013-01-03
+Reviewed by Tor Arne Vestbo.
+
+* qmake/mkspecs/features/default_post.prf:
+
+Change-Id: If0af874301bd31cec8881d1ddb680154676b5ff3
+git-svn-id: http://svn.webkit.org/repository/webkit/trunk@138707 268f45cc-cd09-0410-ab3c-d52691b4dbfc
+Reviewed-by: Simon Hausmann <simon.hausmann@digia.com>
+---
+ qtwebkit/Tools/ChangeLog                               |   16 ++++++++++++++++
+ qtwebkit/Tools/qmake/mkspecs/features/default_post.prf |    4 ++++
+ 2 files changed, 20 insertions(+), 0 deletions(-)
+
+diff --git a/Tools/ChangeLog b/Tools/ChangeLog
+index 625b753..83ad9f5 100644
+--- a/qtwebkit/Tools/ChangeLog
++++ b/qtwebkit/Tools/ChangeLog
+@@ -1,3 +1,19 @@
++2013-01-03  Jonathan Liu  <net147@gmail.com>
++
++        [Qt] Fix library linking order
++        https://bugs.webkit.org/show_bug.cgi?id=105818
++
++        Some Qt libraries are linked before the private static libraries
++        that depend on them which results in QtWebKit failing to link.
++
++        Copy Qt module dependencies from QT to QT_PRIVATE when creating
++        module to ensure the Qt libraries are linked after the private
++        static libraries that depend on them.
++
++        Reviewed by Tor Arne Vestbo.
++
++        * qmake/mkspecs/features/default_post.prf:
++
+ 2012-12-17  Jonathan Liu  <net147@gmail.com>
+ 
+         Fix linking of libraries with -Wl,-whole-archive
+diff --git a/qtwebkit/Tools/qmake/mkspecs/features/default_post.prf b/qtwebkit/Tools/qmake/mkspecs/features/default_post.prf
+index dbaa64f..7c92a7d 100644
+--- a/qtwebkit/Tools/qmake/mkspecs/features/default_post.prf
++++ b/qtwebkit/Tools/qmake/mkspecs/features/default_post.prf
+@@ -221,6 +221,10 @@ creating_module {
+     # to end up in as public API dependenices in the QtWebKit prl file.
+     LIBS_PRIVATE += $$LIBS
+     unset(LIBS)
++    # Copy Qt module dependencies from QT to QT_PRIVATE to ensure the
++    # Qt libraries are linked after the private static libraries that
++    # depend on them
++    QT_PRIVATE += $$QT
+ }
+ 
+ equals(_PRO_FILE_, $${ROOT_WEBKIT_DIR}/WebKit.pro):!isEmpty(OVERRIDE_SUBDIRS) {
+-- 
+1.7.1

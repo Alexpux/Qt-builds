@@ -1,0 +1,211 @@
+#!/usr/bin/env bash
+
+#
+# The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
+#
+# This file is part of 'Qt-builds' project.
+# Copyright (c) 2013 by Alexpux (alexpux@gmail.com)
+# All rights reserved.
+#
+# Project: Qt-builds ( https://github.com/Alexpux/Qt-builds )
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# - Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# - Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in
+#     the documentation and/or other materials provided with the distribution.
+# - Neither the name of the 'Qt-builds' nor the names of its contributors may
+#     be used to endorse or promote products derived from this software
+#     without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+# **************************************************************************
+
+ORIGINAL_PATH=$PATH
+LOGVIEWER="c:/progra~2/notepad++/notepad++.exe"
+SHOW_LOG_ON_ERROR=yes
+
+pushd $SYSTEMROOT > /dev/null
+WIN_SYS=`pwd`
+popd > /dev/null
+
+WINDOWS_PART_PATH=$WIN_SYS/system32:$WIN_SYS
+MSYS_PART_PATH=.:/usr/local/bin:/bin
+export PATH=$MSYS_PART_PATH:$WINDOWS_PART_PATH
+
+# directories
+TOP_DIR=`pwd`
+PREFIX_TOP=/c/SDK
+SRC_DIR=${TOP_DIR}/src
+MARKERS_DIR=${SRC_DIR}/markers
+PATCH_DIR=${TOP_DIR}/patches
+PACKAGE_DIR=${TOP_DIR}/packages
+SCENARIOS=${TOP_DIR}/scenarios
+ROOT_DIR=${TOP_DIR}/work
+UNPACK_DIR=${ROOT_DIR}/sources
+TOOLCHAINS_DIR=${TOP_DIR}/toolchains
+
+x32_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw32
+x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
+
+# MinGW toolchain links
+URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/32-bit/threads-posix/sjlj/x32-4.7.2-release-posix-sjlj-rev7.7z
+URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/64-bit/threads-posix/sjlj/x64-4.7.2-release-posix-sjlj-rev7.7z
+
+# Build Flags
+MAKE_OPTS="-j3"
+STATIC_LINK_FLAGS="--enable-static --disable-shared"
+SHARED_LINK_FLAGS="--enable-shared --disable-static"
+
+mkdir -p $PREFIX_TOP $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR
+
+export INSTALL=/bin/install
+
+source helpers_functions.sh
+source versions.sh
+source package_order.sh
+
+[[ -d /mingw ]] && {
+	echo "please remove \"/mingw\" directory. terminate."
+	exit 1
+}
+
+[[ -n $(which "gcc.exe" 2>/dev/null) || \
+	-n $(which "i686-pc-mingw32-gcc.exe" 2>/dev/null) || \
+	-n $(which "i686-w64-mingw32-gcc.exe" 2>/dev/null) || \
+	-n $(which "x86_64-w64-mingw32-gcc.exe" 2>/dev/null) \
+]] && {
+	echo "remove from PATH any existing MinGW directory. terminate."
+	exit 1
+}
+
+while [[ $# > 0 ]]; do
+	case $1 in
+		--buildroot=*) ROOT_DIR=${1/--buildroot=/} ;;
+		--install-top=*) PREFIX_TOP=${1/--install-top=/} ;;
+		x32)
+			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
+			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
+		;;
+		x64)
+			[[ ${BUILD_ARCHITECTURES[@]} =~ x64 ]] && { shift; continue; }
+			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x64 )
+		;;
+		
+		*)
+			echo "bad command line: \"$1\""
+			echo "terminate."
+			exit 1
+		;;
+	esac
+	shift
+done		
+
+[[ $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
+	IS_64BIT_HOST=yes
+} || {
+	IS_64BIT_HOST=no
+}
+
+[[ $IS_64BIT_HOST == no && ${BUILD_ARCHITECTURES[@]} =~ x64 ]] && {
+	echo "you can't build 64-bit programs using 32-bit OS. terminate."
+	exit 1
+}
+
+toolchains_prepare
+
+[[ ! -d $x32_HOST_MINGW_PATH || ! -d $x64_HOST_MINGW_PATH ]] && {
+	echo -n "Host toolchains is not installed. Terminate!"
+	exit 1
+}
+
+for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
+
+	PREFIX=${PREFIX_TOP}/ported-$ARCHITECTURE
+	QT5DIR=${PREFIX_TOP}/Qt5-$ARCHITECTURE
+	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE
+	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE
+
+	[[ $ARCHITECTURE == x32 ]] && {
+		HOST=i686-w64-mingw32
+		BUILD=i686-w64-mingw32
+		TARGET=i686-w64-mingw32
+		OPTIM="-march=i686 -mtune=core2"
+		[[ ! -f $x32_HOST_MINGW_PATH/bin/gcc.exe ]] && {
+			echo "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
+			exit 1
+		}
+		MINGW_PART_PATH=$PREFIX/bin:$x32_HOST_MINGW_PATH/bin:$x32_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
+		MINGWHOME=$x32_HOST_MINGW_PATH
+	} || {
+		HOST=x86_64-w64-mingw32
+		BUILD=x86_64-w64-mingw32
+		TARGET=x86_64-w64-mingw32
+		OPTIM="-march=nocona -mtune=core2"
+		[[ ! -f $x64_HOST_MINGW_PATH/bin/gcc.exe ]] && {
+			echo "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
+			exit 1
+		}
+		MINGW_PART_PATH=$PREFIX/bin:$x64_HOST_MINGW_PATH/bin:$x64_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
+		MINGWHOME=$x64_HOST_MINGW_PATH
+		
+	}
+	export PATH=$MINGW_PART_PATH:$PATH
+	
+	pushd $MINGWHOME > /dev/null
+	MINGWHOME_WIN=`pwd -W`
+	popd > /dev/null
+	
+	export PYTHONHOME=$MINGWHOME_WIN/opt
+	mkdir -p $BUILD_DIR $QT5DIR $LOG_DIR $PREFIX
+	
+	HOST_CFLAGS="$OPTIM -pipe -O2 -fomit-frame-pointer"
+	HOST_CXXFLAGS="${HOST_CFLAGS}"
+	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
+	HOST_LDFLAGS="-pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
+	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QT5DIR}/lib/pkgconfig"
+
+	pushd ${PREFIX} > /dev/null
+	export PREFIX_WIN=`pwd -W`
+	popd > /dev/null
+	
+	pushd ${QT5DIR} > /dev/null
+	export QT5DIR_WIN=`pwd -W`
+	popd > /dev/null
+	
+	echo "-> Start building"
+	
+	for sub in ${PACKAGES[@]}; do
+		echo -e "-> \E[32;40m$sub\E[37;40m"
+		[[ ! -f $SCENARIOS/$sub.sh ]] && {
+			echo "script for subtarget \"$sub\" is not exists. terminate."
+			exit 1
+		}
+		
+		source ${SCENARIOS}/${sub}.sh
+		
+		src_download
+		src_unpack
+		src_patch
+		src_configure
+		pkg_build
+		pkg_install
+
+	done
+
+done
+

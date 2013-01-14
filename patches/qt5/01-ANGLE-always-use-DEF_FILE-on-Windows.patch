@@ -1,0 +1,45 @@
+﻿From b7fd19b434acb06b5311ac48ca1808aa33b89d9c Mon Sep 17 00:00:00 2001
+From: Jonathan Liu <net147@gmail.com>
+Date: Sun, 16 Dec 2012 04:22:11 +1100
+Subject: [PATCH] ANGLE: Always use DEF_FILE on Windows
+
+Building ANGLE with MinGW results in too many symbols being exported in
+the DLLs. Always use DEF_FILE on Windows to limit the symbols exported
+and eliminate symbol conflicts when libEGL/libGLESv2 is linked by other
+libraries that include their own version of ANGLE (e.g. QtWebKit).
+
+Change-Id: I7bb1f90d9996eabf30095323e9399efa1c23e3a1
+Reviewed-by: Friedemann Kleint <Friedemann.Kleint@digia.com>
+---
+ qtbase/src/angle/src/libEGL/libEGL.pro       |    2 +-
+ qtbase/src/angle/src/libGLESv2/libGLESv2.pro |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/qtbase/src/angle/src/libEGL/libEGL.pro b/qtbase/src/angle/src/libEGL/libEGL.pro
+index 524e3a9..78be162 100644
+--- a/qtbase/src/angle/src/libEGL/libEGL.pro
++++ b/qtbase/src/angle/src/libEGL/libEGL.pro
+@@ -24,7 +24,7 @@ SOURCES += \
+     $$ANGLE_DIR/src/libEGL/main.cpp \
+     $$ANGLE_DIR/src/libEGL/Surface.cpp
+ 
+-msvc:DEF_FILE = $$ANGLE_DIR/src/libEGL/$${TARGET}.def
++!static:DEF_FILE = $$ANGLE_DIR/src/libEGL/$${TARGET}.def
+ 
+ load(qt_installs)
+ 
+diff --git a/qtbase/src/angle/src/libGLESv2/libGLESv2.pro b/qtbase/src/angle/src/libGLESv2/libGLESv2.pro
+index f4cbfd0..1075591 100644
+--- a/qtbase/src/angle/src/libGLESv2/libGLESv2.pro
++++ b/qtbase/src/angle/src/libGLESv2/libGLESv2.pro
+@@ -67,7 +67,7 @@ SOURCES += \
+ 
+ SSE2_SOURCES += $$ANGLE_DIR/src/libGLESv2/TextureSSE2.cpp
+ 
+-msvc:DEF_FILE = $$ANGLE_DIR/src/libGLESv2/$${TARGET}.def
++!static:DEF_FILE = $$ANGLE_DIR/src/libGLESv2/$${TARGET}.def
+ 
+ float_converter.target = float_converter
+ float_converter.commands = python $$ANGLE_DIR/src/libGLESv2/Float16ToFloat32.py \
+-- 
+1.7.1

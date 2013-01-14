@@ -1,0 +1,113 @@
+﻿From 5e594b14d4b0295ad562211a43fdc996437bac17 Mon Sep 17 00:00:00 2001
+From: Jonathan Liu <net147@gmail.com>
+Date: Sat, 15 Dec 2012 23:42:32 +1100
+Subject: [PATCH] Fix undefined reference to JSC::JSCell::classInfo with MinGW-w64
+
+JSC::JSCell::classInfo is defined inline in JSDestructibleObject.h but
+not all the classes that that inherit directly from JSCell include
+JSDestructibleObject.h.
+
+Move JSC::JSCell::classInfo from JSDestructibleObject.h into JSObject.h
+to resolve the undefined reference errors when compiling with MinGW-w64.
+JSDestructibleObject.h is already removed upstream in SVN r128851 but
+the commit has a lot of other changes which don't apply cleanly.
+
+Task-number: QTBUG-27764
+Change-Id: I75b13c93dd13a346e672ca76fd7b23a616653a79
+Reviewed-by: Simon Hausmann <simon.hausmann@digia.com>
+Reviewed-by: Alexey Pavlov <alexey.pawlow@gmail.com>
+---
+ qtwebkit/Source/JavaScriptCore/runtime/JSDestructibleObject.h  |   37 --------------------
+ qtwebkit/Source/JavaScriptCore/runtime/JSObject.h           |   31 ++++++++++++++++
+ 2 files changed, 31 insertions(+), 37 deletions(-)
+
+diff --git a/qtwebkit/Source/JavaScriptCore/runtime/JSDestructibleObject.h b/qtwebkit/Source/JavaScriptCore/runtime/JSDestructibleObject.h
+index b8479be..efbe2b4 100644
+--- a/qtwebkit/Source/JavaScriptCore/runtime/JSDestructibleObject.h
++++ b/qtwebkit/Source/JavaScriptCore/runtime/JSDestructibleObject.h
+@@ -3,41 +3,4 @@
+ 
+ #include "JSObject.h"
+ 
+-namespace JSC {
+-
+-struct ClassInfo;
+-
+-class JSDestructibleObject : public JSNonFinalObject {
+-public:
+-    typedef JSNonFinalObject Base;
+-
+-    static const bool needsDestruction = true;
+-
+-    const ClassInfo* classInfo() const { return m_classInfo; }
+-
+-protected:
+-    JSDestructibleObject(JSGlobalData& globalData, Structure* structure, Butterfly* butterfly = 0)
+-        : JSNonFinalObject(globalData, structure, butterfly)
+-        , m_classInfo(structure->classInfo())
+-    {
+-        ASSERT(m_classInfo);
+-    }
+-
+-private:
+-    const ClassInfo* m_classInfo;
+-};
+-
+-inline const ClassInfo* JSCell::classInfo() const
+-{
+-    if (MarkedBlock::blockFor(this)->destructorType() == MarkedBlock::Normal)
+-        return static_cast<const JSDestructibleObject*>(this)->classInfo();
+-#if ENABLE(GC_VALIDATION)
+-    return m_structure.unvalidatedGet()->classInfo();
+-#else
+-    return m_structure->classInfo();
+-#endif
+-}
+-
+-} // namespace JSC
+-
+ #endif
+diff --git a/qtwebkit/Source/JavaScriptCore/runtime/JSObject.h b/qtwebkit/Source/JavaScriptCore/runtime/JSObject.h
+index 4f7f470..957ba82 100644
+--- a/qtwebkit/Source/JavaScriptCore/runtime/JSObject.h
++++ b/qtwebkit/Source/JavaScriptCore/runtime/JSObject.h
+@@ -1560,6 +1560,37 @@ inline int offsetRelativeToBase(PropertyOffset offset)
+ 
+ COMPILE_ASSERT(!(sizeof(JSObject) % sizeof(WriteBarrierBase<Unknown>)), JSObject_inline_storage_has_correct_alignment);
+ 
++class JSDestructibleObject : public JSNonFinalObject {
++public:
++    typedef JSNonFinalObject Base;
++
++    static const bool needsDestruction = true;
++
++    const ClassInfo* classInfo() const { return m_classInfo; }
++
++protected:
++    JSDestructibleObject(JSGlobalData& globalData, Structure* structure, Butterfly* butterfly = 0)
++        : JSNonFinalObject(globalData, structure, butterfly)
++        , m_classInfo(structure->classInfo())
++    {
++        ASSERT(m_classInfo);
++    }
++
++private:
++    const ClassInfo* m_classInfo;
++};
++
++inline const ClassInfo* JSCell::classInfo() const
++{
++    if (MarkedBlock::blockFor(this)->destructorType() == MarkedBlock::Normal)
++        return static_cast<const JSDestructibleObject*>(this)->classInfo();
++#if ENABLE(GC_VALIDATION)
++    return m_structure.unvalidatedGet()->classInfo();
++#else
++    return m_structure->classInfo();
++#endif
++}
++
+ } // namespace JSC
+ 
+ #endif // JSObject_h
+-- 
+1.7.1

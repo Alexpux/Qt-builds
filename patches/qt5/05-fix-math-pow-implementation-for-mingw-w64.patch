@@ -1,0 +1,87 @@
+﻿From 3651ffe993a9243a89fe965fedee9315f3ab68f4 Mon Sep 17 00:00:00 2001
+From: Jonathan Liu <net147@gmail.com>
+Date: Mon, 17 Dec 2012 23:15:57 +1100
+Subject: [PATCH] Fix Math.pow implementation with MinGW-w64
+ https://bugs.webkit.org/show_bug.cgi?id=105087
+
+Patch by Jonathan Liu <net147@gmail.com> on 2012-12-17
+Reviewed by Simon Hausmann.
+
+The MinGW-w64 runtime has different behaviour for pow()
+compared to other C runtimes. This results in the following
+test262 tests failing with the latest MinGW-w64 runtime:
+- S15.8.2.13_A14
+- S15.8.2.13_A16
+- S15.8.2.13_A20
+- S15.8.2.13_A22
+
+Handle the special cases that are different with MinGW-w64.
+
+* runtime/MathObject.cpp:
+(JSC::mathPow):
+
+Change-Id: Ifad1aa24ac36f2d452e9166a4298525793597da3
+git-svn-id: http://svn.webkit.org/repository/webkit/trunk@137895 268f45cc-cd09-0410-ab3c-d52691b4dbfc
+Reviewed-by: Simon Hausmann <simon.hausmann@digia.com>
+---
+ qtwebkit/Source/JavaScriptCore/ChangeLog              |   20 ++++++++++++++++++++
+ qtwebkit/Source/JavaScriptCore/runtime/MathObject.cpp |   16 ++++++++++++++++
+ 2 files changed, 36 insertions(+), 0 deletions(-)
+
+diff --git a/qtwebkit/Source/JavaScriptCore/ChangeLog b/qtwebkit/Source/JavaScriptCore/ChangeLog
+index e9ddd39..4e661d9 100644
+--- a/qtwebkit/Source/JavaScriptCore/ChangeLog
++++ b/qtwebkit/Source/JavaScriptCore/ChangeLog
+@@ -1,3 +1,23 @@
++2012-12-17  Jonathan Liu  <net147@gmail.com>
++
++        Fix Math.pow implementation with MinGW-w64
++        https://bugs.webkit.org/show_bug.cgi?id=105087
++
++        Reviewed by Simon Hausmann.
++
++        The MinGW-w64 runtime has different behaviour for pow()
++        compared to other C runtimes. This results in the following
++        test262 tests failing with the latest MinGW-w64 runtime:
++        - S15.8.2.13_A14
++        - S15.8.2.13_A16
++        - S15.8.2.13_A20
++        - S15.8.2.13_A22
++
++        Handle the special cases that are different with MinGW-w64.
++
++        * runtime/MathObject.cpp:
++        (JSC::mathPow):
++
+ 2012-12-07  Jonathan Liu  <net147@gmail.com>
+ 
+         Add missing forward declaration for JSC::ArrayAllocationProfile
+diff --git a/qtwebkit/Source/JavaScriptCore/runtime/MathObject.cpp b/qtwebkit/Source/JavaScriptCore/runtime/MathObject.cpp
+index 7634487..f939b8d 100644
+--- a/qtwebkit/Source/JavaScriptCore/runtime/MathObject.cpp
++++ b/qtwebkit/Source/JavaScriptCore/runtime/MathObject.cpp
+@@ -232,6 +232,22 @@ static ALWAYS_INLINE double mathPow(double x, double y)
+ 
+ ALWAYS_INLINE double mathPow(double x, double y)
+ {
++#if COMPILER(MINGW64)
++    // MinGW-w64 has a custom implementation for pow.
++    // This handles certain special cases that are different.
++    if ((x == 0.0 || isinf(x)) && isfinite(y)) {
++        double f;
++        if (modf(y, &f) != 0.0)
++            return ((x == 0.0) ^ (y > 0.0)) ? std::numeric_limits<double>::infinity() : 0.0;
++    }
++
++    if (x == 2.0) {
++        int yInt = static_cast<int>(y);
++        if (y == yInt)
++            return ldexp(1.0, yInt);
++    }
++#endif
++
+     return pow(x, y);
+ }
+ 
+-- 
+1.7.1
