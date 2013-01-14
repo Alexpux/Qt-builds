@@ -1,0 +1,35 @@
+The scripts provided by the Qt-builds project are designed for building Qt-5.x with MinGW compiler.
+
+The scripts are distributed under the 'BSD 3' license[1].
+
+In order to use the scripts provided by the Qt-builds project it is needed:
+
+1. Windows
+
+2. Install MSYS:
+  http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/
+
+3. Get the scripts into '<msys root>/home/<user>/Qt-builds':
+  "cd && git clone git://github.com/Alexpux/Qt-builds.git"
+
+4. In the MSYS file structure delete the '/MinGW' directory.
+
+5. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
+
+6. Go into the Qt-builds root directory.
+  "cd && cd Qt-builds"
+
+7. Run:
+  "./buildall x32" - for building 32-bit Qt
+  "./buildall x64" - for building 64-bit Qt
+  "./buildall x32 x64" - for building both 32 and 64 bits Qt
+
+By default Qt installing in "C:/SDK/Qt5-x{32,64}" and 3rdparty libraries in "C:/SDK/ported-x{32,64}".
+You may change install location by pass "--install-top=$DIRECTORY" to build script.
+
+For example:
+./buildall --install-top=C:/QtSDK x32
+building 32-bit Qt and installing Qt into C:/QtSDK/Qt5-x32.
+ 
+
+[1] http://www.opensource.org/licenses/BSD-3-Clause
