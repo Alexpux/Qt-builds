@@ -42,6 +42,8 @@ die() {
 
 toolchains_prepare() {
 	local func_res
+	local _file_mingw32=$(basename $URL_MINGW32)
+	local _file_mingw64=$(basename $URL_MINGW64)
 	pushd $TOOLCHAINS_DIR > /dev/null
 	if [ -f toolchains.marker ]
 	then
@@ -76,7 +78,7 @@ toolchains_prepare() {
 		if ! [ -f unpack_mingw32.marker ]
 		then
 			echo -n "--> Unpack mingw32 toolchain"
-			local _unpack32_cmd="7za x $SRC_DIR/x32-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
+			local _unpack32_cmd="7za x $SRC_DIR/$_file_mingw32 -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
 			eval ${_unpack32_cmd}
 			func_res=$?
 			[[ $func_res == 0 ]] && {
@@ -92,7 +94,7 @@ toolchains_prepare() {
 		if ! [ -f unpack_mingw64.marker ]
 		then
 			echo -n "--> Unpack mingw64 toolchain"
-			local _unpack64_cmd="7za x $SRC_DIR/x64-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
+			local _unpack64_cmd="7za x $SRC_DIR/$_file_mingw64 -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
 			eval ${_unpack64_cmd}
 			func_res=$?
 			[[ $func_res == 0 ]] && { 
