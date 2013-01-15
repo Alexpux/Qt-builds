@@ -152,7 +152,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 			echo "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
 			exit 1
 		}
-		MINGW_PART_PATH=$PREFIX/bin:$x32_HOST_MINGW_PATH/bin:$x32_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
+		MINGW_PART_PATH=$PREFIX/bin:$x32_HOST_MINGW_PATH/bin:$x32_HOST_MINGW_PATH/opt/bin:$QT5DIR/bin
 		MINGWHOME=$x32_HOST_MINGW_PATH
 	} || {
 		HOST=x86_64-w64-mingw32
@@ -163,7 +163,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 			echo "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
 			exit 1
 		}
-		MINGW_PART_PATH=$PREFIX/bin:$x64_HOST_MINGW_PATH/bin:$x64_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
+		MINGW_PART_PATH=$PREFIX/bin:$x64_HOST_MINGW_PATH/bin:$x64_HOST_MINGW_PATH/opt/bin:$QT5DIR/bin
 		MINGWHOME=$x64_HOST_MINGW_PATH
 		
 	}
