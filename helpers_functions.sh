@@ -40,10 +40,22 @@ die() {
 
 # **************************************************************************
 
+get_filename_extension() {
+	local _fileext=
+	local _filename=$1
+	while [[ $_filename = ?*.* &&
+         	( ${_filename##*.} = [A-Za-z]* || ${_filename##*.} = 7z ) ]]; do
+		_fileext=${_filename##*.}.$_fileext
+		_filename=${_filename%.*}
+	done
+	_fileext=${_fileext%.}
+	echo "$_fileext"
+}
+
+# **************************************************************************
+
 toolchains_prepare() {
-	local func_res
-	local _file_mingw32=$(basename $URL_MINGW32)
-	local _file_mingw64=$(basename $URL_MINGW64)
+
 	pushd $TOOLCHAINS_DIR > /dev/null
 	if [ -f toolchains.marker ]
 	then
@@ -51,61 +63,18 @@ toolchains_prepare() {
 	else
 		echo "-> Prepare toolchains..."
 
-		if ! [ -f download_mingw32.marker ]
-		then
-			func_download mingw32 ".7z" $URL_MINGW32
-			func_res=$?
-				[[ $func_res != 0 ]] && {
-					[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $SRC_DIR/mingw32/download.log &
-					exit $func_res
-				} || {
-					touch download_mingw32.marker
-				}
-		fi
+		local _file_mingw32=$(basename $URL_MINGW32)
+		local _ext_mingw32=$(get_filename_extension $_file_mingw32)
+		func_download mingw32 ".$_ext_mingw32" $URL_MINGW32
+		func_uncompress ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $TOOLCHAINS_DIR
+		mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32
 		
-		if ! [ -f download_mingw64.marker ]
-		then
-			func_download mingw64 ".7z" $URL_MINGW64
-			func_res=$?
-				[[ $func_res != 0 ]] && {
-					[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $SRC_DIR/mingw64/download.log &
-					exit $func_res
-				} || {
-					touch download_mingw64.marker
-				}
-		fi
-
-		if ! [ -f unpack_mingw32.marker ]
-		then
-			echo -n "--> Unpack mingw32 toolchain"
-			local _unpack32_cmd="7za x $SRC_DIR/$_file_mingw32 -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
-			eval ${_unpack32_cmd}
-			func_res=$?
-			[[ $func_res == 0 ]] && {
-				echo " done"
-				mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32
-				touch unpack_mingw32.marker
-			} || {
-				echo " error!"
-				die "Error unpack mingw32 toolchain"
-			}
-		fi
-
-		if ! [ -f unpack_mingw64.marker ]
-		then
-			echo -n "--> Unpack mingw64 toolchain"
-			local _unpack64_cmd="7za x $SRC_DIR/$_file_mingw64 -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
-			eval ${_unpack64_cmd}
-			func_res=$?
-			[[ $func_res == 0 ]] && { 
-				echo " done"
-				mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64
-				touch unpack_mingw64.marker; 
-			} || { 
-				echo " error!"
-				die "Error unpack mingw64 toolchain"
-			}
-		fi
+		local _file_mingw64=$(basename $URL_MINGW64)
+		local _ext_mingw64=$(get_filename_extension $_file_mingw64)
+		func_download mingw64 ".$_ext_mingw64" $URL_MINGW64
+		func_uncompress ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $TOOLCHAINS_DIR
+		mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64
+		
 		echo "--> Preparing done"
 	fi
 	touch toolchains.marker
