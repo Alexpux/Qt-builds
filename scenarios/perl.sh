@@ -50,9 +50,9 @@ src_configure() {
 	
 	if [ -f configure.marker ]
 	then
-		echo "--> Configured"
+		echo -n "--> configured"
 	else
-		echo "--> Configure..."
+		echo -n "--> configure..."
 		
 		local PERL_PREFIX=$PREFIX_WIN/perl
 		local DRV=`expr substr $PERL_PREFIX 1 2`
@@ -71,13 +71,6 @@ src_configure() {
 			EXTRA=$MINGWHOME_WIN/x86_64-w64-mingw32/lib
 		}
 		EXTRA=$(echo $EXTRA | sed 's|/|\\\\|g')
-
-		# pushd $SYSTEMROOT > /dev/null
-			# WIN_SYS=`pwd`
-		# popd > /dev/null
-		#OLD_PATH=$PATH
-
-		#MSYS_SYS=.:/usr/local/bin:/bin
 		
 		cat makefile.mk | sed 's|%DRV%|'"$DRV"'|g' \
 			| sed -e 's|%NODRV%|'"$NOTDRV"'|g' \
@@ -87,7 +80,7 @@ src_configure() {
 
 		rm -f makefile.mk
 		mv makefile.tmp makefile.mk
-		echo "done"
+		echo " done"
 	fi
 	touch configure.marker
 	

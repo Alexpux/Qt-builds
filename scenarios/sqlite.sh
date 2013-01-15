@@ -53,11 +53,11 @@ src_patch() {
 	pushd $SRC_DIR/$P_V > /dev/null
 	if [ -f pre-configure.marker ]
 	then
-		echo "--> Executed"
+		echo -n "--> Executed"
 	else
-		echo "--> Execute after patch..."
+		echo -n "--> Execute after patch..."
 		perl -pi -e 's#archive_cmds_need_lc=yes#archive_cmds_need_lc=no#g' configure > execute.log 2>&1
-		echo "done"
+		echo " done"
 	fi
 	touch pre-configure.marker
 	popd > /dev/null

@@ -111,9 +111,9 @@ src_configure() {
 	pushd $BUILD_DIR/$P-$QT5_VERSION > /dev/null
 	if [ -f configure.marker ]
 	then
-		echo "--> Configured"
+		echo n "--> configured"
 	else
-		echo "--> Configure..."
+		echo -n "--> configure..."
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/$P-$QT5_VERSION $SRC_DIR/$P_V )
 	
 		change_paths
@@ -140,7 +140,7 @@ src_configure() {
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || exit 1
 	
 		restore_paths
-		echo "done"
+		echo " done"
 	fi
 	touch configure.marker
 	popd > /dev/null

@@ -61,9 +61,9 @@ src_patch() {
 	pushd $SRC_DIR/$P_V > /dev/null
 	if [ -f post-patch.marker ]
 	then
-		echo "--> Executed"
+		echo -n "--> Executed"
 	else
-		echo "--> Execute after patch..."
+		echo -n "--> Execute after patch..."
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-configure.ac configure.ac
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-Makefile.am Makefile.am
 		touch NEWS
@@ -73,7 +73,7 @@ src_patch() {
 		aclocal >> execute.log 2>&1
 		autoconf >> execute.log 2>&1
 		automake --add-missing >> execute.log 2>&1
-		echo "done"
+		echo " done"
 	fi
 	touch post-patch.marker
 	popd > /dev/null

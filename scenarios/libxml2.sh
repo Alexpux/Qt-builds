@@ -67,14 +67,14 @@ src_configure() {
 	pushd $SRC_DIR/$P_V > /dev/null
 	if [ -f pre-configure.marker ]
 	then
-		echo "--> Executed"
+		echo -n "--> Executed"
 	else
-		echo "--> Execute before configure..."
+		echo -n "--> Execute before configure..."
 		libtoolize --copy --force > execute.log 2>&1
 		aclocal >> execute.log 2>&1
 		automake --add-missing >> execute.log 2>&1
 		autoconf >> execute.log 2>&1
-		echo "done"
+		echo " done"
 	fi
 	touch pre-configure.marker
 	popd > /dev/null

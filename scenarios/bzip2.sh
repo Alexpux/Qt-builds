@@ -68,9 +68,9 @@ src_configure() {
 	then
 		echo "--> Executed"
 	else
-		echo "--> Execute before configure..."
+		echo -n "--> Execute before configure..."
 		./autogen.sh > execute.log 2>&1
-		echo "done"
+		echo " done"
 	fi
 	touch pre-configure.marker
 	popd > /dev/null

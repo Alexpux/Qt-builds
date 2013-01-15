@@ -53,7 +53,7 @@ src_unpack() {
 	then
 		echo "--> Moved"
 	else
-		echo "--> Move icu to $P_V..."
+		echo -n "--> Move icu to $P_V..."
 		mv $P/* $P_V/
 		echo "done"
 	fi
@@ -80,11 +80,11 @@ src_configure() {
 	pushd $SRC_DIR/$P_V/source > /dev/null
 	if [ -f pre-configure.marker ]
 	then
-		echo "--> Executed"
+		echo -n "--> Executed"
 	else
-		echo "--> Execute before configure..."
+		echo -n "--> Execute before configure..."
 		autoconf --force > execute.log 2>&1
-		echo "done"
+		echo " done"
 	fi
 	touch pre-configure.marker
 	popd > /dev/null
