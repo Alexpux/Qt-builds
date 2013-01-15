@@ -41,7 +41,10 @@ src_patch() {
 
 src_configure() {
 	
-	cp -rf $SRC_DIR/$P_V $BUILD_DIR/
+	if ! [ -d  $BUILD_DIR/$P_V/win32 ]
+	then
+		cp -rf $SRC_DIR/$P_V $BUILD_DIR/
+	fi
 	
 	pushd $BUILD_DIR/$P_V/win32 > /dev/null
 	
