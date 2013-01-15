@@ -202,11 +202,17 @@ function func_download {
 			;;
 		esac
 		popd > /dev/null
-		[[ $_result == 0 ]] && { echo " done"; touch $_marker_name; } || { echo " error!"; }
+		[[ $_result == 0 ]] && {
+			echo " done"
+			touch $_marker_name
+		} || {
+			echo " error!"
+			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
+			exit $_result
+		}
 	} || {
 		echo "---> downloaded"
 	}
-	return $_result
 }
 
 # uncompress sources
@@ -239,12 +245,18 @@ function func_uncompress {
 			esac
 			eval ${_unpack_cmd}
 			_result=$?
-			[[ $_result == 0 ]] && { echo " done"; touch $_marker_name; } || { echo " error!"; }
+			[[ $_result == 0 ]] && {
+				echo " done"
+				touch $_marker_name
+			} || {
+				echo " error!"
+				[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
+				exit $_result
+			}
 		} || {
 			echo "---> unpacked"
 		}
 	}
-	return $_result
 }
 
 
@@ -262,7 +274,7 @@ function func_apply_patches {
 	}
 	
 	local _result=0
-	_index=0
+	local _index=0
 	local -a _list=( "${!2}" )
 	[[ ${#_list[@]} == 0 ]] && return 0
 
@@ -293,9 +305,13 @@ function func_apply_patches {
 		((_index++))
 	done
 
-	[[ $_result == 0 ]] && echo "done" || echo "error!"
-
-	return $_result
+	[[ $_result == 0 ]] && {
+		echo "done"
+	} || {
+		echo "error!"
+		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/$1/patch-$_index.log &
+		exit $_result
+	}
 }
 
 # **************************************************************************
@@ -318,16 +334,14 @@ function func_configure {
 		[[ $_result == 0 ]] && {
 			echo " done"
 			touch $_marker
-			return $_result
 		} || {
 			echo " error!"
-			return $_result
+			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
+			exit $_result
 		}
 	} || {
 		echo "---> configured"
 	}
-
-	return $_result
 }
 # **************************************************************************
 
@@ -350,11 +364,17 @@ function func_make {
 		echo -n "--> $4..."
 		( cd $BUILD_DIR/$1 && eval ${_make_cmd} > $_log_name 2>&1 )
 		_result=$?
-		[[ $_result == 0 ]] && { echo " done"; touch $_marker; } || { echo " error!"; }
+		[[ $_result == 0 ]] && {
+			echo " done"
+			touch $_marker
+		} || {
+			echo " error!"
+			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
+			exit $_result
+		}
 	} || {
 		echo "---> $5"
 	}
-	return $_result
 }
 
 # **************************************************************************
