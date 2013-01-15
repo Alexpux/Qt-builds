@@ -41,19 +41,67 @@ die() {
 # **************************************************************************
 
 toolchains_prepare() {
+	local func_res
 	pushd $TOOLCHAINS_DIR > /dev/null
 	if [ -f toolchains.marker ]
 	then
 		echo "--> Prepared"
 	else
 		echo "--> Prepare toolchains..."
-		func_download mingw32 ".7z" $URL_MINGW32
-		func_download mingw64 ".7z" $URL_MINGW64
-	
-		local _unpack32_cmd="7za x $SRC_DIR/x32-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
-		mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32
-		local _unpack64_cmd="7za x $SRC_DIR/x64-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
-		mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64
+
+		if ! [ -f download_mingw32.marker ]
+		then
+			func_download mingw32 ".7z" $URL_MINGW32
+			func_res=$?
+				[[ $func_res != 0 ]] && {
+					[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $SRC_DIR/mingw32/download.log &
+					exit $func_res
+				} || {
+					touch download_mingw32.marker
+				}
+		fi
+		
+		if ! [ -f download_mingw64.marker ]
+		then
+			func_download mingw64 ".7z" $URL_MINGW64
+			func_res=$?
+				[[ $func_res != 0 ]] && {
+					[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $SRC_DIR/mingw64/download.log &
+					exit $func_res
+				} || {
+					touch download_mingw64.marker
+				}
+		fi
+
+		if ! [ -f unpack_mingw32.marker ]
+		then
+			local _unpack32_cmd="7za x $SRC_DIR/x32-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
+			eval ${_unpack32_cmd}
+			func_res=$?
+			[[ $func_res == 0 ]] && {
+				echo " done"
+				mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32
+				touch unpack_mingw32.marker
+			} || {
+				echo " error!"
+				die "Error unpack mingw32 toolchain"
+			}
+		fi
+
+		if ! [ -f unpack_mingw64.marker ]
+		then
+			local _unpack64_cmd="7za x $SRC_DIR/x64-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
+			eval ${_unpack64_cmd}
+			func_res=$?
+			[[ $func_res == 0 ]] && { 
+				echo " done"
+				mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64
+				touch unpack_mingw64.marker; 
+			} || { 
+				echo " error!"
+				die "Error unpack mingw64 toolchain"
+			}
+		fi
 		echo "done"
 	fi
 	touch toolchains.marker
