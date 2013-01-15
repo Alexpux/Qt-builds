@@ -41,13 +41,23 @@ die() {
 # **************************************************************************
 
 toolchains_prepare() {
-	func_download mingw32 ".7z" $URL_MINGW32
-	func_download mingw64 ".7z" $URL_MINGW64
+	pushd $TOOLCHAINS_DIR > /dev/null
+	if [ -f toolchains.marker ]
+	then
+		echo "--> Prepared"
+	else
+		echo "--> Prepare toolchains..."
+		func_download mingw32 ".7z" $URL_MINGW32
+		func_download mingw64 ".7z" $URL_MINGW64
 	
-	local _unpack32_cmd="7za x $SRC_DIR/x32-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
-	mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32
-	local _unpack64_cmd="7za x $SRC_DIR/x64-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
-	mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64
+		local _unpack32_cmd="7za x $SRC_DIR/x32-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
+		mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32
+		local _unpack64_cmd="7za x $SRC_DIR/x64-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
+		mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64
+		echo "done"
+	fi
+	touch toolchains.marker
+	popd > /dev/null
 }
 
 # **************************************************************************
