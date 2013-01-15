@@ -128,6 +128,14 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	# for i in ${PREFIX}/lib/*.dll ; \
-		# do cp -f ${i} ${PREFIX}/bin/; done
+	if [ -f $BUILD_DIR/build-$P_V/post-install.marker ]
+	then
+		echo "--> Executed"
+	else
+		echo -n "--> Execute after install..."
+		for i in ${PREFIX}/lib/*.dll ; \
+			do cp -f ${i} ${PREFIX}/bin/; done
+		echo " done"
+		touch $BUILD_DIR/build-$P_V/post-install.marker
+	fi
 }
