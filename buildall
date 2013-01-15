@@ -77,6 +77,18 @@ SHARED_LINK_FLAGS="--enable-shared --disable-static"
 # Build Qt5 with "-opengl desktop"
 USE_OPENGL_DESKTOP=no
 
+RUN_ARGS="$@"
+[[ $# == 1 && $1 == --help	|| $[ $# == 0 ] == 1 ]] && {
+	echo "usage:"
+	echo "  ./${0##*/} <x32|x64> [OPTIONS]"
+	echo "  help:"
+	echo "    --buildroot=<path>     - specifies the build root directory"
+	echo "    --install-top          - specifies the top installation directory"
+	echo "    --opengl-desktop       - build Qt with opengl=desktop"
+
+	exit 0
+}
+
 mkdir -p $PREFIX_TOP $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR
 
 export INSTALL=/bin/install
