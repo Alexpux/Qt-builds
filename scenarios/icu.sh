@@ -80,7 +80,7 @@ src_configure() {
 	pushd $SRC_DIR/$P_V/source > /dev/null
 	if [ -f pre-configure.marker ]
 	then
-		echo -n "--> Executed"
+		echo "--> Executed"
 	else
 		echo -n "--> Execute before configure..."
 		autoconf --force > execute.log 2>&1

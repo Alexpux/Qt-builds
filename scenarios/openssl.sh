@@ -84,7 +84,7 @@ src_configure() {
 	pushd $BUILD_DIR/build-$P_V > /dev/null
 	if [ -f configure.marker ]
 	then
-		echo -n "--> configured"
+		echo "--> configured"
 	else
 		echo -n "--> configure..."
 		sh Configure --prefix=${PREFIX} \

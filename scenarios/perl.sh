@@ -50,7 +50,7 @@ src_configure() {
 	
 	if [ -f configure.marker ]
 	then
-		echo -n "--> configured"
+		echo "--> configured"
 	else
 		echo -n "--> configure..."
 		

@@ -61,7 +61,7 @@ src_patch() {
 	pushd $SRC_DIR/$P_V > /dev/null
 	if [ -f post-patch.marker ]
 	then
-		echo -n "--> Executed"
+		echo "--> Executed"
 	else
 		echo -n "--> Execute after patch..."
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-configure.ac configure.ac

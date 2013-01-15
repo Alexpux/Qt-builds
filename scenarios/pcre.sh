@@ -61,7 +61,7 @@ src_patch() {
 	pushd $SRC_DIR/$P_V > /dev/null
 	if [ -f pre-configure.marker ]
 	then
-		echo -n "--> Executed"
+		echo "--> Executed"
 	else
 		echo -n "--> Execute after patch..."
 		libtoolize --copy --force > execute.log 2>&1

@@ -111,7 +111,7 @@ src_configure() {
 	pushd $BUILD_DIR/$P-$QT5_VERSION > /dev/null
 	if [ -f configure.marker ]
 	then
-		echo n "--> configured"
+		echo "--> configured"
 	else
 		echo -n "--> configure..."
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/$P-$QT5_VERSION $SRC_DIR/$P_V )
