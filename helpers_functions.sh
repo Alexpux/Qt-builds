@@ -45,9 +45,9 @@ toolchains_prepare() {
 	pushd $TOOLCHAINS_DIR > /dev/null
 	if [ -f toolchains.marker ]
 	then
-		echo "--> Prepared"
+		echo "-> Toolchains prepared"
 	else
-		echo "--> Prepare toolchains..."
+		echo "-> Prepare toolchains..."
 
 		if ! [ -f download_mingw32.marker ]
 		then
@@ -75,6 +75,7 @@ toolchains_prepare() {
 
 		if ! [ -f unpack_mingw32.marker ]
 		then
+			echo -n "--> Unpack mingw32 toolchain"
 			local _unpack32_cmd="7za x $SRC_DIR/x32-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw32_unpack.log 2>&1"
 			eval ${_unpack32_cmd}
 			func_res=$?
@@ -90,6 +91,7 @@ toolchains_prepare() {
 
 		if ! [ -f unpack_mingw64.marker ]
 		then
+			echo -n "--> Unpack mingw64 toolchain"
 			local _unpack64_cmd="7za x $SRC_DIR/x64-4.7.2-release-posix-sjlj-rev7.7z -o$TOOLCHAINS_DIR > $TOOLCHAINS_DIR/mingw64_unpack.log 2>&1"
 			eval ${_unpack64_cmd}
 			func_res=$?
@@ -102,7 +104,7 @@ toolchains_prepare() {
 				die "Error unpack mingw64 toolchain"
 			}
 		fi
-		echo "done"
+		echo "--> Preparing done"
 	fi
 	touch toolchains.marker
 	popd > /dev/null
