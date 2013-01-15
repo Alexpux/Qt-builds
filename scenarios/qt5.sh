@@ -44,7 +44,6 @@ DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 change_paths() {
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QT5DIR/databases/firebird/include:$QT5DIR/databases/mysql/include/mysql:$QT5DIR/databases/pgsql/include"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QT5DIR/databases/firebird/lib:$QT5DIR/databases/mysql/lib:$QT5DIR/databases/pgsql/lib"
-	export DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
 	OLD_PATH=$PATH
 	export PATH=$BUILD_DIR/$P/$P_V/gnuwin32/bin:$BUILD_DIR/$P/$P_V/qtbase/bin:$MINGW_PART_PATH:$PREFIX/perl/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
@@ -52,7 +51,6 @@ change_paths() {
 restore_paths() {
 	unset INCLUDE
 	unset LIB
-	unset DXSDK_DIR
 	export PATH=$OLD_PATH
 	unset OLD_PATH
 }
