@@ -60,7 +60,8 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT5_VERSION
 }
 
 src_patch() {
@@ -81,12 +82,13 @@ src_patch() {
 	)
 	
 	func_apply_patches \
-		$P_V \
-		_patches[@]
+		$P-$QT5_VERSION \
+		_patches[@] \
+		$BUILD_DIR
 		
-	touch $SRC_DIR/$P_V/qtbase/.gitignore
+	touch $BUILD_DIR/$P-$QT5_VERSION/qtbase/.gitignore
 	
-	pushd $SRC_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
+	pushd $BUILD_DIR/$P-$QT5_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
 			rm -f qmake.conf
@@ -105,7 +107,6 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/$P-$QT5_VERSION
 	pushd $BUILD_DIR/$P-$QT5_VERSION > /dev/null
 	if [ -f configure.marker ]
 	then
@@ -118,11 +119,10 @@ src_configure() {
 		} || {
 			_opengl="-angle"
 		}
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/$P-$QT5_VERSION $SRC_DIR/$P_V )
 	
 		change_paths
 	
-		$PREFIX/perl/bin/perl $_rel_path/configure \
+		$PREFIX/perl/bin/perl configure \
 			-prefix $QT5DIR_WIN \
 			-opensource \
 			-confirm-license \
@@ -155,7 +155,7 @@ pkg_build() {
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
 		# Workaround for
 		# https://bugreports.qt-project.org/browse/QTBUG-28845
-		pushd $SRC_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
+		pushd $BUILD_DIR/$P-$QT5_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
 		if [ -f workaround.marker ]
 		then
 			echo "--> Workaround applied"

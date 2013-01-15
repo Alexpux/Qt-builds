@@ -215,22 +215,26 @@ function func_uncompress {
 	# $2 - ext
 	# $3 - src dir name
 
+	local _src_dir=$SRC_DIR
+	[[ "x$3" != "x" ]] && {
+		_src_dir=$3
+	}
 	local _result=0
 	local _unpack_cmd
-	local _marker_name=$SRC_DIR/$1-unpack.marker
-	local _log_name=$SRC_DIR/$1-unpack.log
+	local _marker_name=$_src_dir/$1-unpack.marker
+	local _log_name=$_src_dir/$1-unpack.log
 
 	[[ $2 == .tar.gz || $2 == .tgz || $2 == .tar.bz2 || $2 == .tar.lzma \
 	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z ]] && {
 		[[ ! -f $_marker_name ]] && {
 			echo -n "--> unpack..."
 			case $2 in
-				.tar.gz|.tgz) _unpack_cmd="tar xvf $SRC_DIR/$1$2 -C $SRC_DIR > $_log_name 2>&1" ;;
-				.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$1$2 -C $SRC_DIR > $_log_name 2>&1" ;;
-				.tar.lzma) _unpack_cmd="tar xvJf $SRC_DIR/$1$2 -C $SRC_DIR > $_log_name 2>&1" ;;
-				.tar.xz) _unpack_cmd="tar -xv --xz -f $SRC_DIR/$1$2 -C $SRC_DIR > $_log_name 2>&1" ;;
+				.tar.gz|.tgz) _unpack_cmd="tar xvf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
+				.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
+				.tar.lzma) _unpack_cmd="tar xvJf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
+				.tar.xz) _unpack_cmd="tar -xv --xz -f $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.7z) echo "unimplemented. terminate."; exit 1 ;;
-				.7z) _unpack_cmd="7za x $SRC_DIR/$1$2 -o$SRC_DIR > $_log_name 2>&1" ;;
+				.7z) _unpack_cmd="7za x $SRC_DIR/$1$2 -o$_src_dir > $_log_name 2>&1" ;;
 				*) echo " error. bad archive type: $2"; return 1 ;;
 			esac
 			eval ${_unpack_cmd}
@@ -250,6 +254,12 @@ function func_uncompress {
 function func_apply_patches {
 	# $1 - src dir name
 	# $2 - patches list
+	# $3 - sources directory
+	
+	local _src_dir=$SRC_DIR
+	[[ "x$3" != "x" ]] && {
+		_src_dir=$3
+	}
 	
 	local _result=0
 	_index=0
@@ -257,7 +267,7 @@ function func_apply_patches {
 	[[ ${#_list[@]} == 0 ]] && return 0
 
 	((_index=${#_list[@]}-1))
-	[[ -f $SRC_DIR/$1/_patch-$_index.marker ]] && {
+	[[ -f $_src_dir/$1/_patch-$_index.marker ]] && {
 		echo "---> patched"
 		return 0
 	}
@@ -268,10 +278,10 @@ function func_apply_patches {
 	}
 
 	for it in ${_list[@]} ; do
-		local _patch_marker_name=$SRC_DIR/$1/_patch-$_index.marker
+		local _patch_marker_name=$_src_dir/$1/_patch-$_index.marker
 
 		[[ ! -f $_patch_marker_name ]] && {
-			( cd $SRC_DIR/$1 && patch -p1 < $PATCH_DIR/${it} > $SRC_DIR/$1/patch-$_index.log 2>&1 )
+			( cd $_src_dir/$1 && patch -p1 < $PATCH_DIR/${it} > $_src_dir/$1/patch-$_index.log 2>&1 )
 			_result=$?
 			[[ $_result == 0 ]] && {
 				touch $_patch_marker_name
