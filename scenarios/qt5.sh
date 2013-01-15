@@ -112,6 +112,12 @@ src_configure() {
 		echo "--> configured"
 	else
 		echo -n "--> configure..."
+		local _opengl
+		[[ $USE_OPENGL_DESKTOP == yes ]] && {
+			_opengl="-opengl desktop"
+		} || {
+			_opengl="-angle"
+		}
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/$P-$QT5_VERSION $SRC_DIR/$P_V )
 	
 		change_paths
@@ -131,7 +137,7 @@ src_configure() {
 			-system-pcre \
 			-system-zlib \
 			-openssl \
-			-opengl desktop \
+			$_opengl \
 			-platform win32-g++ \
 			-nomake tests \
 			-nomake examples \
@@ -146,6 +152,22 @@ src_configure() {
 
 pkg_build() {
 	change_paths
+	[[ $USE_OPENGL_DESKTOP == no ]] && {
+		# Workaround for
+		# https://bugreports.qt-project.org/browse/QTBUG-28845
+		pushd $SRC_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
+		if [ -f workaround.marker ]
+		then
+			echo "--> Workaround applied"
+		else
+			echo -n "--> Applying workaround..."
+			qmake libGLESv2.pro
+			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
+			echo " done"
+			touch workaround.marker
+		fi
+		popd > /dev/null
+	} 
 	
 	local _make_flags=(
 		${MAKE_OPTS}

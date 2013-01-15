@@ -74,6 +74,9 @@ MAKE_OPTS="-j3"
 STATIC_LINK_FLAGS="--enable-static --disable-shared"
 SHARED_LINK_FLAGS="--enable-shared --disable-static"
 
+# Build Qt5 with "-opengl desktop"
+USE_OPENGL_DESKTOP=no
+
 mkdir -p $PREFIX_TOP $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR
 
 export INSTALL=/bin/install
@@ -100,6 +103,7 @@ while [[ $# > 0 ]]; do
 	case $1 in
 		--buildroot=*) ROOT_DIR=${1/--buildroot=/} ;;
 		--install-top=*) PREFIX_TOP=${1/--install-top=/} ;;
+		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
