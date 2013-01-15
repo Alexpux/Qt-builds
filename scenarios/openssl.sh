@@ -76,12 +76,17 @@ src_configure() {
 	unset SCRIPTS
 	unset CROSS_COMPILE
 	
-	cp -rf $SRC_DIR/$P_V $BUILD_DIR/build-$P_V
+	if ! [ -d $BUILD_DIR/build-$P_V ]
+	then
+		cp -rf $SRC_DIR/$P_V $BUILD_DIR/build-$P_V
+	fi
+	
 	pushd $BUILD_DIR/build-$P_V > /dev/null
 	if [ -f configure.marker ]
 	then
-		echo "--> Executed"
+		echo "--> configured"
 	else
+		echo -n "--> configure..."
 		sh Configure --prefix=${PREFIX} \
 			shared \
 			threads \
@@ -95,6 +100,7 @@ src_configure() {
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || exit 1
 		
 		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch
+		echo " done"
 	fi
 	touch configure.marker
 	unset TOOLSET
