@@ -35,6 +35,9 @@
 
 # **************************************************************************
 
+MINGW_BUILDS_VERSION="Qt-builds-0.1.0"
+BUG_URL=https://github.com/Alexpux/Qt-builds
+
 ORIGINAL_PATH=$PATH
 LOGVIEWER="c:/progra~2/notepad++/notepad++.exe"
 SHOW_LOG_ON_ERROR=yes
@@ -85,6 +88,7 @@ RUN_ARGS="$@"
 	echo "    --buildroot=<path>     - specifies the build root directory"
 	echo "    --install-top          - specifies the top installation directory"
 	echo "    --opengl-desktop       - build Qt with opengl=desktop"
+	echo "    --version              - pring the version of the Qt-builds scripts"
 
 	exit 0
 }
@@ -116,6 +120,7 @@ while [[ $# > 0 ]]; do
 		--buildroot=*) ROOT_DIR=${1/--buildroot=/} ;;
 		--install-top=*) PREFIX_TOP=${1/--install-top=/} ;;
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
+		--version)echo $QT_BUILDS_VERSION; exit 0 ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
