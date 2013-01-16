@@ -54,21 +54,17 @@ src_configure() {
 	else
 		echo -n "--> configure..."
 		
-		local PERL_PREFIX=$PREFIX_WIN/perl
-		local DRV=`expr substr $PERL_PREFIX 1 2`
-		local NOTDRV=${PERL_PREFIX#$DRV}
+		local DRV=`expr substr $MINGW_PERL_PREFIX_W 1 2`
+		local NOTDRV=${MINGW_PERL_PREFIX_W#$DRV}
 		NOTDRV=$(echo $NOTDRV | sed 's|/|\\\\|g')
 		local MINGWHOME_WIN_P=$(echo $MINGWHOME_WIN | sed 's|/|\\\\|g')
 
 		local COMMA=
-		local EXTRA=
-		#local WIN_SYS=
+		local EXTRA=$MINGWHOME_WIN/$TARGET/lib
 		[[ $ARCHITECTURE == x32 ]] && {
-			COMMA=""
-			EXTRA=$MINGWHOME_WIN/i686-w64-mingw32/lib
+			COMMA=""	
 		} || {
 			COMMA="#"
-			EXTRA=$MINGWHOME_WIN/x86_64-w64-mingw32/lib
 		}
 		EXTRA=$(echo $EXTRA | sed 's|/|\\\\|g')
 		

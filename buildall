@@ -207,6 +207,9 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	export PREFIX_WIN=`pwd -W`
 	popd > /dev/null
 	
+	MINGW_PERL_PREFIX=$PREFIX/perl
+	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
+	
 	pushd ${QT5DIR} > /dev/null
 	export QT5DIR_WIN=`pwd -W`
 	popd > /dev/null
