@@ -106,8 +106,11 @@ src_patch() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	mkdir -p ${QT5DIR}/databases
-	cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QT5DIR}/databases/
+	if ! [ -d ${QT5DIR}/databases ]
+	then
+		mkdir -p ${QT5DIR}/databases
+		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QT5DIR}/databases/
+	fi
 }
 
 src_configure() {
