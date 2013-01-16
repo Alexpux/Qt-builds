@@ -103,6 +103,7 @@ src_configure() {
 		echo " done"
 	fi
 	touch configure.marker
+	popd > /dev/null
 	unset TOOLSET
 }
 
