@@ -84,7 +84,6 @@ pkg_build() {
 
 pkg_install() {
 	local _install_flags=(
-		${MAKE_OPTS}
 		INSTALL_ROOT=${QT5DIR}
 		install
 	)
