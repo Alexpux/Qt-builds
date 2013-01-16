@@ -61,7 +61,7 @@ src_patch() {
 
 src_configure() {
 	mkdir -p $BUILD_DIR/build-${P_V}
-	pushd $BUILD_DIR/build-${P_V}
+	pushd $BUILD_DIR/build-${P_V} > /dev/null
 	
 	local _rel_path=$( func_absolute_to_relative $BUILD_DIR/build-${P_V} $SRC_DIR/$P_V ) 
 	${QT5DIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
@@ -91,11 +91,19 @@ pkg_install() {
 	local _allinstall="${_install_flags[@]}"
 	func_make \
 		build-${P_V} \
-		"/bin/make" \
+		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-
-	for i in ${QT5DIR}/bin/*.a ; \
-        do cp -f ${i} ${QT5DIR}/lib/; done
+	
+	if [ -f $BUILD_DIR/build-$P_V/post-install.marker ]
+	then
+		echo "--> Executed"
+	else
+		echo -n "--> Execute after install..."
+		for i in ${QT5DIR}/bin/*.a ; \
+        	do cp -f ${i} ${QT5DIR}/lib/; done
+		echo " done"
+		touch $BUILD_DIR/build-$P_V/post-install.marker
+	fi
 }
