@@ -1,4 +1,4 @@
-The scripts provided by the Qt-builds project are designed for building Qt-5.x with MinGW compiler.
+The scripts provided by the Qt-builds project are designed for building Qt-5.x and Qt-Creator with MinGW compiler from MinGW-builds[2] project.
 
 The scripts are distributed under the 'BSD 3' license[1].
 
@@ -19,7 +19,15 @@ In order to use the scripts provided by the Qt-builds project it is needed:
 6. Go into the Qt-builds root directory.
   "cd && cd Qt-builds"
 
-7. Run:
+7. Build script has next parameters:
+  The '--buildroot=<path>' option specifies to the script to use '<path>' as build directory.
+    By default used scripts work subdirectory.
+  The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
+  The '--opengl-desktop' option specifies to the script to build Qt with '-opengl desktop' option.
+    By default used '-angle' option.
+  For all available options please run: "./buildall --help"
+
+8. Run:
   "./buildall x32" - for building 32-bit Qt
   "./buildall x64" - for building 64-bit Qt
   "./buildall x32 x64" - for building both 32 and 64 bits Qt
@@ -33,3 +41,4 @@ building 32-bit Qt and installing Qt into C:/QtSDK/Qt5-x32.
  
 
 [1] http://www.opensource.org/licenses/BSD-3-Clause
+[2] https://sourceforge.net/projects/mingwbuilds
