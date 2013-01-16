@@ -61,7 +61,11 @@ src_download() {
 
 src_unpack() {
 	func_uncompress $P_V ".tar.gz" $BUILD_DIR
-	mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT5_VERSION
+
+	if [ -d $BUILD_DIR/$P_V ]
+	then 
+		mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT5_VERSION
+	fi
 }
 
 src_patch() {
