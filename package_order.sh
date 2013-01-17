@@ -57,6 +57,6 @@ PACKAGES=(
 	gettext
 	freetype
 	fontconfig
-	qt5
+	qt5-$QT5_VERSION
 	qt-creator
 )
