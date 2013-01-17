@@ -154,7 +154,7 @@ done
 	die "you can't build 64-bit programs using 32-bit OS. terminate."
 }
 
-[[ ! -f $SCENARIOS/qt-${QT5_VERSION}.sh ]] && {
+[[ ! -f $SCENARIOS/qt5-${QT5_VERSION}.sh ]] && {
 	die "Can't find script to build version $QT5_VERSION of Qt5."
 }
 
