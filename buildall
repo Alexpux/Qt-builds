@@ -102,8 +102,6 @@ mkdir -p $PREFIX_TOP $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR
 export INSTALL=/bin/install
 
 source helpers_functions.sh
-source versions.sh
-source package_order.sh
 
 [[ -d /mingw ]] && {
 	echo "please remove \"/mingw\" directory. terminate."
@@ -163,6 +161,9 @@ toolchains_prepare
 [[ ! -d $x32_HOST_MINGW_PATH || ! -d $x64_HOST_MINGW_PATH ]] && {
 	die "Host toolchains is not installed. Terminate!"
 }
+
+source versions.sh
+source package_order.sh
 
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
