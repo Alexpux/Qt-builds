@@ -75,7 +75,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$BUILD_DIR/${P_V}-${QT_VERSION} \
+		${P_V}-${QT_VERSION} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -89,7 +89,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$BUILD_DIR/${P_V}-${QT_VERSION} \
+		${P_V}-${QT_VERSION} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
