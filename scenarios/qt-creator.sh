@@ -103,6 +103,6 @@ pkg_install() {
 		for i in ${QTDIR}/bin/*.a ; \
         	do cp -f ${i} ${QTDIR}/lib/; done
 		echo " done"
-		touch $BUILD_DIR/build-$P_V/post-install.marker
+		touch $BUILD_DIR/${P_V}-${QT_VERSION}/post-install.marker
 	fi
 }
