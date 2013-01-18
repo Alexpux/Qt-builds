@@ -52,6 +52,9 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/mingw-gcc47.patch
+		$P/fix-capitalisation-for-mingw-w64-cross-compile.patch
+		$P/android-allow-both-toolbox-and-busybox-as-ps.patch
+		$P/android-adb-use-qprocess-kill-rather-than-terminate.patch
 	)
 	
 	func_apply_patches \
