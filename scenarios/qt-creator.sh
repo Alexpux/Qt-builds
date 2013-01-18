@@ -60,10 +60,10 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/build-${P_V}
-	pushd $BUILD_DIR/build-${P_V} > /dev/null
+	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
+	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
 	
-	local _rel_path=$( func_absolute_to_relative $BUILD_DIR/build-${P_V} $SRC_DIR/$P_V ) 
+	local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/$P_V ) 
 	${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
 		> ${LOG_DIR}/${P_V}-configure.log 2>&1 || exit 1
 	popd > /dev/null
@@ -75,7 +75,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		$BUILD_DIR/${P_V}-${QT_VERSION} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -89,13 +89,13 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		$BUILD_DIR/${P_V}-${QT_VERSION} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
 	
-	if [ -f $BUILD_DIR/build-$P_V/post-install.marker ]
+	if [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/post-install.marker ]
 	then
 		echo "--> Executed"
 	else
