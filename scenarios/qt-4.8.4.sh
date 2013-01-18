@@ -89,7 +89,7 @@ src_patch() {
 		_patches[@] \
 		$BUILD_DIR
 	
-	pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
+	pushd $BUILD_DIR/$P-$QT_VERSION/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
 			rm -f qmake.conf

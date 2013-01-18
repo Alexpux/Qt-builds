@@ -1,5 +1,5 @@
---- src/sql/drivers/ibase/qsql_ibase.pri.orig	2012-04-06 09:19:46 +0400
-+++ src/sql/drivers/ibase/qsql_ibase.pri	2012-04-04 09:35:31 +0400
+--- a/src/sql/drivers/ibase/qsql_ibase.pri	2012-04-06 09:19:46 +0400
++++ b/src/sql/drivers/ibase/qsql_ibase.pri	2012-04-04 09:35:31 +0400
 @@ -6,6 +6,6 @@
  } else {
      !contains(LIBS, .*gds.*):!contains(LIBS, .*fbclient.*) {
