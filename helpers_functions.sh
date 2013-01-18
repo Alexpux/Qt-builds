@@ -73,7 +73,7 @@ toolchains_prepare() {
 			echo "--> Moved"
 		else
 			echo -n "--> Move $TOOLCHAINS_DIR/mingw to $TOOLCHAINS_DIR/mingw32..."
-			mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32 || die "Cannot move mingw->mingw32"
+			mv -f $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32 || die "Cannot move mingw->mingw32"
 			echo " done"
 			touch $TOOLCHAINS_DIR/mingw32-move.marker
 		fi
@@ -88,7 +88,7 @@ toolchains_prepare() {
 			echo "--> Moved"
 		else
 			echo -n "--> Move $TOOLCHAINS_DIR/mingw to $TOOLCHAINS_DIR/mingw64..."
-			mv $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64 || die "Cannot move mingw->mingw64"
+			mv -f $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64 || die "Cannot move mingw->mingw64"
 			echo " done"
 			touch $TOOLCHAINS_DIR/mingw64-move.marker
 		fi

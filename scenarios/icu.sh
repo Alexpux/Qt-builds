@@ -54,7 +54,7 @@ src_unpack() {
 		echo "--> Moved"
 	else
 		echo -n "--> Move icu to $P_V..."
-		mv $P/* $P_V/
+		mv -f $P/* $P_V/
 		echo "done"
 	fi
 	touch $P_V/post-unpack.marker
