@@ -35,7 +35,7 @@
 
 # **************************************************************************
 
-P=qt5
+P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.gz"
 URL=http://releases.qt-project.org/digia/${QT_VERSION}/latest/single/$SRC_FILE
@@ -70,11 +70,11 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/06-use-fbclient-instead-of-gds32.patch
-		$P/08-build-under-msys.patch
-		#$P/09-mingw-gcc-4.7.2.patch
-		$P/010-win32-g++-mkspec.patch
-		$P/012-qt5-webkit-pkgconfig-link-windows.patch
+		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
+		$P/5.0.x/qt-5.0.0-build-under-msys.patch
+		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
+		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
+		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
 	)
 	
 	func_apply_patches \

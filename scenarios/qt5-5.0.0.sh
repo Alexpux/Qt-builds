@@ -35,7 +35,7 @@
 
 # **************************************************************************
 
-P=qt5
+P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.gz"
 URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
@@ -70,19 +70,19 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/01-ANGLE-always-use-DEF_FILE-on-Windows.patch
-		$P/02-ANGLE-fix-typedefs.patch
-		$P/03-ANGLE-fix-linking-on-mingw.patch
-		$P/031-ANGLE-fix-linking-on-mingw64.patch
-		$P/04-fix-undefined-reference-to-JSC-JSCell-classinfo-with-mingw.patch
-		$P/05-fix-math-pow-implementation-for-mingw-w64.patch
-		$P/06-use-fbclient-instead-of-gds32.patch
-		$P/07-qtwebkit-fix-libxml2-test.patch
-		$P/08-build-under-msys.patch
-		#$P/09-mingw-gcc-4.7.2.patch
-		$P/010-win32-g++-mkspec.patch
-		$P/011-fix-linking-order.patch
-		$P/012-qt5-webkit-pkgconfig-link-windows.patch
+		$P/5.0.x/qt-5.0.0-ANGLE-always-use-DEF_FILE-on-Windows.patch
+		$P/5.0.x/qt-5.0.0-ANGLE-fix-typedefs-for-win64.patch
+		$P/5.0.x/qt-5.0.0-ANGLE-fix-linking-on-mingw_w64-32.patch
+		$P/5.0.x/qt-5.0.0-ANGLE-fix-linking-on-mingw_w64-64.patch
+		$P/5.0.x/qt-5.0.0-fix-undefined-reference-to-JSC-JSCell-classinfo-with-mingw.patch
+		$P/5.0.x/qt-5.0.0-fix-math-pow-implementation-for-mingw_w64.patch
+		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
+		$P/5.0.x/qt-5.0.0-build-under-msys.patch
+		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
+		$P/5.0.x/qt-5.0.0-webkit-fix-libxml2-test.patch
+		$P/5.0.x/qt-5.0.0-webkit-fix-linking-order.patch
+		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
+		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch		
 	)
 	
 	func_apply_patches \
