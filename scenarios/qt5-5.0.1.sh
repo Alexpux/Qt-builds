@@ -36,16 +36,16 @@
 # **************************************************************************
 
 P=qt5
-P_V=qt-everywhere-opensource-src-${QT5_VERSION}
+P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.gz"
-URL=http://releases.qt-project.org/digia/${QT5_VERSION}/latest/single/$SRC_FILE
+URL=http://releases.qt-project.org/digia/${QT_VERSION}/latest/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
-	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QT5DIR/databases/firebird/include:$QT5DIR/databases/mysql/include/mysql:$QT5DIR/databases/pgsql/include"
-	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QT5DIR/databases/firebird/lib:$QT5DIR/databases/mysql/lib:$QT5DIR/databases/pgsql/lib"
+	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
+	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT5_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT5_VERSION/qtbase/bin:$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
 
 restore_paths() {
@@ -64,7 +64,7 @@ src_unpack() {
 
 	if [ -d $BUILD_DIR/$P_V ]
 	then 
-		mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT5_VERSION
+		mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT_VERSION
 	fi
 }
 
@@ -78,13 +78,13 @@ src_patch() {
 	)
 	
 	func_apply_patches \
-		$P-$QT5_VERSION \
+		$P-$QT_VERSION \
 		_patches[@] \
 		$BUILD_DIR
 		
-	touch $BUILD_DIR/$P-$QT5_VERSION/qtbase/.gitignore
+	touch $BUILD_DIR/$P-$QT_VERSION/qtbase/.gitignore
 	
-	pushd $BUILD_DIR/$P-$QT5_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
+	pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
 			rm -f qmake.conf
@@ -98,15 +98,15 @@ src_patch() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	if ! [ -d ${QT5DIR}/databases ]
+	if ! [ -d ${QTDIR}/databases ]
 	then
-		mkdir -p ${QT5DIR}/databases
-		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QT5DIR}/databases/
+		mkdir -p ${QTDIR}/databases
+		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
 	fi
 }
 
 src_configure() {
-	pushd $BUILD_DIR/$P-$QT5_VERSION > /dev/null
+	pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 	if [ -f configure.marker ]
 	then
 		echo "--> configured"
@@ -122,7 +122,7 @@ src_configure() {
 		change_paths
 	
 		$PREFIX/perl/bin/perl configure \
-			-prefix $QT5DIR_WIN \
+			-prefix $QTDIR_WIN \
 			-opensource \
 			-confirm-license \
 			-debug-and-release \
@@ -154,7 +154,7 @@ pkg_build() {
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
 		# Workaround for
 		# https://bugreports.qt-project.org/browse/QTBUG-28845
-		pushd $BUILD_DIR/$P-$QT5_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
+		pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
 		if [ -f workaround.marker ]
 		then
 			echo "--> Workaround applied"
@@ -173,7 +173,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT5_VERSION \
+		$P-$QT_VERSION \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -191,7 +191,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P-$QT5_VERSION \
+		$P-$QT_VERSION \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \

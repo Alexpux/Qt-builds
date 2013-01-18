@@ -39,7 +39,7 @@ P=qt-creator
 P_V=${P}-${QT_CREATOR_VERSION}-src
 SRC_FILE="${P_V}.tar.gz"
 URL=http://releases.qt-project.org/qtcreator/${QT_CREATOR_VERSION}/${SRC_FILE}
-DEPENDS=(qt5)
+DEPENDS=(qt)
 
 src_download() {
 	func_download $P_V ".tar.gz" $URL
@@ -64,7 +64,7 @@ src_configure() {
 	pushd $BUILD_DIR/build-${P_V} > /dev/null
 	
 	local _rel_path=$( func_absolute_to_relative $BUILD_DIR/build-${P_V} $SRC_DIR/$P_V ) 
-	${QT5DIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
+	${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
 		> ${LOG_DIR}/${P_V}-configure.log 2>&1 || exit 1
 	popd > /dev/null
 }
@@ -84,7 +84,7 @@ pkg_build() {
 
 pkg_install() {
 	local _install_flags=(
-		INSTALL_ROOT=${QT5DIR}
+		INSTALL_ROOT=${QTDIR}
 		install
 	)
 	local _allinstall="${_install_flags[@]}"
@@ -100,8 +100,8 @@ pkg_install() {
 		echo "--> Executed"
 	else
 		echo -n "--> Execute after install..."
-		for i in ${QT5DIR}/bin/*.a ; \
-        	do cp -f ${i} ${QT5DIR}/lib/; done
+		for i in ${QTDIR}/bin/*.a ; \
+        	do cp -f ${i} ${QTDIR}/lib/; done
 		echo " done"
 		touch $BUILD_DIR/build-$P_V/post-install.marker
 	fi

@@ -1,4 +1,4 @@
-The scripts provided by the Qt-builds project are designed for building Qt-5.x and Qt-Creator with MinGW compiler from MinGW-builds[2] project.
+The scripts provided by the Qt-builds project are designed for building Qt and Qt-Creator with MinGW compiler from MinGW-builds[2] project.
 
 The scripts are distributed under the 'BSD 3' license[1].
 
@@ -24,7 +24,10 @@ In order to use the scripts provided by the Qt-builds project it is needed:
     By default used scripts work subdirectory.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
   The '--opengl-desktop' option specifies to the script to build Qt with '-opengl desktop' option.
-    By default used '-angle' option.
+    Affected only Qt-5.x versions. By default used '-angle' option.
+  The '--qt-version=<version>' option specifies which version of Qt to build.
+    If not specified the default (hardcoded in script) version is builded.
+  The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 
 8. Run:
@@ -32,12 +35,12 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   "./buildall x64" - for building 64-bit Qt
   "./buildall x32 x64" - for building both 32 and 64 bits Qt
 
-By default Qt installing in "C:/SDK/Qt5-x{32,64}" and 3rdparty libraries in "C:/SDK/ported-x{32,64}".
+By default Qt installing in "C:/SDK/Qt{32,64}-<version>" and 3rdparty libraries in "C:/SDK/ported{32,64}".
 You may change install location by pass "--install-top=$DIRECTORY" to build script.
 
 For example:
 ./buildall --install-top=C:/QtSDK x32
-building 32-bit Qt and installing Qt into C:/QtSDK/Qt5-x32.
+building 32-bit Qt and installing Qt into C:/QtSDK/Qt32-<version>.
  
 
 [1] http://www.opensource.org/licenses/BSD-3-Clause

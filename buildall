@@ -77,8 +77,8 @@ MAKE_OPTS="-j3"
 STATIC_LINK_FLAGS="--enable-static --disable-shared"
 SHARED_LINK_FLAGS="--enable-shared --disable-static"
 
-# Default Qt5 version to build
-QT5_VERSION="5.0.0"
+# Default Qt version to build
+QT_VERSION="5.0.0"
 
 # Build Qt5 with "-opengl desktop"
 USE_OPENGL_DESKTOP=no
@@ -90,8 +90,8 @@ RUN_ARGS="$@"
 	echo "  help:"
 	echo "    --buildroot=<path>      - specifies the build root directory"
 	echo "    --install-top           - specifies the top installation directory"
-	echo "    --opengl-desktop        - build Qt with opengl=desktop"
-	echo "    --qt5-version=<version> - specifies the Qt5 version to build"
+	echo "    --opengl-desktop        - build Qt with opengl=desktop (for Qt-5.x only)"
+	echo "    --qt-version=<version>  - specifies the Qt version to build"
 	echo "    --version               - pring the version of the Qt-builds scripts"
 
 	exit 0
@@ -122,7 +122,7 @@ while [[ $# > 0 ]]; do
 		--buildroot=*) ROOT_DIR=${1/--buildroot=/} ;;
 		--install-top=*) PREFIX_TOP=${1/--install-top=/} ;;
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
-		--qt5-version=*) QT5_VERSION=${1/--qt5-version=/} ;;
+		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
@@ -152,8 +152,8 @@ done
 	die "you can't build 64-bit programs using 32-bit OS. terminate."
 }
 
-[[ ! -f $SCENARIOS/qt5-${QT5_VERSION}.sh ]] && {
-	die "Can't find script to build version $QT5_VERSION of Qt5."
+[[ ! -f $SCENARIOS/qt-${QT_VERSION}.sh ]] && {
+	die "Can't find script to build version $QT_VERSION of Qt."
 }
 
 toolchains_prepare
@@ -167,8 +167,8 @@ source package_order.sh
 
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
-	PREFIX=${PREFIX_TOP}/ported-$ARCHITECTURE
-	QT5DIR=${PREFIX_TOP}/Qt5-$ARCHITECTURE
+	PREFIX=${PREFIX_TOP}/ported${ARCHITECTURE//x/}
+	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-$QT_VERSION
 	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE
 	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE
 
@@ -181,7 +181,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 			echo "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
 			exit 1
 		}
-		MINGW_PART_PATH=$PREFIX/bin:$x32_HOST_MINGW_PATH/bin:$x32_HOST_MINGW_PATH/opt/bin:$QT5DIR/bin
+		MINGW_PART_PATH=$PREFIX/bin:$x32_HOST_MINGW_PATH/bin:$x32_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
 		MINGWHOME=$x32_HOST_MINGW_PATH
 	} || {
 		HOST=x86_64-w64-mingw32
@@ -192,7 +192,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 			echo "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
 			exit 1
 		}
-		MINGW_PART_PATH=$PREFIX/bin:$x64_HOST_MINGW_PATH/bin:$x64_HOST_MINGW_PATH/opt/bin:$QT5DIR/bin
+		MINGW_PART_PATH=$PREFIX/bin:$x64_HOST_MINGW_PATH/bin:$x64_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
 		MINGWHOME=$x64_HOST_MINGW_PATH
 		
 	}
@@ -203,13 +203,13 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	popd > /dev/null
 	
 	export PYTHONHOME=$MINGWHOME_WIN/opt
-	mkdir -p $BUILD_DIR $QT5DIR $LOG_DIR $PREFIX
+	mkdir -p $BUILD_DIR $QTDIR $LOG_DIR $PREFIX
 	
 	HOST_CFLAGS="$OPTIM -pipe -O2 -fomit-frame-pointer"
 	HOST_CXXFLAGS="${HOST_CFLAGS}"
 	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
 	HOST_LDFLAGS="-pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
-	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QT5DIR}/lib/pkgconfig"
+	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QTDIR}/lib/pkgconfig"
 
 	pushd ${PREFIX} > /dev/null
 	export PREFIX_WIN=`pwd -W`
@@ -218,8 +218,8 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	MINGW_PERL_PREFIX=$PREFIX/perl
 	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
 	
-	pushd ${QT5DIR} > /dev/null
-	export QT5DIR_WIN=`pwd -W`
+	pushd ${QTDIR} > /dev/null
+	export QTDIR_WIN=`pwd -W`
 	popd > /dev/null
 	
 	echo "-> Start building"
