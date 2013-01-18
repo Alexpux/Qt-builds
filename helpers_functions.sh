@@ -140,12 +140,19 @@ function func_download {
 	local _marker_name=$SRC_DIR/$1/download.marker
 
 	local _lib_name=$SRC_DIR/$1
+	local _filename=$(basename $3)
+	
 	# [[ $3 == cvs || $3 == svn || $3 == hg || $3 == git ]] && {
 		# local _lib_name=$1/$2
 	# } || {
 		# local _lib_name=$1/$2$3
 	# }
 	[[ ! -f $_marker_name ]] && {
+		[[ -f $SRC_DIR/$_filename ]] && {
+			echo -n "--> Delete corrupted download..."
+			rm -f $SRC_DIR/$_filename
+			echo " done"
+		}
 		mkdir -p $SRC_DIR/$1
 		pushd $SRC_DIR > /dev/null
 		echo -n "--> download $1 ..."
