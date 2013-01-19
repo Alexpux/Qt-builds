@@ -71,7 +71,7 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
-		$P/5.0.x/qt-5.0.0-build-under-msys.patch
+		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
 		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
