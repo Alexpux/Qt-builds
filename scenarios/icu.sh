@@ -54,7 +54,7 @@ src_unpack() {
 		echo "--> Moved"
 	else
 		echo -n "--> Move icu to $P_V..."
-		mv -f $P/* $P_V/
+		mv -f $P $P_V
 		echo "done"
 	fi
 	touch $P_V/post-unpack.marker
@@ -99,7 +99,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure build-$P_V $P_V/source "$_allconf"
+	func_configure $P_V $P_V/source "$_allconf"
 }
 
 pkg_build() {
@@ -108,7 +108,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -122,13 +122,13 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
 
-	if [ -f $BUILD_DIR/build-$P_V/post-install.marker ]
+	if [ -f $BUILD_DIR/$P_V/post-install.marker ]
 	then
 		echo "--> Executed"
 	else
@@ -136,6 +136,6 @@ pkg_install() {
 		for i in ${PREFIX}/lib/*.dll ; \
 			do cp -f ${i} ${PREFIX}/bin/; done
 		echo " done"
-		touch $BUILD_DIR/build-$P_V/post-install.marker
+		touch $BUILD_DIR/$P_V/post-install.marker
 	fi
 }

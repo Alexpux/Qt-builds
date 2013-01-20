@@ -76,12 +76,12 @@ src_configure() {
 	unset SCRIPTS
 	unset CROSS_COMPILE
 	
-	if ! [ -d $BUILD_DIR/build-$P_V ]
+	if ! [ -d $BUILD_DIR/$P_V ]
 	then
-		cp -rf $SRC_DIR/$P_V $BUILD_DIR/build-$P_V
+		cp -rf $SRC_DIR/$P_V $BUILD_DIR/
 	fi
 	
-	pushd $BUILD_DIR/build-$P_V > /dev/null
+	pushd $BUILD_DIR/$P_V > /dev/null
 	if [ -f configure.marker ]
 	then
 		echo "--> configured"
@@ -114,7 +114,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -125,7 +125,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -139,7 +139,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \

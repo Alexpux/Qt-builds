@@ -55,7 +55,7 @@ src_patch() {
 
 src_configure() {
 	local _conf_flags=(
-		--prefix=${PREFIX_WIN}
+		--prefix=${MINGW_RUBY_PREFIX_W}
 		--host=${HOST}
 		${SHARED_LINK_FLAGS}
 		--disable-rpath
@@ -64,7 +64,7 @@ src_configure() {
 		CPPFLAGS="\"-DFD_SETSIZE=2048 -I${PREFIX_WIN}/include -I${PREFIX_WIN}/include/ncurses\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure build-$P_V $P_V "$_allconf"
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
@@ -73,7 +73,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -87,7 +87,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \

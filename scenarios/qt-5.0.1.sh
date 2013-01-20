@@ -45,7 +45,7 @@ change_paths() {
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
 
 restore_paths() {

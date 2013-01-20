@@ -52,7 +52,7 @@ export PATH=$MSYS_PART_PATH:$WINDOWS_PART_PATH
 
 # directories
 TOP_DIR=`pwd`
-PREFIX_TOP=/c/SDK
+PREFIX_TOP=/c/QtSDK
 SRC_DIR=${TOP_DIR}/src
 MARKERS_DIR=${SRC_DIR}/markers
 PATCH_DIR=${TOP_DIR}/patches
@@ -93,6 +93,8 @@ RUN_ARGS="$@"
 	echo "    --opengl-desktop        - build Qt with opengl=desktop (for Qt-5.x only)"
 	echo "    --qt-version=<version>  - specifies the Qt version to build"
 	echo "    --version               - pring the version of the Qt-builds scripts"
+	echo "  Available Qt versions:"
+	echo "    4.8.4, 5.0.0, 5.0.1"
 
 	exit 0
 }
@@ -181,7 +183,6 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 			echo "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
 			exit 1
 		}
-		MINGW_PART_PATH=$PREFIX/bin:$x32_HOST_MINGW_PATH/bin:$x32_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
 		MINGWHOME=$x32_HOST_MINGW_PATH
 	} || {
 		HOST=x86_64-w64-mingw32
@@ -192,47 +193,53 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 			echo "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
 			exit 1
 		}
-		MINGW_PART_PATH=$PREFIX/bin:$x64_HOST_MINGW_PATH/bin:$x64_HOST_MINGW_PATH/opt/bin:$QTDIR/bin
 		MINGWHOME=$x64_HOST_MINGW_PATH
-		
 	}
-	export PATH=$MINGW_PART_PATH:$PATH
-	
+
 	pushd $MINGWHOME > /dev/null
 	MINGWHOME_WIN=`pwd -W`
 	popd > /dev/null
-	
-	export PYTHONHOME=$MINGWHOME_WIN/opt
+
 	mkdir -p $BUILD_DIR $QTDIR $LOG_DIR $PREFIX
+
+	pushd ${PREFIX} > /dev/null
+	export PREFIX_WIN=`pwd -W`
+	popd > /dev/null
+
+	MINGW_PERL_PREFIX=$PREFIX/perl
+	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
+
+	MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
+	MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
 	
+	MINGW_RUBY_PREFIX=$PREFIX/ruby
+	MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
+
+	export PYTHONHOME=$MINGWHOME_WIN/opt
+	MINGW_PART_PATH=$PREFIX/bin:$MINGW_PERL_PREFIX/bin:$MINGW_PYTHON2_PREFIX/bin:$MINGW_RUBY_PREFIX/bin:$QTDIR/bin:$MINGWHOME/bin
+	export PATH=$MINGW_PART_PATH:$PATH
+
 	HOST_CFLAGS="$OPTIM -pipe -O2 -fomit-frame-pointer"
 	HOST_CXXFLAGS="${HOST_CFLAGS}"
 	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
 	HOST_LDFLAGS="-pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
 	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QTDIR}/lib/pkgconfig"
 
-	pushd ${PREFIX} > /dev/null
-	export PREFIX_WIN=`pwd -W`
-	popd > /dev/null
-	
-	MINGW_PERL_PREFIX=$PREFIX/perl
-	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
-	
 	pushd ${QTDIR} > /dev/null
 	export QTDIR_WIN=`pwd -W`
 	popd > /dev/null
-	
+
 	echo "-> Start building"
-	
+
 	for sub in ${PACKAGES[@]}; do
 		echo -e "-> \E[32;40m$sub\E[37;40m"
 		[[ ! -f $SCENARIOS/$sub.sh ]] && {
 			echo "script for subtarget \"$sub\" is not exists. terminate."
 			exit 1
 		}
-		
+
 		source ${SCENARIOS}/${sub}.sh
-		
+
 		src_download
 		src_unpack
 		src_patch

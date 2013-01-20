@@ -45,7 +45,7 @@ change_paths() {
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
 
 restore_paths() {
@@ -77,7 +77,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-undefined-reference-to-JSC-JSCell-classinfo-with-mingw.patch
 		$P/5.0.x/qt-5.0.0-fix-math-pow-implementation-for-mingw_w64.patch
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
-		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
+		$P/5.0.x/qt-5.0.0-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-fix-libxml2-test.patch
 		$P/5.0.x/qt-5.0.0-webkit-fix-linking-order.patch

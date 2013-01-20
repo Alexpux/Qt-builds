@@ -9,7 +9,7 @@ DEPENDS=(dmake)
 
 change_paths() {
 	OLD_PATH=$PATH
-	export PATH=$PREFIX/bin:$MINGWHOME/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
 
 restore_paths() {
@@ -93,7 +93,7 @@ pkg_build() {
 	else
 		echo "--> Building..."
 		change_paths
-		dmake || exit 1
+		$MINGW_PERL_PREFIX_W/bin/dmake || die "Error building PERL"
 		restore_paths
 		echo "done"
 	fi
@@ -111,7 +111,7 @@ pkg_install() {
 	else
 		echo "--> Installing..."
 		change_paths
-		dmake install || exit 1
+		$MINGW_PERL_PREFIX_W/bin/dmake install || die "Error installing PERL"
 		restore_paths
 		echo "done"
 	fi

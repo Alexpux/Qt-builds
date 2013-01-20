@@ -69,7 +69,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure build-$P_V $P_V "$_allconf"
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
@@ -78,7 +78,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -92,7 +92,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \

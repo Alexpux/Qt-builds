@@ -89,7 +89,7 @@ src_configure() {
 	)
 	local _allconf="${_conf_flags[@]}"
 	export lt_cv_deplibs_check_method='pass_all'
-	func_configure build-$P_V $P_V "$_allconf"
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
@@ -98,7 +98,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -112,7 +112,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \

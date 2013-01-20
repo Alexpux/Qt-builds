@@ -8,6 +8,7 @@ In order to use the scripts provided by the Qt-builds project it is needed:
 
 2. Install MSYS:
   http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/
+  Recommended version is rev9 or higher.
 
 3. Get the scripts into '<msys root>/home/<user>/Qt-builds':
   "cd && git clone git://github.com/Alexpux/Qt-builds.git"
@@ -35,12 +36,12 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   "./buildall x64" - for building 64-bit Qt
   "./buildall x32 x64" - for building both 32 and 64 bits Qt
 
-By default Qt installing in "C:/SDK/Qt{32,64}-<version>" and 3rdparty libraries in "C:/SDK/ported{32,64}".
+By default Qt installing in "C:/QtSDK/Qt{32,64}-<version>" and 3rdparty libraries in "C:/QtSDK/ported{32,64}".
 You may change install location by pass "--install-top=$DIRECTORY" to build script.
 
 For example:
-./buildall --install-top=C:/QtSDK x32
-building 32-bit Qt and installing Qt into C:/QtSDK/Qt32-<version>.
+./buildall --install-top=C:/SDK x32
+building 32-bit Qt and installing Qt into C:/SDK/Qt32-<version>.
  
 
 [1] http://www.opensource.org/licenses/BSD-3-Clause

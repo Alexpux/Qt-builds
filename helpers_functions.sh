@@ -136,8 +136,8 @@ function func_download {
 	local _WGET_TRIES=10
 	local _WGET_WAIT=2
 	local _result=0
-	local _log_name=$SRC_DIR/$1/download.log
-	local _marker_name=$SRC_DIR/$1/download.marker
+	local _log_name=$MARKERS_DIR/$1-download.log
+	local _marker_name=$MARKERS_DIR/$1-download.marker
 
 	local _lib_name=$SRC_DIR/$1
 	local _filename=$(basename $3)
@@ -153,7 +153,6 @@ function func_download {
 			rm -f $SRC_DIR/$_filename
 			echo " done"
 		}
-		mkdir -p $SRC_DIR/$1
 		pushd $SRC_DIR > /dev/null
 		echo -n "--> download $1 ..."
 		case $2 in
@@ -221,8 +220,8 @@ function func_uncompress {
 	}
 	local _result=0
 	local _unpack_cmd
-	local _marker_name=$_src_dir/$1-unpack.marker
-	local _log_name=$_src_dir/$1-unpack.log
+	local _marker_name=$MARKERS_DIR/$1-unpack.marker
+	local _log_name=$MARKERS_DIR/$1-unpack.log
 
 	[[ $2 == .tar.gz || $2 == .tgz || $2 == .tar.bz2 || $2 == .tar.lzma \
 	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z ]] && {

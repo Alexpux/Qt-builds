@@ -60,14 +60,14 @@ src_patch() {
 
 src_configure() {
 	local _conf_flags=(
-		--prefix=${PREFIX}
+		--prefix=${MINGW_PERL_PREFIX}
 		--host=${HOST}
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure build-$P_V $P_V "$_allconf"
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
@@ -76,7 +76,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -90,10 +90,10 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		build-${P_V} \
+		${P_V} \
 		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-	cp -rf $PREFIX/share/startup $PREFIX/bin/
+	cp -rf $MINGW_PERL_PREFIX/share/startup $MINGW_PERL_PREFIX/bin/
 }
