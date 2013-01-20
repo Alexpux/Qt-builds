@@ -65,10 +65,13 @@ src_patch() {
 src_configure() {
 	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
 	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
-	
-	local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/$P_V ) 
-	${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
-		> ${LOG_DIR}/${P_V}-configure.log 2>&1 || exit 1
+	if ! [ -f configure.marker ]
+	then
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/$P_V ) 
+		${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
+			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
+		touch configure.marker
+	fi
 	popd > /dev/null
 }
 
