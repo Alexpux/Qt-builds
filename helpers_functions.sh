@@ -215,13 +215,15 @@ function func_uncompress {
 	# $3 - src dir name
 
 	local _src_dir=$SRC_DIR
+	local _marker_location=$MARKERS_DIR
 	[[ "x$3" != "x" ]] && {
 		_src_dir=$3
+		_marker_location=$3
 	}
 	local _result=0
 	local _unpack_cmd
-	local _marker_name=$MARKERS_DIR/$1-unpack.marker
-	local _log_name=$MARKERS_DIR/$1-unpack.log
+	local _marker_name=$_marker_location/$1-unpack.marker
+	local _log_name=$_marker_location/$1-unpack.log
 
 	[[ $2 == .tar.gz || $2 == .tgz || $2 == .tar.bz2 || $2 == .tar.lzma \
 	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z ]] && {

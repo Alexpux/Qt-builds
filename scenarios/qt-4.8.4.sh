@@ -45,7 +45,7 @@ change_paths() {
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
 	OLD_PATH=$PATH
-	export PATH=$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$MINGW_PART_PATH:$BUILD_DIR/$P-$QT_VERSION/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
 
 restore_paths() {
@@ -137,6 +137,17 @@ src_configure() {
 			-platform win32-g++-4.6 \
 			-nomake demos \
 			-nomake examples \
+			-I $MINGWHOME/$HOST/include \
+			-I $PREFIX/include \
+			-I $PREFIX/include/libxml2 \
+			-I $QTDIR/databases/firebird/include \
+			-I $QTDIR/databases/mysql/include/mysql \
+			-I $QTDIR/databases/pgsql/include \
+			-L $MINGWHOME/$HOST/lib \
+			-L $PREFIX/lib \
+			-L $QTDIR/databases/firebird/lib \
+			-L $QTDIR/databases/mysql/lib \
+			-L $QTDIR/databases/pgsql/lib \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || exit 1
 	
 		restore_paths
@@ -149,7 +160,19 @@ src_configure() {
 }
 
 pkg_build() {
-	
+	# Workaround for QtWebkit linking
+	pushd $BUILD_DIR/$P-$QT_VERSION/src/3rdparty/webkit/Source/WebKit/qt/declarative > /dev/null
+	if [ -f workaround.marker ]
+	then
+		echo "--> Workaround applied"
+	else
+		echo -n "--> Applying workaround..."
+		$BUILD_DIR/$P-$QT_VERSION/bin/qmake declarative.pro || die "QMake failed"
+		echo " done"
+		touch workaround.marker
+	fi
+	popd > /dev/null
+
 	local _make_flags=(
 		${MAKE_OPTS}
 	)
