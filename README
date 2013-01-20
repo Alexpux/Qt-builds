@@ -22,12 +22,14 @@ In order to use the scripts provided by the Qt-builds project it is needed:
 
 7. Build script has next parameters:
   The '--buildroot=<path>' option specifies to the script to use '<path>' as build directory.
-    By default used scripts work subdirectory.
+    By default used <SCRIPTS_DIR>/work.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
+    By default used "C:/QtSDK" directory.
   The '--opengl-desktop' option specifies to the script to build Qt with '-opengl desktop' option.
     Affected only Qt-5.x versions. By default used '-angle' option.
   The '--qt-version=<version>' option specifies which version of Qt to build.
     If not specified the default (hardcoded in script) version is builded.
+  The '--build-python' specifies to the script to build Python instead using prebuilded Python from MinGW-builds.
   The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 
