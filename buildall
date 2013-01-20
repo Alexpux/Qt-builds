@@ -131,7 +131,7 @@ while [[ $# > 0 ]]; do
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
-		--build-python) $USE_MINGWBUILDS_PYTHON=no ;;
+		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
