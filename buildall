@@ -72,6 +72,10 @@ DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
 URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/32-bit/threads-posix/sjlj/x32-4.7.2-release-posix-sjlj-rev8.7z
 URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/64-bit/threads-posix/sjlj/x64-4.7.2-release-posix-sjlj-rev8.7z
 
+# MinGW-builds contain prebuilded python in opt subdirectory.
+# Does we use mingw-builds python or build python yourself.
+USE_MINGWBUILDS_PYTHON=yes
+
 # Build Flags
 MAKE_OPTS="-j3"
 STATIC_LINK_FLAGS="--enable-static --disable-shared"
@@ -92,6 +96,7 @@ RUN_ARGS="$@"
 	echo "    --install-top           - specifies the top installation directory"
 	echo "    --opengl-desktop        - build Qt with opengl=desktop (for Qt-5.x only)"
 	echo "    --qt-version=<version>  - specifies the Qt version to build"
+	echo "    --build-python          - specifies to the script to build Python"
 	echo "    --version               - pring the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 5.0.0, 5.0.1"
@@ -126,6 +131,7 @@ while [[ $# > 0 ]]; do
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
+		--build-python) $USE_MINGWBUILDS_PYTHON=no ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
@@ -208,6 +214,14 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 	MINGW_PERL_PREFIX=$PREFIX/perl
 	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
+
+	[[ $USE_MINGWBUILDS_PYTHON == no ]] && {
+		MINGW_PYTHON2_PREFIX=$PREFIX/python2
+		MINGW_PYTHON2_PREFIX_W=$PREFIX_WIN/python2
+	} || {
+		MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
+		MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
+	}
 
 	MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
 	MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt

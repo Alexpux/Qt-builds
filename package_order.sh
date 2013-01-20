@@ -50,6 +50,9 @@ PACKAGES=(
 	libxml2
 	libxslt
 	openssl
+	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
+		&& echo "libffi python2" \
+	)
 	yaml
 	ruby
 	dmake

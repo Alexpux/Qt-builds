@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,31 +35,60 @@
 
 # **************************************************************************
 
-# Versions of packages
-export BZIP2_VERSION="1.0.6"
-export DMAKE_VERSION="4.12.2"
-export EXPAT_VERSION="2.1.0"
-export FONTCONFIG_VERSION="2.10.1"
-export FREETYPE_VERSION="2.4.11"
-export GETTEXT_VERSION="0.18.2"
-export GPERF_VERSION="3.0.4"
-export ICU_VERSION="50_1"
-export LIBFFI_VERSION="3.0.11"
-export LIBGNURX_VERSION="2.5.1"
-export LIBICONV_VERSION="1.14"
-export LIBXML2_VERSION="2.9.0"
-export LIBXSLT_VERSION="1.1.28"
-export LZO_VERSION="2.06"
-export NCURSES_VERSION="5.9"
-export OPENSSL_VERSION="1.0.1c"
-export PCRE_VERSION="8.32"
-export PERL_VERSION="5.16.2"
-export PKG_CONFIG_VERSION="0.27.1"
-export PYTHON2_VERSION="2.7.3"
-export QT_CREATOR_VERSION="2.6.1"
-export READLINE_VERSION="6.2"
-export RUBY_VERSION="1.9.3-p362"
-export SQLITE_VERSION="3071502" #3.7.15.2
-export XZ_TOOLS_VERSION="5.0.4"
-export YAML_VERSION="0.1.4"
-export ZLIB_VERSION="1.2.7"
+P=libffi
+P_V=${P}-${LIBFFI_VERSION}
+SRC_FILE="${P_V}.tar.gz"
+URL=ftp://sourceware.org/pub/libffi/libffi-${LIBFFI_VERSION}.tar.gz
+DEPENDS=()
+
+src_download() {
+	func_download $P_V ".tar.gz" $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V ".tar.gz"
+}
+
+src_patch() {
+	echo "--> Empty"
+}
+
+src_configure() {
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--host=${HOST}
+		${SHARED_LINK_FLAGS}
+		CFLAGS="\"${HOST_CFLAGS}\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf"
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
