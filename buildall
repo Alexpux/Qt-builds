@@ -76,6 +76,9 @@ URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/relea
 # Does we use mingw-builds python or build python yourself.
 USE_MINGWBUILDS_PYTHON=yes
 
+# Build Qt-Creator
+BUILD_QTCREATOR=yes
+
 # Build Flags
 MAKE_OPTS="-j3"
 STATIC_LINK_FLAGS="--enable-static --disable-shared"
@@ -100,6 +103,7 @@ RUN_ARGS="$@"
 	echo "    --qt-version=<version>  - specifies the Qt version to build"
 	echo "                              Default Qt version is 5.0.0"
 	echo "    --build-python          - specifies to the script to build Python"
+	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --version               - pring the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 5.0.0, 5.0.1"
@@ -135,6 +139,7 @@ while [[ $# > 0 ]]; do
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
 		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
+		--no-qtcreator) BUILD_QTCREATOR=no ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )

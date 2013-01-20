@@ -30,6 +30,7 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   The '--qt-version=<version>' option specifies which version of Qt to build.
     If not specified the default (hardcoded in script) version is builded.
   The '--build-python' specifies to the script to build Python instead using prebuilded Python from MinGW-builds.
+  The '--no-qtcreator' specifies to the script doesn't build Qt-Creator.
   The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 

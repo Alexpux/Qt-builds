@@ -65,5 +65,7 @@ PACKAGES=(
 	fontconfig
 	qt-$QT_VERSION
 	qbs
-	qt-creator
+	$( [[ $BUILD_QTCREATOR == yes ]] \
+		&& echo "qt-creator" \
+	)
 )
