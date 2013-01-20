@@ -161,6 +161,8 @@ src_configure() {
 
 pkg_build() {
 	# Workaround for QtWebkit linking
+	change_paths
+	
 	pushd $BUILD_DIR/$P-$QT_VERSION/src/3rdparty/webkit/Source/WebKit/qt/declarative > /dev/null
 	if [ -f workaround.marker ]
 	then
@@ -203,4 +205,115 @@ pkg_install() {
 		"installed"
 	
 	restore_paths
+	private_headers
+}
+
+private_headers() {
+	pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
+	if ! [ -f private_headers.marker ]
+	then
+		echo "--> Install private headers"
+
+		local PRIVATE_HEADERS=(
+			phonon
+			Qt3Support
+			QtCore
+			QtDBus
+			QtDeclarative
+			QtDesigner
+			QtGui
+			QtHelp
+			QtMeeGoGraphicsSystemHelper
+			QtMultimedia
+			QtNetwork
+			QtOpenGl
+			QtOpenVG
+			QtScript
+			QtScriptTools
+			QtSql
+			QtSvg
+			QtTest
+			QtUiTools
+			QtWebkit
+			QtXmlPatterns
+		)
+
+		for priv_headers in ${PRIVATE_HEADERS[@]}
+		do
+			mkdir -p ${QTDIR}/include/${priv_headers}
+			mkdir -p ${QTDIR}/include/${priv_headers}/private
+		done
+
+		echo "---> Qt3Support"
+		cp -rfv `find src/qt3support -type f -name "*_p.h"` ${QTDIR}/include/Qt3Support/private > priv_headers.log 2>&1
+		cp -rfv `find src/qt3support -type f -name "*_pch.h"` ${QTDIR}/include/Qt3Support/private >> priv_headers.log 2>&1
+
+		echo "---> QtCore"
+		cp -rfv `find src/corelib -type f -name "*_p.h"` ${QTDIR}/include/QtCore/private >> priv_headers.log 2>&1
+		cp -rfv `find src/corelib -type f -name "*_pch.h"` ${QTDIR}/include/QtCore/private >> priv_headers.log 2>&1
+
+		echo "---> QtDBus"
+		cp -rfv `find src/dbus -type f -name "*_p.h"` ${QTDIR}/include/QtDBus/private >> priv_headers.log 2>&1
+
+		echo "---> QtDeclarative"
+		cp -rfv `find src/declarative -type f -name "*_p.h"` ${QTDIR}/include/QtDeclarative/private >> priv_headers.log 2>&1
+
+		echo "---> QtDesigner"
+		cp -rfv `find tools/designer/src/lib -type f -name "*_p.h"` ${QTDIR}/include/QtDesigner/private >> priv_headers.log 2>&1
+		cp -rfv `find tools/designer/src/lib -type f -name "*_pch.h"` ${QTDIR}/include/QtDesigner/private >> priv_headers.log 2>&1
+
+		echo "---> QtGui"
+		cp -rfv `find src/gui -type f -name "*_p.h"` ${QTDIR}/include/QtGui/private >> priv_headers.log 2>&1
+		cp -rfv `find src/gui -type f -name "*_p.h"` ${QTDIR}/include/QtGui/private >> priv_headers.log 2>&1
+	
+		echo "---> QtHelp"
+		cp -rfv `find tools/assistant -type f -name "*_p.h"` ${QTDIR}/include/QtHelp/private >> priv_headers.log 2>&1
+
+		echo "---> QtMeeGoGraphicsSystemHelper"
+		cp -rfv `find tools/qmeegographicssystemhelper -type f -name "*_p.h"` ${QTDIR}/include/QtMeeGoGraphicsSystemHelper/private >> priv_headers.log 2>&1
+
+		echo "---> QtMultimedia"
+		cp -rfv `find src/multimedia -type f -name "*_p.h"` ${QTDIR}/include/QtMultimedia/private >> priv_headers.log 2>&1
+
+		echo "---> QtNetwork"
+		cp -rfv `find src/network -type f -name "*_p.h"` ${QTDIR}/include/QtNetwork/private >> priv_headers.log 2>&1
+
+		echo "---> QtOpenGl"
+		cp -rfv `find src/opengl -type f -name "*_p.h"` ${QTDIR}/include/QtOpenGl/private >> priv_headers.log 2>&1
+
+		echo "---> QtOpenVG"
+		cp -rfv `find src/openvg -type f -name "*_p.h"` ${QTDIR}/include/QtOpenVG/private >> priv_headers.log 2>&1
+
+		echo "---> QtScript"
+		cp -rfv `find src/script -type f -name "*_p.h"` ${QTDIR}/include/QtScript/private >> priv_headers.log 2>&1
+
+		echo "---> QtScriptTools"
+		cp -rfv `find src/scripttools -type f -name "*_p.h"` ${QTDIR}/include/QtScriptTools/private >> priv_headers.log 2>&1
+
+		echo "---> QtSql"
+		cp -rfv `find src/sql -type f -name "*_p.h"` ${QTDIR}/include/QtSql/private >> priv_headers.log 2>&1
+
+		echo "---> QtSvg"
+		cp -rfv `find src/svg -type f -name "*_p.h"` ${QTDIR}/include/QtSvg/private >> priv_headers.log 2>&1
+
+		echo "---> QtTest"
+		cp -rfv `find src/testlib -type f -name "*_p.h"` ${QTDIR}/include/QtTest/private >> priv_headers.log 2>&1
+
+		echo "---> QtUiTools"
+		cp -rfv `find tools/designer/src/uitools -type f -name "*_p.h"` ${QTDIR}/include/QtUiTools/private >> priv_headers.log 2>&1
+
+		echo "---> QtWebkit"
+		cp -rfv `find src/3rdparty/webkit -type f -name "*_p.h"` ${QTDIR}/include/QtWebkit/private >> priv_headers.log 2>&1
+
+		echo "---> QtXmlPatterns"
+		cp -rfv `find src/xmlpatterns -type f -name "*_p.h"` ${QTDIR}/include/QtXmlPatterns/private >> priv_headers.log 2>&1
+
+		echo "---> phonon"
+		cp -rfv `find src/3rdparty/phonon/phonon -type f -name "*_p.h"` ${QTDIR}/include/phonon/private >> priv_headers.log 2>&1
+	
+		echo "--> Done install private headers"
+		touch private_headers.marker
+	fi
+	popd > /dev/null
+touch install-${P_V}.marker
 }
