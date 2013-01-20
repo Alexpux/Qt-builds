@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,37 +35,82 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
+P=qbs
+P_V=${P}
+SRC_FILE=""
+URL=git://gitorious.org/qt-labs/qbs.git
+DEPENDS=()
+
+src_download() {
+	func_download $P_V "git" $URL
+}
+
+src_unpack() {
+	echo "--> Empty"
+}
+
+src_patch() {
+	local _patches=(
+		$P/0001-MinGW-w64-compilation-fix-for-CompileTimeAssert.patch
+		$P/0002-MinGW-w64-compile-fix.patch
 	)
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	pcre
-	expat
-	sqlite
-	icu
-	libiconv
-	libxml2
-	libxslt
-	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
+	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
+	if ! [ -f configure.marker ]
+	then
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/${P_V} ) 
+		${QTDIR}/bin/qmake.exe -r $_rel_path/qbs.pro CONFIG+=release \
+			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
+		touch configure.marker
+	fi
+	popd > /dev/null
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
+		release
 	)
-	yaml
-	ruby
-	dmake
-	perl 
-	gettext
-	freetype
-	fontconfig
-	qt-$QT_VERSION
-	qbs
-	qt-creator
-)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+		
+	# _make_flags=(
+		# ${MAKE_OPTS}
+		# docs
+	# )
+	# _allmake="${_make_flags[@]}"
+	# func_make \
+		# ${P_V}-${QT_VERSION} \
+		# "mingw32-make" \
+		# "$_allmake" \
+		# "building..." \
+		# "built" \
+		# "1"
+}
+
+pkg_install() {
+	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
+	if ! [ -f install.marker ]
+	then
+		echo -n "--> Installing..."
+		cp -rf bin/* $QTDIR/bin/ || die "Copy bin folder failed"
+		cp -rf lib/* $QTDIR/lib/ || die "Copy lib folder failed"
+		cp -rf plugins/* $QTDIR/plugins/ || die "Copy plugins folder failed"
+		cp -rf share/* $QTDIR/share/ || die "Copy plugins folder failed"
+		touch install.marker
+		echo " done"
+	fi
+	popd > /dev/null
+}

@@ -1,0 +1,32 @@
+From 739f2763f14460627b71e59ec28dbf047a9dec1e Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Sun, 20 Jan 2013 16:28:38 +0000
+Subject: [PATCH 2/2] MinGW-w64 compile fix.
+
+I had to split FileInfo::lastModified() into two lines to keep
+ MinGW-w64 GCC 4.7.2 happy.
+
+Change-Id: I4a22ec3cc1f88109f8b27c270ce953a3b8e16728
+---
+ src/lib/tools/fileinfo.cpp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib/tools/fileinfo.cpp b/src/lib/tools/fileinfo.cpp
+index be4d928..b37c498 100644
+--- a/src/lib/tools/fileinfo.cpp
++++ b/src/lib/tools/fileinfo.cpp
+@@ -223,8 +223,9 @@ bool FileInfo::exists() const
+ 
+ FileTime FileInfo::lastModified() const
+ {
+-    return FileTime(*reinterpret_cast<const FileTime::InternalType*>(
+-        &z(m_stat)->ftLastWriteTime));
++    const FileTime::InternalType* ft_it;
++    ft_it = reinterpret_cast<const FileTime::InternalType*>(&z(m_stat)->ftLastWriteTime);
++    return FileTime(*ft_it);
+ }
+ 
+ FileTime FileInfo::lastStatusChange() const
+-- 
+1.7.11.msysgit.1
+
