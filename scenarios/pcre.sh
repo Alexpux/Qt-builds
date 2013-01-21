@@ -67,8 +67,8 @@ src_patch() {
 		libtoolize --copy --force > execute.log 2>&1
 		autoreconf >> execute.log 2>&1
 		echo " done"
+		touch pre-configure.marker
 	fi
-	touch pre-configure.marker
 	popd > /dev/null
 }
 

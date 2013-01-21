@@ -45,7 +45,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V ".tar.gz" $BUILD_DIR
 }
 
 src_patch() {
@@ -61,7 +61,8 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@]
+		_patches[@] \
+		$BUILD_DIR
 }
 
 src_configure() {
@@ -75,11 +76,6 @@ src_configure() {
 	unset APPS
 	unset SCRIPTS
 	unset CROSS_COMPILE
-	
-	if ! [ -d $BUILD_DIR/$P_V ]
-	then
-		cp -rf $SRC_DIR/$P_V $BUILD_DIR/
-	fi
 	
 	pushd $BUILD_DIR/$P_V > /dev/null
 	if [ -f configure.marker ]
@@ -97,7 +93,7 @@ src_configure() {
 			enable-tlsext \
 			enable-rfc3779 \
 			${TOOLSET} \
-			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || exit 1
+			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "configure error!"
 		
 		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch
 		echo " done"

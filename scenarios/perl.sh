@@ -22,7 +22,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V ".tar.gz" $BUILD_DIR
 }
 
 src_patch() {
@@ -33,18 +33,14 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@]
+		_patches[@] \
+		$BUILD_DIR
 	
 	
-	cp $SRC_DIR/$P_V/win32/makefile.mk $SRC_DIR/$P_V/win32/makefile.mk.patched
+	cp -f $SRC_DIR/$P_V/win32/makefile.mk $SRC_DIR/$P_V/win32/makefile.mk.patched
 }
 
 src_configure() {
-	
-	if ! [ -d  $BUILD_DIR/$P_V/win32 ]
-	then
-		cp -rf $SRC_DIR/$P_V $BUILD_DIR/
-	fi
 	
 	pushd $BUILD_DIR/$P_V/win32 > /dev/null
 	
