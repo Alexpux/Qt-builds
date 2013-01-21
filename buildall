@@ -158,6 +158,11 @@ while [[ $# > 0 ]]; do
 	shift
 done		
 
+[[ ${#BUILD_ARCHITECTURES[@]} > 2 || ${#BUILD_ARCHITECTURES[@]} == 0 || \
+	${BUILD_ARCHITECTURES[0]} == ${BUILD_ARCHITECTURES[1]} ]] && {
+	die "error in build architectures(${BUILD_ARCHITECTURES[@]}). terminate."
+}
+
 [[ $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
 	IS_64BIT_HOST=yes
 } || {
