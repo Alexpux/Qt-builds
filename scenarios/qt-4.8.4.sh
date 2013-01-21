@@ -148,7 +148,8 @@ src_configure() {
 			-L $QTDIR/databases/firebird/lib \
 			-L $QTDIR/databases/mysql/lib \
 			-L $QTDIR/databases/pgsql/lib \
-			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || exit 1
+			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || $LOGVIEWER ${LOG_DIR}/${P_V}_configure.log &
+				die "Qt configure error"
 	
 		restore_paths
 		cp -rf mkspecs $QTDIR/
