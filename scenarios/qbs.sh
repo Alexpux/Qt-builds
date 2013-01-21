@@ -52,7 +52,6 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/0001-MinGW-w64-compilation-fix-for-CompileTimeAssert.patch
-		$P/0002-MinGW-w64-compile-fix.patch
 	)
 	
 	func_apply_patches \
