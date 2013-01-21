@@ -106,11 +106,12 @@ src_patch() {
 }
 
 src_configure() {
-	pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
-	if [ -f configure.marker ]
+
+	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
 	then
 		echo "--> configured"
 	else
+		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "--> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
@@ -144,9 +145,9 @@ src_configure() {
 	
 		restore_paths
 		echo " done"
+		touch configure.marker
+		popd > /dev/null
 	fi
-	touch configure.marker
-	popd > /dev/null
 }
 
 pkg_build() {

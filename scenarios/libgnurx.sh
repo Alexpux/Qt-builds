@@ -57,26 +57,23 @@ src_patch() {
 	func_apply_patches \
 		$P_V \
 		_patches[@]
-	
-	pushd $SRC_DIR/$P_V > /dev/null
-	if [ -f post-patch.marker ]
+
+	if ! [ -f $SRC_DIR/$P_V/post-patch.marker ]
 	then
-		echo "--> Executed"
-	else
+		pushd $SRC_DIR/$P_V > /dev/null
 		echo -n "--> Execute after patch..."
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-configure.ac configure.ac
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-Makefile.am Makefile.am
 		touch NEWS
 		touch AUTHORS
-	
 		libtoolize --copy > execute.log 2>&1
 		aclocal >> execute.log 2>&1
 		autoconf >> execute.log 2>&1
 		automake --add-missing >> execute.log 2>&1
 		echo " done"
+		touch post-patch.marker
+		popd > /dev/null
 	fi
-	touch post-patch.marker
-	popd > /dev/null
 }
 
 src_configure() {
@@ -117,6 +114,10 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-		
-	cp -f ${PREFIX}/lib/libgnurx.dll.a ${PREFIX}/lib/libregex.dll.a
+
+	if ! [ -f $BUILD_DIR/${P_V}/post-install.marker ]
+	then
+		cp -f ${PREFIX}/lib/libgnurx.dll.a ${PREFIX}/lib/libregex.dll.a
+		touch $BUILD_DIR/${P_V}/post-install.marker
+	fi
 }

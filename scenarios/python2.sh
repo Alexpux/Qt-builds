@@ -75,10 +75,10 @@ src_patch() {
 	func_apply_patches \
 		$P_V \
 		_patches[@]
-		
-	pushd $SRC_DIR/$P_V > /dev/null
-	if ! [ -f post-patch.marker ]
+
+	if ! [ -f $SRC_DIR/$P_V/post-patch.marker ]
 	then
+		pushd $SRC_DIR/$P_V > /dev/null
 		echo -n "--> Executing..."
 		rm -rf Modules/expat
 		rm -rf Modules/_ctypes/libffi*
@@ -96,10 +96,9 @@ src_patch() {
 		touch Python/Python-ast.c
 		echo \"\" > Parser/pgen.stamp
 		echo " done"
-		
 		touch post-patch.marker
+		popd > /dev/null
 	fi
-	popd > /dev/null
 }
 
 src_configure() {

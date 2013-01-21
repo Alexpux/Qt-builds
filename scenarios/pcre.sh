@@ -58,18 +58,16 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	pushd $SRC_DIR/$P_V > /dev/null
-	if [ -f pre-configure.marker ]
+	if ! [ -f $SRC_DIR/$P_V/pre-configure.marker ]
 	then
-		echo "--> Executed"
-	else
+		pushd $SRC_DIR/$P_V > /dev/null
 		echo -n "--> Execute after patch..."
 		libtoolize --copy --force > execute.log 2>&1
 		autoreconf >> execute.log 2>&1
 		echo " done"
 		touch pre-configure.marker
+		popd > /dev/null
 	fi
-	popd > /dev/null
 }
 
 src_configure() {

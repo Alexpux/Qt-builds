@@ -49,9 +49,7 @@ src_unpack() {
 	func_uncompress $P_V ".tgz"
 	
 	pushd $SRC_DIR > /dev/null
-	if [ -f $P_V/post-unpack.marker ]
-	then
-		echo "--> Moved"
+	if ! [ -f $P_V/post-unpack.marker ]
 	else
 		echo -n "--> Move icu to $P_V..."
 		mv -f $P $P_V
@@ -78,10 +76,8 @@ src_patch() {
 
 src_configure() {
 	pushd $SRC_DIR/$P_V/source > /dev/null
-	if [ -f pre-configure.marker ]
+	if ! [ -f pre-configure.marker ]
 	then
-		echo "--> Executed"
-	else
 		echo -n "--> Execute before configure..."
 		autoconf --force > execute.log 2>&1
 		echo " done"
@@ -128,10 +124,8 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if [ -f $BUILD_DIR/$P_V/post-install.marker ]
+	if ! [ -f $BUILD_DIR/$P_V/post-install.marker ]
 	then
-		echo "--> Executed"
-	else
 		echo -n "--> Execute after install..."
 		for i in ${PREFIX}/lib/*.dll ; \
 			do cp -f ${i} ${PREFIX}/bin/; done

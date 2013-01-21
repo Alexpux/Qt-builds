@@ -76,12 +76,12 @@ src_configure() {
 	unset APPS
 	unset SCRIPTS
 	unset CROSS_COMPILE
-	
-	pushd $BUILD_DIR/$P_V > /dev/null
-	if [ -f configure.marker ]
+
+	if [ -f $BUILD_DIR/$P_V/configure.marker ]
 	then
 		echo "--> configured"
 	else
+		pushd $BUILD_DIR/$P_V > /dev/null
 		echo -n "--> configure..."
 		sh Configure --prefix=${PREFIX} \
 			shared \
@@ -97,9 +97,9 @@ src_configure() {
 		
 		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch
 		echo " done"
+		touch configure.marker
+		popd > /dev/null
 	fi
-	touch configure.marker
-	popd > /dev/null
 	unset TOOLSET
 }
 

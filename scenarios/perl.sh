@@ -36,18 +36,18 @@ src_patch() {
 		_patches[@] \
 		$BUILD_DIR
 	
-	
-	cp -f $SRC_DIR/$P_V/win32/makefile.mk $SRC_DIR/$P_V/win32/makefile.mk.patched
+	if ! [ -f $SRC_DIR/$P_V/win32/makefile.mk.patched ]
+		cp -f $SRC_DIR/$P_V/win32/makefile.mk $SRC_DIR/$P_V/win32/makefile.mk.patched
+	fi
 }
 
 src_configure() {
-	
-	pushd $BUILD_DIR/$P_V/win32 > /dev/null
-	
-	if [ -f configure.marker ]
+
+	if [ -f $BUILD_DIR/$P_V/win32/configure.marker ]
 	then
 		echo "--> configured"
 	else
+		pushd $BUILD_DIR/$P_V/win32 > /dev/null
 		echo -n "--> configure..."
 		
 		local DRV=`expr substr $MINGW_PERL_PREFIX_W 1 2`
@@ -73,45 +73,41 @@ src_configure() {
 		rm -f makefile.mk
 		mv makefile.tmp makefile.mk
 		echo " done"
+		touch configure.marker
+		popd > /dev/null
 	fi
-	touch configure.marker
-	
-	popd > /dev/null
 }
 
 pkg_build() {
-	
-	pushd $BUILD_DIR/$P_V/win32 > /dev/null
-	
-	if [ -f make.marker ]
+
+	if [ -f $BUILD_DIR/$P_V/win32/make.marker ]
 	then
 		echo "--> Builded"
 	else
+		pushd $BUILD_DIR/$P_V/win32 > /dev/null
 		echo "--> Building..."
 		change_paths
 		$MINGW_PERL_PREFIX_W/bin/dmake || die "Error building PERL"
 		restore_paths
 		echo "done"
+		touch make.marker
+		popd > /dev/null
 	fi
-	touch make.marker
-	
-	popd > /dev/null
 }
 
 pkg_install() {
-	pushd $BUILD_DIR/$P_V/win32 > /dev/null
-	
-	if [ -f install.marker ]
+
+	if [ -f $BUILD_DIR/$P_V/win32/install.marker ]
 	then
 		echo "--> Installed"
 	else
+		pushd $BUILD_DIR/$P_V/win32 > /dev/null
 		echo "--> Installing..."
 		change_paths
 		$MINGW_PERL_PREFIX_W/bin/dmake install || die "Error installing PERL"
 		restore_paths
 		echo "done"
+		touch install.marker
+		popd > /dev/null
 	fi
-	touch install.marker
-	
-	popd > /dev/null
 }

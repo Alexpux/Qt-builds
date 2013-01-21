@@ -50,7 +50,7 @@ src_unpack() {
 }
 
 src_patch() {
-	echo "--> Empty"
+	echo "--> Patch empty"
 }
 
 src_configure() {

@@ -73,7 +73,7 @@ src_configure() {
 	# )
 	# local _allconf="${_conf_flags[@]}"
 	# func_configure $P_V $P_V "$_allconf"
-	echo "--> Empty"
+	echo "--> Configure empty"
 }
 
 pkg_build() {
@@ -95,9 +95,9 @@ pkg_build() {
 		"building..." \
 		"built"
 
-	pushd $BUILD_DIR/$P_V > /dev/null
-	if ! [ -f pkgconfig.marker ]
+	if ! [ -f $BUILD_DIR/$P_V/pkgconfig.marker ]
 	then
+		pushd $BUILD_DIR/$P_V > /dev/null
 		sed \
 			-e 's|@prefix@|'${PREFIX}'|g' \
 			-e 's|@exec_prefix@|${prefix}|g' \
@@ -107,8 +107,8 @@ pkg_build() {
 			-e 's|@VERSION@|'${ZLIB_VERSION}'|g' \
 			zlib.pc.in > zlib.pc || die "SED error"
 		touch pkgconfig.marker
+		popd > /dev/null
 	fi
-	popd > /dev/null
 }
 
 pkg_install() {
@@ -128,10 +128,10 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if ! [ -f pkg_install.marker ]
+	if ! [ -f $BUILD_DIR/$P_V/pkg_install.marker ]
 	then
 		cp -f $BUILD_DIR/$P_V/zlib.pc ${PREFIX}/lib/pkgconfig/
 		rm -f ${PREFIX}/lib/libz.a
-		touch pkg_install.marker
+		touch $BUILD_DIR/$P_V/pkg_install.marker
 	fi
 }

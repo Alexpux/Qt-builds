@@ -63,17 +63,15 @@ src_patch() {
 }
 
 src_configure() {
-	pushd $SRC_DIR/$P_V > /dev/null
-	if [ -f pre-configure.marker ]
+	if ! [ -f $SRC_DIR/$P_V/pre-configure.marker ]
 	then
-		echo "--> Executed"
-	else
+		pushd $SRC_DIR/$P_V > /dev/null
 		echo -n "--> Execute before configure..."
 		./autogen.sh > execute.log 2>&1
 		echo " done"
+		touch pre-configure.marker
+		popd > /dev/null
 	fi
-	touch pre-configure.marker
-	popd > /dev/null
 	
 	local _conf_flags=(
 		--prefix=${PREFIX}

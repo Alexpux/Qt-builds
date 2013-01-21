@@ -46,7 +46,7 @@ src_download() {
 }
 
 src_unpack() {
-	echo "--> Empty"
+	echo "--> Unpack empty"
 }
 
 src_patch() {
@@ -101,9 +101,10 @@ pkg_build() {
 }
 
 pkg_install() {
-	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
-	if ! [ -f install.marker ]
+
+	if ! [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/install.marker ]
 	then
+		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
 		echo -n "--> Installing..."
 		cp -rf bin/* $QTDIR/bin/ || die "Copy bin folder failed"
 		cp -rf lib/* $QTDIR/lib/ || die "Copy lib folder failed"
@@ -111,6 +112,6 @@ pkg_install() {
 		cp -rf share/* $QTDIR/share/ || die "Copy plugins folder failed"
 		touch install.marker
 		echo " done"
+		popd > /dev/null
 	fi
-	popd > /dev/null
 }

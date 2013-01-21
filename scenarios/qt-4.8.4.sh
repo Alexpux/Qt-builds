@@ -111,15 +111,15 @@ src_patch() {
 }
 
 src_configure() {
-	pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
-	if [ -f configure.marker ]
+
+	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
 	then
 		echo "--> configured"
 	else
+		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "--> configure..."
-	
 		change_paths
-	
+
 		configure.exe \
 			-prefix $QTDIR_WIN \
 			-opensource \
@@ -153,10 +153,9 @@ src_configure() {
 		restore_paths
 		cp -rf mkspecs $QTDIR/
 		echo " done"
+		touch configure.marker
+		popd > /dev/null
 	fi
-	touch configure.marker
-	
-	popd > /dev/null
 }
 
 pkg_build() {
@@ -209,9 +208,10 @@ pkg_install() {
 }
 
 private_headers() {
-	pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
-	if ! [ -f private_headers.marker ]
+
+	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/private_headers.marker ]
 	then
+		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo "--> Install private headers"
 
 		local PRIVATE_HEADERS=(
@@ -310,10 +310,9 @@ private_headers() {
 
 		echo "---> phonon"
 		cp -rfv `find src/3rdparty/phonon/phonon -type f -name "*_p.h"` ${QTDIR}/include/phonon/private >> priv_headers.log 2>&1
-	
+
 		echo "--> Done install private headers"
 		touch private_headers.marker
+		popd > /dev/null
 	fi
-	popd > /dev/null
-touch install-${P_V}.marker
 }
