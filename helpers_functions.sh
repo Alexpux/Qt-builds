@@ -54,6 +54,7 @@ get_filename_extension() {
 
 # **************************************************************************
 
+# install toolchains
 toolchains_prepare() {
 
 	pushd $TOOLCHAINS_DIR > /dev/null
@@ -128,8 +129,7 @@ function func_download {
 	# $4 - revision
 
 	[[ -z $3 ]] && {
-		echo "URL is empty. terminate."
-		exit 1
+		die "URL is empty. terminate."
 	}
 
 	local _WGET_TIMEOUT=5
@@ -199,9 +199,8 @@ function func_download {
 			echo " done"
 			touch $_marker_name
 		} || {
-			echo " error!"
 			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
-			exit $_result
+			die " error $_result!"
 		}
 	} || {
 		echo "---> downloaded"
@@ -234,9 +233,9 @@ function func_uncompress {
 				.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.lzma) _unpack_cmd="tar xvJf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.xz) _unpack_cmd="tar -xv --xz -f $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
-				.tar.7z) echo "unimplemented. terminate."; exit 1 ;;
+				.tar.7z) die "unimplemented. terminate." ;;
 				.7z) _unpack_cmd="7za x $SRC_DIR/$1$2 -o$_src_dir > $_log_name 2>&1" ;;
-				*) echo " error. bad archive type: $2"; return 1 ;;
+				*) die " error. bad archive type: $2" ;;
 			esac
 			eval ${_unpack_cmd}
 			_result=$?
@@ -244,9 +243,8 @@ function func_uncompress {
 				echo " done"
 				touch $_marker_name
 			} || {
-				echo " error!"
 				[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
-				exit $_result
+				die " error $_result!"
 			}
 		} || {
 			echo "---> unpacked"
@@ -303,9 +301,8 @@ function func_apply_patches {
 	[[ $_result == 0 ]] && {
 		echo "done"
 	} || {
-		echo "error!"
 		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/$1/patch-$_index.log &
-		exit $_result
+		die " error $_result!"
 	}
 }
 
@@ -330,9 +327,8 @@ function func_configure {
 			echo " done"
 			touch $_marker
 		} || {
-			echo " error!"
 			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
-			exit $_result
+			die " error $_result!"
 		}
 	} || {
 		echo "---> configured"
@@ -363,15 +359,12 @@ function func_make {
 			echo " done"
 			touch $_marker
 		} || {
-			echo " error!"
 			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
-			exit $_result
+			die " error $_result!"
 		}
 	} || {
 		echo "---> $5"
 	}
 }
-
-# **************************************************************************
 
 # **************************************************************************

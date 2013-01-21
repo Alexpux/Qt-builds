@@ -118,8 +118,7 @@ export INSTALL=/bin/install
 source helpers_functions.sh
 
 [[ -d /mingw ]] && {
-	echo "please remove \"/mingw\" directory. terminate."
-	exit 1
+	die "please remove \"/mingw\" directory. terminate."
 }
 
 [[ -n $(which "gcc.exe" 2>/dev/null) || \
@@ -127,8 +126,7 @@ source helpers_functions.sh
 	-n $(which "i686-w64-mingw32-gcc.exe" 2>/dev/null) || \
 	-n $(which "x86_64-w64-mingw32-gcc.exe" 2>/dev/null) \
 ]] && {
-	echo "remove from PATH any existing MinGW directory. terminate."
-	exit 1
+	die "remove from PATH any existing MinGW directory. terminate."
 }
 
 while [[ $# > 0 ]]; do
@@ -151,8 +149,7 @@ while [[ $# > 0 ]]; do
 		
 		*)
 			echo "bad command line: \"$1\""
-			echo "terminate."
-			exit 1
+			die "terminate."
 		;;
 	esac
 	shift
@@ -199,8 +196,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 		TARGET=i686-w64-mingw32
 		OPTIM="-march=i686 -mtune=core2"
 		[[ ! -f $x32_HOST_MINGW_PATH/bin/gcc.exe ]] && {
-			echo "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
-			exit 1
+			die "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
 		}
 		MINGWHOME=$x32_HOST_MINGW_PATH
 	} || {
@@ -209,8 +205,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 		TARGET=x86_64-w64-mingw32
 		OPTIM="-march=nocona -mtune=core2"
 		[[ ! -f $x64_HOST_MINGW_PATH/bin/gcc.exe ]] && {
-			echo "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
-			exit 1
+			die "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
 		}
 		MINGWHOME=$x64_HOST_MINGW_PATH
 	}
@@ -258,8 +253,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	for sub in ${PACKAGES[@]}; do
 		echo -e "-> \E[32;40m$sub\E[37;40m"
 		[[ ! -f $SCENARIOS/$sub.sh ]] && {
-			echo "script for subtarget \"$sub\" is not exists. terminate."
-			exit 1
+			die "script for subtarget \"$sub\" is not exists. terminate."
 		}
 
 		source ${SCENARIOS}/${sub}.sh
