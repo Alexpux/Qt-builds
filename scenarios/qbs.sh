@@ -105,6 +105,7 @@ pkg_install() {
 	then
 		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
 		echo -n "--> Installing..."
+		mkdir -p $QTDIR/{bin,lib,plugins,share}
 		cp -rf bin/* $QTDIR/bin/ || die "Copy bin folder failed"
 		cp -rf lib/* $QTDIR/lib/ || die "Copy lib folder failed"
 		cp -rf plugins/* $QTDIR/plugins/ || die "Copy plugins folder failed"
