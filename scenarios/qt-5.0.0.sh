@@ -77,7 +77,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-undefined-reference-to-JSC-JSCell-classinfo-with-mingw.patch
 		$P/5.0.x/qt-5.0.0-fix-math-pow-implementation-for-mingw_w64.patch
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
-		$P/5.0.x/qt-5.0.0-build-under-msys.patch
+		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-fix-libxml2-test.patch
 		$P/5.0.x/qt-5.0.0-webkit-fix-linking-order.patch
