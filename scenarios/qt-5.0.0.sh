@@ -149,8 +149,7 @@ src_configure() {
 			-platform win32-g++ \
 			-nomake tests \
 			-nomake examples \
-			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || $LOGVIEWER ${LOG_DIR}/${P_V}_configure.log &
-				die "Qt configure error"
+			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths
 		echo " done"
