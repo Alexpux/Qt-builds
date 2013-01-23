@@ -74,8 +74,7 @@ src_configure() {
 	}	
 
 	local _mode=shared
-	[[ $STATIC_DEPS == yes ]] &&
-	{
+	[[ $STATIC_DEPS == yes ]] && {
 		_mode=static
 	}
 

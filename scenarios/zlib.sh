@@ -135,7 +135,9 @@ pkg_install() {
 	if ! [ -f $BUILD_DIR/$P_V/pkg_install.marker ]
 	then
 		cp -f $BUILD_DIR/$P_V/zlib.pc ${PREFIX}/lib/pkgconfig/
-		rm -f ${PREFIX}/lib/libz.a
+		[[ $STATIC_DEPS == no ]] && {
+			rm -f ${PREFIX}/lib/libz.a
+		}
 		touch $BUILD_DIR/$P_V/pkg_install.marker
 	fi
 }
