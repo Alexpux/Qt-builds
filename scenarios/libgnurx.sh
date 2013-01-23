@@ -117,7 +117,11 @@ pkg_install() {
 
 	if ! [ -f $BUILD_DIR/${P_V}/post-install.marker ]
 	then
-		cp -f ${PREFIX}/lib/libgnurx.dll.a ${PREFIX}/lib/libregex.dll.a
+		[[ $STATIC_DEPS == no ]] && {
+			cp -f ${PREFIX}/lib/libgnurx.dll.a ${PREFIX}/lib/libregex.dll.a
+		} || {
+			cp -f ${PREFIX}/lib/libgnurx.a ${PREFIX}/lib/libregex.a
+		}
 		touch $BUILD_DIR/${P_V}/post-install.marker
 	fi
 }

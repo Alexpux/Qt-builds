@@ -85,6 +85,9 @@ pkg_build() {
 		RC=windres
 		DLLWRAP=dllwrap
 		STRIP=strip
+		$( [[ $STATIC_DEPS == yes ]] \
+			&& echo "LOC=\"${HOST_LDFLAGS}\"" \
+		)
 		all
 	)
 	local _allmake="${_make_flags[@]}"
