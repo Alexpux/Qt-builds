@@ -72,7 +72,13 @@ src_configure() {
 	} || {
 		TOOLSET=mingw
 	}	
-	
+
+	local _mode=shared
+	[[ $STATIC_DEPS == yes ]] &&
+	{
+		_mode=static
+	}
+
 	unset APPS
 	unset SCRIPTS
 	unset CROSS_COMPILE
@@ -84,7 +90,7 @@ src_configure() {
 		pushd $BUILD_DIR/$P_V > /dev/null
 		echo -n "--> configure..."
 		sh Configure --prefix=${PREFIX} \
-			shared \
+			$_mode \
 			threads \
 			zlib \
 			enable-camellia \

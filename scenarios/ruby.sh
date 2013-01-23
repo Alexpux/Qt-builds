@@ -57,7 +57,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${MINGW_RUBY_PREFIX_W}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		${LNKDEPS}
 		--disable-rpath
 		CFLAGS="\"${HOST_CFLAGS} -finline-functions\""
 		LDFLAGS="\"-L${PREFIX_WIN}/lib\""

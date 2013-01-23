@@ -68,7 +68,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		${LNKDEPS}
 		--disable-rpath
 		--without-zlib
 		CFLAGS="\"${HOST_CFLAGS}\""

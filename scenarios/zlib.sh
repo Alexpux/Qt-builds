@@ -112,14 +112,18 @@ pkg_build() {
 }
 
 pkg_install() {
+
 	local _install_flags=(
 		-f win32/Makefile.gcc
 		INCLUDE_PATH=${PREFIX}/include
 		LIBRARY_PATH=${PREFIX}/lib
 		BINARY_PATH=${PREFIX}/bin
-		SHARED_MODE=1
+		$( [[ $STATIC_DEPS == no ]] \
+			&& echo "SHARED_MODE=1" \
+		)
 		install
 	)
+
 	local _allinstall="${_install_flags[@]}"
 	func_make \
 		${P_V} \

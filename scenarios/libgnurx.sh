@@ -80,7 +80,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		${LNKDEPS}
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
