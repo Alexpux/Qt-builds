@@ -88,6 +88,7 @@ SHARED_LINK_FLAGS="--enable-shared --disable-static"
 LNKDEPS=$SHARED_LINK_FLAGS
 STATIC_DEPS=no
 STATIC_SUFFIX=""
+STATIC_LD=""
 
 # Default Qt version to build
 QT_VERSION="5.0.0"
@@ -149,6 +150,7 @@ while [[ $# > 0 ]]; do
 			LNKDEPS=$STATIC_LINK_FLAGS
 			STATIC_DEPS=yes
 			STATIC_SUFFIX="-s"
+			STATIC_LD="-static"
 		;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
@@ -253,7 +255,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	HOST_CFLAGS="$OPTIM -pipe -O2 -fomit-frame-pointer"
 	HOST_CXXFLAGS="${HOST_CFLAGS}"
 	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
-	HOST_LDFLAGS="-pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
+	HOST_LDFLAGS="$STATIC_LD -pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
 	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QTDIR}/lib/pkgconfig"
 
 	pushd ${QTDIR} > /dev/null
