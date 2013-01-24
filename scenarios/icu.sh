@@ -36,9 +36,9 @@
 # **************************************************************************
 
 P=icu
-P_V=${P}4c-${ICU_VERSION}-src
+P_V=${P}4c-${ICU_VERSION//./_}-src
 SRC_FILE="${P_V}.tgz"
-URL=http://download.icu-project.org/files/icu4c/50.1/${SRC_FILE}
+URL=http://download.icu-project.org/files/icu4c/${ICU_VERSION}/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
@@ -63,7 +63,6 @@ src_patch() {
 	local _patches=(
 		$P/icu4c-4_9_1-crossbuild.patch
 		$P/icu4c-4_9_1-mingw-w64-mkdir-compatibility.patch
-		$P/9728.patch
 		$P/icu-50.1-import-lib-ext.patch
 		$P/icu-config.patch
 		$P/icu-pkgconfig.patch
