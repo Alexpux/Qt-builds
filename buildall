@@ -132,7 +132,10 @@ source helpers_functions.sh
 while [[ $# > 0 ]]; do
 	case $1 in
 		--buildroot=*) ROOT_DIR=${1/--buildroot=/} ;;
-		--install-top=*) PREFIX_TOP=${1/--install-top=/} ;;
+		--install-top=*)
+			PREFIX_TOP=${1/--install-top=/}
+			PREFIX_TOP=${PREFIX_TOP//:/:/}
+		;;
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
