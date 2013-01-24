@@ -198,6 +198,12 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-	
+
 	restore_paths
+	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/qt-conf.marker ]
+	then
+		cat $PATCH_DIR/$P/qt.conf | sed 's|%PREFIX%|'"$QTDIR_WIN"'|g' \
+			 > $QTDIR/bin/qt.conf
+		touch $BUILD_DIR/$P-$QT_VERSION/qt-conf.marker
+	fi
 }
