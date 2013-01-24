@@ -120,9 +120,14 @@ src_configure() {
 		echo -n "--> configure..."
 		change_paths
 
+		local _mode=shared
+		[[ $STATIC_DEPS == yes ]] && {
+			_mode=static
+		}
 		configure.exe \
 			-prefix $QTDIR_WIN \
 			-opensource \
+			-$_mode \
 			-confirm-license \
 			-debug-and-release \
 			-plugin-sql-ibase \

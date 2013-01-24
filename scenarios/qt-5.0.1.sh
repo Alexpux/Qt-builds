@@ -121,10 +121,15 @@ src_configure() {
 		}
 	
 		change_paths
-	
+
+		local _mode=shared
+		[[ $STATIC_DEPS == yes ]] && {
+			_mode=static
+		}
 		$PREFIX/perl/bin/perl configure \
 			-prefix $QTDIR_WIN \
 			-opensource \
+			-$_mode \
 			-confirm-license \
 			-debug-and-release \
 			-plugin-sql-ibase \
