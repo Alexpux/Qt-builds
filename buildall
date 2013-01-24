@@ -111,7 +111,7 @@ RUN_ARGS="$@"
 	exit 0
 }
 
-mkdir -p $PREFIX_TOP $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR
+mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR
 
 export INSTALL=/bin/install
 
@@ -183,10 +183,10 @@ toolchains_prepare
 source versions.sh
 source package_order.sh
 
-mkdir -p $TOP_PREFIX || die "Incorrect directory $TOP_PREFIX"
-pushd $TOP_PREFIX > /dev/null
-TOP_PREFIX=`pwd`
-popd
+mkdir -p ${PREFIX_TOP} || die "Incorrect directory ${PREFIX_TOP}"
+pushd ${PREFIX_TOP} > /dev/null
+PREFIX_TOP=`pwd`
+popd > /dev/null
 
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
