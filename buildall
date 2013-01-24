@@ -183,6 +183,11 @@ toolchains_prepare
 source versions.sh
 source package_order.sh
 
+mkdir -p $TOP_PREFIX || die "Incorrect directory $TOP_PREFIX"
+pushd $TOP_PREFIX > /dev/null
+TOP_PREFIX=`pwd`
+popd
+
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 	PREFIX=${PREFIX_TOP}/ported${ARCHITECTURE//x/}
