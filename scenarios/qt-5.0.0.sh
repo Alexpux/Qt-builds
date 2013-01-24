@@ -42,8 +42,8 @@ URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
-	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
-	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
+	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
+	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/include"
 	OLD_PATH=$PATH
 	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
@@ -138,6 +138,7 @@ src_configure() {
 			-plugin-sql-ibase \
 			-plugin-sql-mysql \
 			-plugin-sql-psql \
+			-plugin-sql-oci \
 			-no-dbus \
 			-no-iconv \
 			-icu \

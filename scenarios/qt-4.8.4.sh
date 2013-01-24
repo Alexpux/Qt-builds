@@ -42,8 +42,8 @@ URL=http://releases.qt-project.org/qt4/source/$SRC_FILE
 DEPENDS=()
 
 change_paths() {
-	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
-	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
+	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
+	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/include"
 	OLD_PATH=$PATH
 	export PATH=$MINGW_PART_PATH:$BUILD_DIR/$P-$QT_VERSION/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
@@ -128,6 +128,7 @@ src_configure() {
 			-plugin-sql-ibase \
 			-plugin-sql-mysql \
 			-plugin-sql-psql \
+			-plugin-sql-oci \
 			-no-dbus \
 			-stl \
 			-no-dsp \
@@ -143,11 +144,13 @@ src_configure() {
 			-I $QTDIR/databases/firebird/include \
 			-I $QTDIR/databases/mysql/include/mysql \
 			-I $QTDIR/databases/pgsql/include \
+			-I $QTDIR/databases/oci/include \
 			-L $MINGWHOME/$HOST/lib \
 			-L $PREFIX/lib \
 			-L $QTDIR/databases/firebird/lib \
 			-L $QTDIR/databases/mysql/lib \
 			-L $QTDIR/databases/pgsql/lib \
+			-L $QTDIR/databases/oci/lib \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths
