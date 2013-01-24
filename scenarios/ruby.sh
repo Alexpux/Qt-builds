@@ -57,8 +57,9 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${MINGW_RUBY_PREFIX_W}
 		--host=${HOST}
-		${LNKDEPS}
+		${SHARED_LINK_FLAGS}
 		--disable-rpath
+		--with-out-ext=openssl
 		CFLAGS="\"${HOST_CFLAGS} -finline-functions\""
 		LDFLAGS="\"-L${PREFIX_WIN}/lib\""
 		CPPFLAGS="\"-DFD_SETSIZE=2048 -I${PREFIX_WIN}/include -I${PREFIX_WIN}/include/ncurses\""
