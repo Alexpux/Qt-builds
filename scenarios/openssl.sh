@@ -73,9 +73,9 @@ src_configure() {
 		TOOLSET=mingw
 	}	
 
-	local _mode=shared
-	[[ $STATIC_DEPS == yes ]] && {
-		_mode=static
+	local _mode=
+	[[ $STATIC_DEPS == no ]] && {
+		_mode=shared
 	}
 
 	unset APPS
