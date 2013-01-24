@@ -122,7 +122,7 @@ src_configure() {
 	
 		change_paths
 	
-		$PREFIX/perl/bin/perl configure \
+		echo | $PREFIX/perl/bin/perl configure \
 			-prefix $QTDIR_WIN \
 			-opensource \
 			-confirm-license \

@@ -120,7 +120,7 @@ src_configure() {
 		echo -n "--> configure..."
 		change_paths
 
-		configure.exe \
+		echo | configure.exe \
 			-prefix $QTDIR_WIN \
 			-opensource \
 			-confirm-license \
