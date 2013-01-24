@@ -134,7 +134,8 @@ while [[ $# > 0 ]]; do
 		--buildroot=*) ROOT_DIR=${1/--buildroot=/} ;;
 		--install-top=*)
 			PREFIX_TOP=${1/--install-top=/}
-			PREFIX_TOP=${PREFIX_TOP//:/:/}
+			PREFIX_TOP=${PREFIX_TOP//:/:\/}
+			PREFIX_TOP=${PREFIX_TOP//\/\//\/}
 		;;
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
