@@ -44,7 +44,7 @@ DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 change_paths() {
 	local _sql_include=
 	local _sql_lib=
-	[[ $USE_OPENGL_DESKTOP == no ]] && {
+	[[ $STATIC_DEPS == no ]] && {
 		_sql_include="$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
 		_sql_lib="$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
 	}
