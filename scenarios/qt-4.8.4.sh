@@ -81,7 +81,8 @@ src_patch() {
 		$P/4.8.x/qt-4.8.2-javascriptcore-x32.patch
 		$P/4.8.x/qt-4.8.3-assistant-4.8.2+gcc-4.7.patch
 		$P/4.8.x/qt-4.8.3-qmake-cmd-mkdir-slash-direction.patch
-		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch	
+		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch
+		$P/4.8.x/qt-4.8.4-qmake-static.patch
 	)
 	
 	func_apply_patches \
@@ -98,7 +99,8 @@ src_patch() {
 			cp -f qmake.conf qmake.conf.patched
 		fi
 		
-		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' > qmake.conf.tmp
+		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
+					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
