@@ -74,7 +74,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		${LNKDEPS}
 		--enable-pcre8
 		--enable-pcre16
 		--enable-cpp

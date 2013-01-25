@@ -42,8 +42,14 @@ URL=http://releases.qt-project.org/digia/${QT_VERSION}/latest/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
-	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
-	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/lib"
+	local _sql_include=
+	local _sql_lib=
+	[[ $STATIC_DEPS == no ]] && {
+		_sql_include="$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
+		_sql_lib="$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/lib"
+	}
+	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
+	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
 	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
@@ -71,10 +77,11 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
+		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
-		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
+		$P/5.0.x/qt-5.0.0-qmake-static.patch
 		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
 	)
 	
@@ -93,13 +100,14 @@ src_patch() {
 		else
 			cp -f qmake.conf qmake.conf.patched
 		fi
-		
-		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' > qmake.conf.tmp
+
+		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
+					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	if ! [ -d ${QTDIR}/databases ]
+	if [ ! -d ${QTDIR}/databases && $STATIC_DEPS == yes ]
 	then
 		mkdir -p ${QTDIR}/databases
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
@@ -115,7 +123,7 @@ src_configure() {
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "--> configure..."
 		local _opengl
-		[[ $USE_OPENGL_DESKTOP == yes ]] && {
+		[[ $USE_OPENGL_DESKTOP == yes || $STATIC_DEPS == yes ]] && {
 			_opengl="-opengl desktop"
 		} || {
 			_opengl="-angle"
@@ -124,26 +132,33 @@ src_configure() {
 		change_paths
 
 		local _conf_flags=(
-			-prefix $QTDIR_WIN 
-			-opensource 
+			-prefix $QTDIR_WIN
+			-opensource
+			-$_mode
 			-confirm-license
 			-debug-and-release
-			-plugin-sql-ibase
-			-plugin-sql-mysql
-			-plugin-sql-psql
-			-plugin-sql-oci
-			-no-dbus
-			-no-iconv
-			-icu
+			$( [[ $STATIC_DEPS == no ]] \
+				&& echo "-plugin-sql-ibase \
+						 -plugin-sql-mysql \
+						 -plugin-sql-psql \
+						 -plugin-sql-oci \
+						 -no-iconv \
+						 -icu \
+						 -system-pcre \
+						 -system-zlib" \
+				|| echo "-no-icu \
+						 -no-iconv \
+						 -qt-sql-sqlite \
+						 -qt-zlib \
+						 -qt-pcre" \
+			)
 			-fontconfig
-			-system-pcre
-			-system-zlib
 			-openssl
+			-no-dbus
 			$_opengl
 			-platform win32-g++
 			-nomake tests
 			-nomake examples
-			
 		)
 		local _allconf="${_conf_flags[@]}"
 		$PREFIX/perl/bin/perl configure \

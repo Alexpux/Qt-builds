@@ -84,6 +84,12 @@ MAKE_OPTS="-j3"
 STATIC_LINK_FLAGS="--enable-static --disable-shared"
 SHARED_LINK_FLAGS="--enable-shared --disable-static"
 
+# How to link dependencies
+LNKDEPS=$SHARED_LINK_FLAGS
+STATIC_DEPS=no
+STATIC_SUFFIX=""
+STATIC_LD=""
+
 # Default Qt version to build
 QT_VERSION="5.0.0"
 
@@ -104,6 +110,7 @@ RUN_ARGS="$@"
 	echo "                              Default Qt version is 5.0.0"
 	echo "    --build-python          - specifies to the script to build Python"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
+	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --version               - pring the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 5.0.0, 5.0.1"
@@ -156,6 +163,14 @@ while [[ $# > 0 ]]; do
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
 		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
+		--static-qt)
+			export lt_cv_deplibs_check_method='pass_all'
+			LNKDEPS=$STATIC_LINK_FLAGS
+			USE_OPENGL_DESKTOP=yes
+			STATIC_DEPS=yes
+			STATIC_SUFFIX="-s"
+			STATIC_LD="-Wl,-Bstatic -lwinpthread -Wl,-Bdynamic -static"
+		;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
@@ -203,10 +218,10 @@ source package_order.sh
 
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
-	PREFIX=${PREFIX_TOP}/ported${ARCHITECTURE//x/}
-	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-$QT_VERSION
-	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE
-	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE
+	PREFIX=${PREFIX_TOP}/ported${ARCHITECTURE//x/}${STATIC_SUFFIX}
+	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-$QT_VERSION${STATIC_SUFFIX}
+	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE${STATIC_SUFFIX}
+	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE${STATIC_SUFFIX}
 
 	[[ $ARCHITECTURE == x32 ]] && {
 		HOST=i686-w64-mingw32
@@ -259,7 +274,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	HOST_CFLAGS="$OPTIM -pipe -O2 -fomit-frame-pointer"
 	HOST_CXXFLAGS="${HOST_CFLAGS}"
 	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
-	HOST_LDFLAGS="-pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
+	HOST_LDFLAGS="$STATIC_LD -pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
 	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QTDIR}/lib/pkgconfig"
 
 	pushd ${QTDIR} > /dev/null

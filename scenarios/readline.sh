@@ -66,7 +66,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		${LNKDEPS}
 		CFLAGS="\"${HOST_CFLAGS} -D__USE_MINGW_ANSI_STDIO=1\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""

@@ -57,7 +57,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		${LNKDEPS}
 		--with-freetype-config=${PREFIX}/bin/freetype-config
 		--with-arch=${ARCH}
 		--disable-docs

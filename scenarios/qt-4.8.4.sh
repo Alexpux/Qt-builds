@@ -42,8 +42,14 @@ URL=http://releases.qt-project.org/qt4/source/$SRC_FILE
 DEPENDS=()
 
 change_paths() {
-	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
-	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/lib"
+	local _sql_include=
+	local _sql_lib=
+	[[ $STATIC_DEPS == no ]] && {
+		_sql_include="$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
+		_sql_lib="$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/lib"
+	}
+	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:${_sql_include}"
+	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
 	export PATH=$MINGW_PART_PATH:$BUILD_DIR/$P-$QT_VERSION/bin:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
@@ -81,7 +87,8 @@ src_patch() {
 		$P/4.8.x/qt-4.8.2-javascriptcore-x32.patch
 		$P/4.8.x/qt-4.8.3-assistant-4.8.2+gcc-4.7.patch
 		$P/4.8.x/qt-4.8.3-qmake-cmd-mkdir-slash-direction.patch
-		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch	
+		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch
+		$P/4.8.x/qt-4.8.4-qmake-static.patch
 	)
 	
 	func_apply_patches \
@@ -98,12 +105,13 @@ src_patch() {
 			cp -f qmake.conf qmake.conf.patched
 		fi
 		
-		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' > qmake.conf.tmp
+		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
+					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	if ! [ -d ${QTDIR}/databases ]
+	if [ ! -d ${QTDIR}/databases && $STATIC_DEPS == yes ]
 	then
 		mkdir -p ${QTDIR}/databases
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
@@ -120,27 +128,31 @@ src_configure() {
 		echo -n "--> configure..."
 		change_paths
 
+		local _mode=shared
+		[[ $STATIC_DEPS == yes ]] && {
+			_mode=static
+		}
 		local _conf_flags=(
-			-prefix $QTDIR_WIN 
-			-opensource 
+			-prefix $QTDIR_WIN
+			-opensource
+			-$_mode
 			-confirm-license
 			-debug-and-release
-			-plugin-sql-ibase
-			-plugin-sql-mysql
-			-plugin-sql-psql
-			-plugin-sql-oci
-			-no-dbus
-			-stl
-			-no-dsp
-			-no-vcproj
-			-exceptions
+			$( [[ $STATIC_DEPS == no ]] \
+				&& echo "-plugin-sql-ibase \
+						 -plugin-sql-mysql \
+						 -plugin-sql-psql \
+						 -plugin-sql-oci" \
+				|| echo "-qt-sql-sqlite \
+						 -qt-zlib" \
+			)
 			-openssl
-			-platform win32-g++4.6
+			-platform win32-g++-4.6
 			-nomake demos
 			-nomake examples
+			-nomake tests
 			-I $MINGWHOME/$HOST/include
 			-I $PREFIX/include
-			-I $PREFIX/include/libxml2
 			-I $QTDIR/databases/firebird/include
 			-I $QTDIR/databases/mysql/include/mysql
 			-I $QTDIR/databases/pgsql/include
@@ -151,7 +163,6 @@ src_configure() {
 			-L $QTDIR/databases/mysql/lib
 			-L $QTDIR/databases/pgsql/lib
 			-L $QTDIR/databases/oci/lib
-			
 		)
 		local _allconf="${_conf_flags[@]}"
 		echo | configure.exe \
