@@ -151,7 +151,7 @@ while [[ $# > 0 ]]; do
 			USE_OPENGL_DESKTOP=yes
 			STATIC_DEPS=yes
 			STATIC_SUFFIX="-s"
-			STATIC_LD="-Wl,-Bstatic -lwinpthread -static"
+			STATIC_LD="-Wl,-Bstatic -lwinpthread -Wl,-Bdynamic -static"
 		;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
