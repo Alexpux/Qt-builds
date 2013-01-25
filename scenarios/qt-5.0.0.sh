@@ -83,6 +83,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-webkit-fix-linking-order.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
 		$P/5.0.x/qt-5.0.0-webkit-debug-angle.patch
+		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
 		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch		
 	)
 	
