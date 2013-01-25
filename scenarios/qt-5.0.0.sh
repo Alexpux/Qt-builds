@@ -124,7 +124,7 @@ src_configure() {
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "--> configure..."
 		local _opengl
-		[[ $USE_OPENGL_DESKTOP == yes ]] && {
+		[[ $USE_OPENGL_DESKTOP == yes || $STATIC_DEPS == yes ]] && {
 			_opengl="-opengl desktop"
 		} || {
 			_opengl="-angle"
