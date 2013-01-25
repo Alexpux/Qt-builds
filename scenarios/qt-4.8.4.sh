@@ -135,7 +135,6 @@ src_configure() {
 			-no-vcproj
 			-exceptions
 			-openssl
-			$_opengl
 			-platform win32-g++4.6
 			-nomake demos
 			-nomake examples
@@ -155,11 +154,9 @@ src_configure() {
 			
 		)
 		local _allconf="${_conf_flags[@]}"
-
 		echo | configure.exe \
-			"$_allconf" \
-			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
-	
+			"$_allconf" > ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
+
 		restore_paths
 		cp -rf mkspecs $QTDIR/
 		echo " done"
