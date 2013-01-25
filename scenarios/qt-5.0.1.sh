@@ -74,6 +74,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
+		$P/5.0.x/qt-5.0.0-qmake-static.patch
 		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
 	)
 	
@@ -92,8 +93,9 @@ src_patch() {
 		else
 			cp -f qmake.conf qmake.conf.patched
 		fi
-		
-		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' > qmake.conf.tmp
+
+		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
+					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
