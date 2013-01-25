@@ -136,26 +136,39 @@ src_configure() {
 		[[ $STATIC_DEPS == yes ]] && {
 			_mode=static
 		}
+		local _conf_flags=(
+			-prefix $QTDIR_WIN
+			-opensource
+			-$_mode
+			-confirm-license
+			-debug-and-release
+			$( [[ $STATIC_DEPS == no ]] \
+				&& echo "-plugin-sql-ibase \
+						 -plugin-sql-mysql \
+						 -plugin-sql-psql \
+						 -no-iconv \
+						 -icu \
+						 -system-pcre \
+						 -system-zlib" \
+				|| echo "-no-icu \
+						 -no-iconv \
+						 -qt-sql-sqlite \
+						 -qt-sql-ibase \
+						 -qt-sql-mysql \
+						 -qt-sql-psql \
+						 -qt-pcre" \
+			)
+			-fontconfig
+			-openssl
+			-no-dbus
+			$_opengl
+			-platform win32-g++
+			-nomake tests
+			-nomake examples
+		)
+		local _allconf="${_conf_flags[@]}"
 		$PREFIX/perl/bin/perl configure \
-			-prefix $QTDIR_WIN \
-			-opensource \
-			-$_mode \
-			-confirm-license \
-			-debug-and-release \
-			-plugin-sql-ibase \
-			-plugin-sql-mysql \
-			-plugin-sql-psql \
-			-no-dbus \
-			-no-iconv \
-			-icu \
-			-fontconfig \
-			-system-pcre \
-			-system-zlib \
-			-openssl \
-			$_opengl \
-			-platform win32-g++ \
-			-nomake tests \
-			-nomake examples \
+			"$_allconf" \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths

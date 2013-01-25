@@ -45,13 +45,15 @@ PACKAGES=(
 	ncurses
 	readline
 	xz
-	pcre
 	expat
 	sqlite
-	icu
-	libiconv
-	libxml2
-	libxslt
+	$( [[ $STATIC_DEPS == no ]] \
+		&& echo "pcre \
+				 icu \
+				 libiconv \
+				 libxml2 \
+				 libxslt" \
+	)
 	openssl
 	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
 		&& echo "libffi python2" \
@@ -60,7 +62,7 @@ PACKAGES=(
 	ruby
 	dmake
 	perl 
-	gettext
+	# gettext
 	freetype
 	fontconfig
 	qt-$QT_VERSION
