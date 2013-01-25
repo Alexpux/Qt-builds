@@ -142,7 +142,8 @@ src_configure() {
 				&& echo "-plugin-sql-ibase \
 						 -plugin-sql-mysql \
 						 -plugin-sql-psql" \
-				|| echo "-qt-sql-sqlite" \
+				|| echo "-qt-sql-sqlite \
+						 -qt-zlib" \
 			)
 			-openssl
 			-platform win32-g++-4.6

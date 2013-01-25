@@ -159,6 +159,7 @@ src_configure() {
 				|| echo "-no-icu \
 						 -no-iconv \
 						 -qt-sql-sqlite \
+						 -qt-zlib \
 						 -qt-pcre" \
 			)
 			-fontconfig
