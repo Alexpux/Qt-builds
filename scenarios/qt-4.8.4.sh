@@ -120,37 +120,44 @@ src_configure() {
 		echo -n "--> configure..."
 		change_paths
 
+		local _conf_flags=(
+			-prefix $QTDIR_WIN 
+			-opensource 
+			-confirm-license
+			-debug-and-release
+			-plugin-sql-ibase
+			-plugin-sql-mysql
+			-plugin-sql-psql
+			-plugin-sql-oci
+			-no-dbus
+			-stl
+			-no-dsp
+			-no-vcproj
+			-exceptions
+			-openssl
+			$_opengl
+			-platform win32-g++4.6
+			-nomake demos
+			-nomake examples
+			-I $MINGWHOME/$HOST/include
+			-I $PREFIX/include
+			-I $PREFIX/include/libxml2
+			-I $QTDIR/databases/firebird/include
+			-I $QTDIR/databases/mysql/include/mysql
+			-I $QTDIR/databases/pgsql/include
+			-I $QTDIR/databases/oci/include
+			-L $MINGWHOME/$HOST/lib
+			-L $PREFIX/lib
+			-L $QTDIR/databases/firebird/lib
+			-L $QTDIR/databases/mysql/lib
+			-L $QTDIR/databases/pgsql/lib
+			-L $QTDIR/databases/oci/lib
+			
+		)
+		local _allconf="${_conf_flags[@]}"
+
 		echo | configure.exe \
-			-prefix $QTDIR_WIN \
-			-opensource \
-			-confirm-license \
-			-debug-and-release \
-			-plugin-sql-ibase \
-			-plugin-sql-mysql \
-			-plugin-sql-psql \
-			-plugin-sql-oci \
-			-no-dbus \
-			-stl \
-			-no-dsp \
-			-no-vcproj \
-			-exceptions \
-			-openssl \
-			-platform win32-g++-4.6 \
-			-nomake demos \
-			-nomake examples \
-			-I $MINGWHOME/$HOST/include \
-			-I $PREFIX/include \
-			-I $PREFIX/include/libxml2 \
-			-I $QTDIR/databases/firebird/include \
-			-I $QTDIR/databases/mysql/include/mysql \
-			-I $QTDIR/databases/pgsql/include \
-			-I $QTDIR/databases/oci/include \
-			-L $MINGWHOME/$HOST/lib \
-			-L $PREFIX/lib \
-			-L $QTDIR/databases/firebird/lib \
-			-L $QTDIR/databases/mysql/lib \
-			-L $QTDIR/databases/pgsql/lib \
-			-L $QTDIR/databases/oci/lib \
+			"$_allconf" \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths
