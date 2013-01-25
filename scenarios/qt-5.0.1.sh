@@ -42,8 +42,14 @@ URL=http://releases.qt-project.org/digia/${QT_VERSION}/latest/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
-	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
-	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
+	local _sql_include=
+	local _sql_lib=
+	[[ $USE_OPENGL_DESKTOP == no ]] && {
+		_sql_include="$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include"
+		_sql_lib="$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib"
+	}
+	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
+	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
 	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
@@ -141,9 +147,6 @@ src_configure() {
 				|| echo "-no-icu \
 						 -no-iconv \
 						 -qt-sql-sqlite \
-						 -qt-sql-ibase \
-						 -qt-sql-mysql \
-						 -qt-sql-psql \
 						 -qt-pcre" \
 			)
 			-fontconfig
