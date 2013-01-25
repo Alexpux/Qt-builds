@@ -110,7 +110,7 @@ RUN_ARGS="$@"
 	echo "                              Default Qt version is 5.0.0"
 	echo "    --build-python          - specifies to the script to build Python"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
-	echo "    --static-deps           - build dependencies as static libraries"
+	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --version               - pring the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 5.0.0, 5.0.1"
@@ -145,7 +145,7 @@ while [[ $# > 0 ]]; do
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
 		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
-		--static-deps)
+		--static-qt)
 			export lt_cv_deplibs_check_method='pass_all'
 			LNKDEPS=$STATIC_LINK_FLAGS
 			STATIC_DEPS=yes
