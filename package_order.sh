@@ -60,7 +60,7 @@ PACKAGES=(
 	ruby
 	dmake
 	perl 
-	gettext
+	# gettext
 	freetype
 	fontconfig
 	qt-$QT_VERSION
