@@ -126,37 +126,45 @@ src_configure() {
 		[[ $STATIC_DEPS == yes ]] && {
 			_mode=static
 		}
+		local _conf_flags=(
+			-prefix $QTDIR_WIN
+			-opensource
+			-$_mode
+			-confirm-license
+			-debug-and-release
+			$( [[ $STATIC_DEPS == no ]] \
+				&& echo "-plugin-sql-ibase \
+						 -plugin-sql-mysql \
+						 -plugin-sql-psql" \
+				|| echo "-qt-sql-sqlite \
+						 -qt-sql-ibase \
+						 -qt-sql-mysql \
+						 -qt-sql-psql " \
+			)
+			-stl
+			-no-dsp
+			-no-vcproj
+			-exceptions
+			-openssl
+			-platform win32-g++-4.6
+			-nomake demos
+			-nomake examples
+			-I $MINGWHOME/$HOST/include
+			-I $PREFIX/include
+			-I $PREFIX/include/libxml2
+			-I $QTDIR/databases/firebird/include
+			-I $QTDIR/databases/mysql/include/mysql
+			-I $QTDIR/databases/pgsql/include
+			-L $MINGWHOME/$HOST/lib
+			-L $PREFIX/lib
+			-L $QTDIR/databases/firebird/lib
+			-L $QTDIR/databases/mysql/lib
+			-L $QTDIR/databases/pgsql/lib
+		)
+		local _allconf="${_conf_flags[@]}"
 		configure.exe \
-			-prefix $QTDIR_WIN \
-			-opensource \
-			-$_mode \
-			-confirm-license \
-			-debug-and-release \
-			-plugin-sql-ibase \
-			-plugin-sql-mysql \
-			-plugin-sql-psql \
-			-no-dbus \
-			-stl \
-			-no-dsp \
-			-no-vcproj \
-			-exceptions \
-			-openssl \
-			-platform win32-g++-4.6 \
-			-nomake demos \
-			-nomake examples \
-			-I $MINGWHOME/$HOST/include \
-			-I $PREFIX/include \
-			-I $PREFIX/include/libxml2 \
-			-I $QTDIR/databases/firebird/include \
-			-I $QTDIR/databases/mysql/include/mysql \
-			-I $QTDIR/databases/pgsql/include \
-			-L $MINGWHOME/$HOST/lib \
-			-L $PREFIX/lib \
-			-L $QTDIR/databases/firebird/lib \
-			-L $QTDIR/databases/mysql/lib \
-			-L $QTDIR/databases/pgsql/lib \
-			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
-	
+			"$_allconf" > ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
+
 		restore_paths
 		cp -rf mkspecs $QTDIR/
 		echo " done"
