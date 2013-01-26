@@ -215,6 +215,19 @@ pkg_build() {
 		"building..." \
 		"built"
 
+	_make_flags=(
+		${MAKE_OPTS}
+		docs
+	)
+	_allmake="${_make_flags[@]}"
+	func_make \
+		$P-$QT_VERSION \
+		"mingw32-make" \
+		"$_allmake" \
+		"building docs..." \
+		"built-docs" \
+			1"
+
 	restore_paths
 }
 
