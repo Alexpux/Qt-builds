@@ -5,7 +5,7 @@
  		-DUNICODE
  CXXFLAGS    =   $(CFLAGS)
 -LFLAGS      = -static-libgcc -s
-+LFLAGS      = -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic -static -s
++LFLAGS      = -Wl,-Bstatic -lwinpthread -static -s
  LIBS	    = -lole32 -luuid -ladvapi32 -lkernel32
  LINKQMAKE   =	g++ $(LFLAGS) -o qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
  ADDCLEAN    =
