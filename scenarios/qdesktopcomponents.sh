@@ -35,7 +35,7 @@
 
 # **************************************************************************
 
-P=qbs
+P=qdesktopcomponents
 P_V=${P}
 SRC_FILE=""
 URL=git://gitorious.org/qtplayground/qtdesktopcomponents.git
