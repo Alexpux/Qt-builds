@@ -232,6 +232,14 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
+	# Workaround for build other components (qbs, qtcreator, etc)
+	if [[ ! -f $BUILD_DIR/$P-$QT_VERSION/qwindows.marker && $STATIC_DEPS == yes ]]
+	then
+		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
+		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
+		touch $BUILD_DIR/$P-$QT_VERSION/qwindows.marker
+	fi
+
 	_install_flags=(
 		${MAKE_OPTS}
 		install_qch_docs
