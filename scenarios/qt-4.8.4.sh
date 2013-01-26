@@ -111,7 +111,7 @@ src_patch() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == yes ]]
+	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
 	then
 		mkdir -p ${QTDIR}/databases
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
