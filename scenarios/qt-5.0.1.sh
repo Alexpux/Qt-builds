@@ -212,8 +212,7 @@ pkg_build() {
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
-		"built-docs" \
-		"1"
+		"built-docs"
 
 	restore_paths
 }
@@ -232,6 +231,18 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
+
+	_install_flags=(
+		${MAKE_OPTS}
+		install_qch_docs
+	)
+	_allinstall="${_install_flags[@]}"
+	func_make \
+		$P-$QT_VERSION \
+		"mingw32-make" \
+		"$_allinstall" \
+		"installing docs..." \
+		"installed-docs"
 
 	restore_paths
 	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/qt-conf.marker ]
