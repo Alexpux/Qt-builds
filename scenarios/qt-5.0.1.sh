@@ -213,7 +213,7 @@ pkg_build() {
 		"$_allmake" \
 		"building docs..." \
 		"built-docs" \
-			1"
+		"1"
 
 	restore_paths
 }
