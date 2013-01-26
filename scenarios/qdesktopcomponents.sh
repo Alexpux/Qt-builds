@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,44 +35,76 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
+P=qbs
+P_V=${P}
+SRC_FILE=""
+URL=git://gitorious.org/qtplayground/qtdesktopcomponents.git
+DEPENDS=()
+
+src_download() {
+	func_download $P_V "git" $URL
+}
+
+src_unpack() {
+	echo "--> Unpack empty"
+}
+
+src_patch() {
+	echo "--> Patch empty"
+}
+
+src_configure() {
+	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
+	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
+	if ! [ -f configure.marker ]
+	then
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/${P_V} ) 
+		${QTDIR}/bin/qmake.exe -r $_rel_path/qtdesktopcomponents.pro CONFIG+=release \
+			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
+		touch configure.marker
+	fi
+	popd > /dev/null
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
+		release
 	)
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+		
+	_make_flags=(
+		${MAKE_OPTS}
+		docs
 	)
-	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
+	_allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building..." \
+		"built" \
+		"1"
+}
+
+pkg_install() {
+
+	local _make_flags=(
+		${MAKE_OPTS}
+		install
 	)
-	yaml
-	ruby
-	dmake
-	perl 
-	# gettext
-	freetype
-	fontconfig
-	qt-$QT_VERSION
-	qbs
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_QDESKTOPCOMPONENTS == yes ]] \
-		&& echo "qdesktopcomponents" \
-	)
-)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"installing..." \
+		"installed"
+	
+}
