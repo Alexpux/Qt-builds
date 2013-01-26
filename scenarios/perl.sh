@@ -35,11 +35,6 @@ src_patch() {
 		$P_V \
 		_patches[@] \
 		$BUILD_DIR
-	
-	if ! [ -f $SRC_DIR/$P_V/win32/makefile.mk.patched ]
-	then
-		cp -f $SRC_DIR/$P_V/win32/makefile.mk $SRC_DIR/$P_V/win32/makefile.mk.patched
-	fi
 }
 
 src_configure() {
