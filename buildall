@@ -172,6 +172,8 @@ while [[ $# > 0 ]]; do
 			export lt_cv_deplibs_check_method='pass_all'
 			LNKDEPS=$STATIC_LINK_FLAGS
 			USE_OPENGL_DESKTOP=yes
+			BUILD_QTCREATOR=no
+			BUILD_QDESKTOPCOMPONENTS=no
 			STATIC_DEPS=yes
 			STATIC_SUFFIX="-s"
 			STATIC_LD="-Wl,-Bstatic -lwinpthread -static"
