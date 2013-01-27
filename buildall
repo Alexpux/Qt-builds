@@ -35,7 +35,7 @@
 
 # **************************************************************************
 
-QT_BUILDS_VERSION="Qt-builds-0.3.2"
+QT_BUILDS_VERSION="Qt-builds-0.4.0"
 BUG_URL=https://github.com/Alexpux/Qt-builds
 
 ORIGINAL_PATH=$PATH
