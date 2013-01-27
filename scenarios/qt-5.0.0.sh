@@ -215,18 +215,6 @@ pkg_build() {
 		"building..." \
 		"built"
 
-	_make_flags=(
-		${MAKE_OPTS}
-		docs
-	)
-	_allmake="${_make_flags[@]}"
-	func_make \
-		$P-$QT_VERSION \
-		"mingw32-make" \
-		"$_allmake" \
-		"building docs..." \
-		"built-docs"
-
 	restore_paths
 }
 
@@ -245,6 +233,8 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
+	install_docs
+	
 	# Workaround for build other components (qbs, qtcreator, etc)
 	if [[ ! -f $BUILD_DIR/$P-$QT_VERSION/qwindows.marker && $STATIC_DEPS == yes ]]
 	then
@@ -253,18 +243,6 @@ pkg_install() {
 		touch $BUILD_DIR/$P-$QT_VERSION/qwindows.marker
 	fi
 
-	_install_flags=(
-		${MAKE_OPTS}
-		install_qch_docs
-	)
-	_allinstall="${_install_flags[@]}"
-	func_make \
-		$P-$QT_VERSION \
-		"mingw32-make" \
-		"$_allinstall" \
-		"installing docs..." \
-		"installed-docs"
-
 	restore_paths
 	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/qt-conf.marker ]
 	then
@@ -272,4 +250,31 @@ pkg_install() {
 			 > $QTDIR/bin/qt.conf
 		touch $BUILD_DIR/$P-$QT_VERSION/qt-conf.marker
 	fi
+}
+
+install_docs() {
+
+	local _make_flags=(
+		${MAKE_OPTS}
+		docs
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		$P-$QT_VERSION \
+		"mingw32-make" \
+		"$_allmake" \
+		"building docs..." \
+		"built-docs"
+
+	_make_flags=(
+		${MAKE_OPTS}
+		install_qch_docs
+	)
+	_allmake="${_make_flags[@]}"
+	func_make \
+		$P-$QT_VERSION \
+		"mingw32-make" \
+		"$_allmake" \
+		"installing docs..." \
+		"installed-docs"
 }
