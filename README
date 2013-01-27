@@ -48,6 +48,7 @@ For example:
 ./buildall --install-top=C:/SDK x32
 building 32-bit Qt and installing Qt into C:/SDK/Qt32-<version>.
  
+Binary builds are hosted on https://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/Qt-Builds/.
 
 [1] http://www.opensource.org/licenses/BSD-3-Clause
 [2] https://sourceforge.net/projects/mingwbuilds
