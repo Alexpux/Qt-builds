@@ -105,7 +105,9 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-	
+
+	# install_docs
+
 	if ! [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/post-install.marker ]
 	then
 		echo -n "--> Execute after install..."
@@ -114,4 +116,31 @@ pkg_install() {
 		echo " done"
 		touch $BUILD_DIR/${P_V}-${QT_VERSION}/post-install.marker
 	fi
+}
+
+install_docs() {
+
+	local _make_flags=(
+		${MAKE_OPTS}
+		docs
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building docs..." \
+		"built-docs"
+
+	_make_flags=(
+		${MAKE_OPTS}
+		install_docs
+	)
+	_allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"installing docs..." \
+		"installed-docs"
 }
