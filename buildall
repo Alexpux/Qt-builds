@@ -167,7 +167,11 @@ while [[ $# > 0 ]]; do
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
 		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
-		--desktopcomponents) BUILD_QDESKTOPCOMPONENTS=yes ;;
+		--desktopcomponents)
+			[[ $STATIC_DEPS == no ]] && {
+				BUILD_QDESKTOPCOMPONENTS=yes
+			}
+		;;
 		--static-qt)
 			export lt_cv_deplibs_check_method='pass_all'
 			LNKDEPS=$STATIC_LINK_FLAGS
