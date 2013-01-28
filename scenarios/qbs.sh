@@ -79,18 +79,17 @@ pkg_build() {
 		"building..." \
 		"built"
 		
-	# _make_flags=(
-		# ${MAKE_OPTS}
-		# docs
-	# )
-	# _allmake="${_make_flags[@]}"
-	# func_make \
-		# ${P_V}-${QT_VERSION} \
-		# "mingw32-make" \
-		# "$_allmake" \
-		# "building..." \
-		# "built" \
-		# "1"
+	_make_flags=(
+		${MAKE_OPTS}
+		docs
+	)
+	_allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building docs..." \
+		"built-docs"
 }
 
 pkg_install() {
