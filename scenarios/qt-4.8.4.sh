@@ -165,8 +165,8 @@ src_configure() {
 			-L $QTDIR/databases/oci/lib
 		)
 		local _allconf="${_conf_flags[@]}"
-		echo | configure.exe \
-			"$_allconf" > ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
+		configure.exe \
+			$_allconf > ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 
 		restore_paths
 		cp -rf mkspecs $QTDIR/
