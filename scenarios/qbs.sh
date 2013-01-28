@@ -59,7 +59,7 @@ src_configure() {
 	if ! [ -f configure.marker ]
 	then
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/${P_V} ) 
-		${QTDIR}/bin/qmake.exe QMAKE_CXXFLAGS="-Wno-error=unused-variable" -r $_rel_path/qbs.pro CONFIG+=release \
+		${QTDIR}/bin/qmake.exe -r $_rel_path/qbs.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
 		touch configure.marker
 	fi
