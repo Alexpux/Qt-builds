@@ -1,0 +1,11 @@
+--- a/qtbase/qmake/Makefile.win32-g++.orig	2013-01-25 06:21:31 +0400
++++ b/qtbase/qmake/Makefile.win32-g++	2013-01-25 06:27:19 +0400
+@@ -54,7 +54,7 @@
+ 		-DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM \
+ 		-DUNICODE
+ CXXFLAGS    =   $(CFLAGS)
+-LFLAGS      = -static -s
++LFLAGS      = -Wl,-Bstatic -lwinpthread -static -s
+ LIBS	    = -lole32 -luuid -ladvapi32 -lkernel32
+ LINKQMAKE   =	g++ $(LFLAGS) -o qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+ ADDCLEAN    =
