@@ -82,6 +82,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
 		$P/5.0.x/qt-5.0.1-qmake-static.patch
+		$P/5.0.x/qt-5.0.1-fix-angle-gnutools-command.patch
 		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
 	)
 	
