@@ -94,7 +94,7 @@ STATIC_SUFFIX=""
 STATIC_LD=""
 
 # Default Qt version to build
-QT_VERSION="5.0.0"
+QT_VERSION="5.0.1"
 
 # Build Qt5 with "-opengl desktop"
 USE_OPENGL_DESKTOP=no
