@@ -66,8 +66,7 @@ x32_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw32
 x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 
 # DirectX SDK installation path
-DXSDK32="C:/Program Files/Microsoft DirectX SDK (June 2010)/"
-DXSDK64="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
+DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
 
 # MinGW toolchain links
 URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/32-bit/threads-posix/sjlj/x32-4.7.2-release-posix-sjlj-rev8.7z
@@ -139,16 +138,6 @@ source helpers_functions.sh
 	-n $(which "x86_64-w64-mingw32-gcc.exe" 2>/dev/null) \
 ]] && {
 	die "remove from PATH any existing MinGW directory. terminate."
-}
-
-[[ ! -d $DXSDK32 || ! -d $DXSDK64 ]] && {
-	die "You must install Microsoft DirectX SDK before building Qt5"
-} || {
-	[[ -d $DXSDK32 ]] && {
-		DXSDK_DIR=$DXSDK32
-	} || {
-		DXSDK_DIR=$DXSDK64
-	}
 }
 
 while [[ $# > 0 ]]; do
