@@ -153,16 +153,18 @@ src_configure() {
 			-nomake tests
 			-I $MINGWHOME/$HOST/include
 			-I $PREFIX/include
-			-I $QTDIR/databases/firebird/include
-			-I $QTDIR/databases/mysql/include/mysql
-			-I $QTDIR/databases/pgsql/include
-			-I $QTDIR/databases/oci/include
-			-L $MINGWHOME/$HOST/lib
 			-L $PREFIX/lib
-			-L $QTDIR/databases/firebird/lib
-			-L $QTDIR/databases/mysql/lib
-			-L $QTDIR/databases/pgsql/lib
-			-L $QTDIR/databases/oci/lib
+			-L $MINGWHOME/$HOST/lib
+			$( [[ $STATIC_DEPS == no ]] \
+				&& echo "-I $QTDIR/databases/firebird/include \
+						-I $QTDIR/databases/mysql/include/mysql \
+						-I $QTDIR/databases/pgsql/include \
+						-I $QTDIR/databases/oci/include \
+						-L $QTDIR/databases/firebird/lib \
+						-L $QTDIR/databases/mysql/lib \
+						-L $QTDIR/databases/pgsql/lib \
+						-L $QTDIR/databases/oci/lib" \
+			)
 		)
 		local _allconf="${_conf_flags[@]}"
 		configure.exe \
