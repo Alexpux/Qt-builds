@@ -83,8 +83,8 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
 		$P/5.0.x/qt-5.0.1-qmake-static.patch
-		#$P/5.0.x/qt-5.0.1-fix-angle-gnutools-command.patch
-		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
+		$P/5.0.x/qt-5.0.1-fix-angle-build-under-msys.patch
+		$P/5.0.x/qt-5.0.1-fix-angle-static-build.patch
 	)
 	
 	func_apply_patches \
@@ -125,7 +125,7 @@ src_configure() {
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "--> configure..."
 		local _opengl
-		[[ $USE_OPENGL_DESKTOP == yes || $STATIC_DEPS == yes ]] && {
+		[[ $USE_OPENGL_DESKTOP == yes ]] && {
 			_opengl="-opengl desktop"
 		} || {
 			_opengl="-angle"

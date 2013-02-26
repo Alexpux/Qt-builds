@@ -1,0 +1,45 @@
+From 8204e3f04534328e554c092758717aa4e0cc073e Mon Sep 17 00:00:00 2001
+From: Oswald Buddenhagen <oswald.buddenhagen@digia.com>
+Date: Fri, 25 Jan 2013 17:05:00 +0100
+Subject: [PATCH] fix angle build under msys
+
+use library function which deals with shell specifics to set up PATH
+
+Task-number: QTBUG-29427
+Change-Id: Ic2bed4d7f0eb072bcce6a9f99be02d3cd08a7c98
+Reviewed-by: Joerg Bornemann <joerg.bornemann@digia.com>
+---
+ qtbase/src/angle/src/config.pri | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/qtbase/src/angle/src/config.pri b/qtbase/src/angle/src/config.pri
+index 63792b9..f8b877d 100644
+--- a/qtbase/src/angle/src/config.pri
++++ b/qtbase/src/angle/src/config.pri
+@@ -13,17 +13,17 @@ isEmpty(ANGLE_DIR) {
+ }
+ 
+ win32 {
+-    GNUTOOLS_DIR = $$absolute_path(../../../../gnuwin32/bin)
+-    exists($$GNUTOOLS_DIR/gperf.exe) {
+-        # Escape closing parens when expanding the variable, otherwise cmd confuses itself.
+-        GNUTOOLS = "(set PATH=$$replace(GNUTOOLS_DIR, [/\\\\], $${QMAKE_DIR_SEP});%PATH:)=^)%)"
++    gnutools.value = $$absolute_path(../../../../gnuwin32/bin)
++    exists($$gnutools.value/gperf.exe) {
++        gnutools.name = PATH
++        gnutools.CONFIG = prepend
+     }
+ }
+ 
+ defineReplace(addGnuPath) {
+     gnuPath = $$1
+-    !isEmpty(gnuPath):!isEmpty(GNUTOOLS) {
+-        gnuPath = $${GNUTOOLS} && $$gnuPath
++    !isEmpty(gnuPath):!isEmpty(gnutools.name) {
++        qtAddToolEnv(gnuPath, gnutools)
+         silent: gnuPath = @echo generating sources from ${QMAKE_FILE_IN} && $$gnuPath
+     }
+     return($$gnuPath)
+-- 
+1.7.12.4 (Apple Git-37)
+
