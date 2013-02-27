@@ -38,7 +38,7 @@
 P=ruby
 P_V=${P}-${RUBY_VERSION}
 SRC_FILE="${P_V}.tar.gz"
-URL=http://ftp.ruby-lang.org/pub/ruby/1.9/${SRC_FILE}
+URL=http://ftp.ruby-lang.org/pub/ruby/2.0/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
