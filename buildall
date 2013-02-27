@@ -234,7 +234,7 @@ done
 x32_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw32
 x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 
-[[ USER_DEFINED_TOOLCHAINS == no ]] && {
+[[ $USER_DEFINED_TOOLCHAINS == no ]] && {
 	toolchains_prepare
 }
 
