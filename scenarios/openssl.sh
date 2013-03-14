@@ -51,7 +51,6 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/${P}-1.0.0a-ldflags.patch
-		$P/${P}-1.0.0d-fbsd-amd64.patch
 		$P/${P}-1.0.0d-windres.patch
 		$P/${P}-1.0.0h-pkg-config.patch
 		$P/${P}-1.0.1-parallel-build.patch
