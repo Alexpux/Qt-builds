@@ -69,30 +69,10 @@ toolchains_prepare() {
 		func_download mingw32 ".$_ext_mingw32" $URL_MINGW32
 		func_uncompress ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $TOOLCHAINS_DIR
 		
-		if [ -f $TOOLCHAINS_DIR/mingw32-move.marker ]
-		then
-			echo "--> Moved"
-		else
-			echo -n "--> Move $TOOLCHAINS_DIR/mingw to $TOOLCHAINS_DIR/mingw32..."
-			mv -f $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw32 || die "Cannot move mingw->mingw32"
-			echo " done"
-			touch $TOOLCHAINS_DIR/mingw32-move.marker
-		fi
-		
 		local _file_mingw64=$(basename $URL_MINGW64)
 		local _ext_mingw64=$(get_filename_extension $_file_mingw64)
 		func_download mingw64 ".$_ext_mingw64" $URL_MINGW64
 		func_uncompress ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $TOOLCHAINS_DIR
-		
-		if [ -f $TOOLCHAINS_DIR/mingw64-move.marker ]
-		then
-			echo "--> Moved"
-		else
-			echo -n "--> Move $TOOLCHAINS_DIR/mingw to $TOOLCHAINS_DIR/mingw64..."
-			mv -f $TOOLCHAINS_DIR/mingw $TOOLCHAINS_DIR/mingw64 || die "Cannot move mingw->mingw64"
-			echo " done"
-			touch $TOOLCHAINS_DIR/mingw64-move.marker
-		fi
 		
 		echo "--> Preparing done"
 	fi
