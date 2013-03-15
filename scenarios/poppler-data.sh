@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,55 +35,43 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
+P=poppler-data
+P_V=${P}-${POPPLER_DATA_VERSION}
+SRC_FILE="$P_V.tar.gz"
+URL=http://poppler.freedesktop.org/${SRC_FILE}
+DEPENDS=()
+
+src_download() {
+	func_download $P_V ".tar.gz" $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+}
+
+src_patch() {
+	echo "--> Patch empty"
+}
+
+src_configure() {
+	echo "--> Configure empty"
+}
+
+pkg_build() {
+	echo "--> Make empty"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		DESTDIR=${PREFIX}
+		install
 	)
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
-	)
-	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
-	)
-	yaml
-	ruby
-	dmake
-	perl 
-	# gettext
-	freetype
-	fontconfig
-	qt-$QT_VERSION
-	qbs
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_QDESKTOPCOMPONENTS == yes ]] \
-		&& echo "qdesktopcomponents" \
-	)
-	nasm
-	libjpeg-turbo
-	libpng
-	jbigkit
-	freeglut
-	tiff
-	libidn
-	libssh2
-	curl
-	poppler-data
-	poppler
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}

@@ -1,0 +1,361 @@
+--- jbigkit/Makefile	2008-08-30 16:40:22.000000000 -0400
++++ jbigkit/Makefile	2009-12-23 11:59:00.835600000 -0500
+@@ -1,8 +1,11 @@
+ # Unix makefile for JBIG-KIT
+ # $Id: Makefile 1303 2008-08-30 20:16:20Z mgk25 $
++DESTDIR=
++PREFIX=
+ 
+ # Select an ANSI/ISO C compiler here, GNU gcc is recommended
+ CC = gcc
++INSTALL=install
+ 
+ # Options for the compiler: A high optimization level is suggested
+ CCFLAGS = -O2 -W
+@@ -16,14 +19,37 @@ all: lib pbm
+ 	@echo "Enter 'make test' in order to start some automatic tests."
+ 
+ lib:
+-	(cd libjbig;  make "CC=$(CC)" "CFLAGS=$(CFLAGS)")
++	(cd libjbig; \
++	make "CC=$(CC)" "CFLAGS=$(CFLAGS)" \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)")
+ 
+ pbm: lib
+-	(cd pbmtools; make "CC=$(CC)" "CFLAGS=$(CFLAGS)")
++	(cd pbmtools; \
++	make "CC=$(CC)" "CFLAGS=$(CFLAGS)" \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)")
+ 
+ test: lib pbm
+-	(cd libjbig;  make "CC=$(CC)" "CFLAGS=$(CFLAGS)" test)
+-	(cd pbmtools; make "CC=$(CC)" "CFLAGS=$(CFLAGS)" test)
++	(cd libjbig; \
++	make "CC=$(CC)" "CFLAGS=$(CFLAGS)" test \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)")
++	(cd pbmtools; \
++	make "CC=$(CC)" "CFLAGS=$(CFLAGS)" test \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)")
++
++install: all
++	(cd libjbig; \
++	make install "CC=$(CC)" "CFLAGS=$(CFALGS)" \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)")
++	(cd pbmtools; \
++	make install "CC=$(CC)" "CFLAGS=$(CFLAGS)" \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)")
++
+ 
+ clean:
+ 	rm -f *~ core
+--- jbigkit/libjbig/Makefile	2008-08-30 13:20:52.000000000 -0400
++++ jbigkit/libjbig/Makefile	2009-12-23 11:59:00.858600000 -0500
+@@ -1,26 +1,57 @@
+ # Unix makefile for the JBIG-KIT library
+ # $Id: Makefile 1285 2008-08-18 13:36:45Z mgk25 $
+ 
++#PREFIX=/usr # inherited from parent dir
++#VERSION=1.5 # inherited from parent dir
++#DESTDIR=# inherited from parent dir
++
++INCPATH=$(PREFIX)/include
++LIBPATH=$(PREFIX)/lib
++BINPATH=$(PREFIX)/bin
++
+ # Select an ANSI/ISO C compiler here, GNU gcc is recommended
+ CC = gcc
++INSTALL = install
++BASELIB=libjbig
++SHAREDLIB=libjbig-2.dll
++STATLIB=$(BASELIB).a
++STATLIB2=libjbig85.a
++IMPLIB=$(BASELIB).dll.a
++SHAREDDEF=$(BASELIB).def
++LIBS=$(SHAREDLIB) $(STATLIB)
++EXE=.exe
++
++LDSHARED=gcc -shared 
++LDEXTRA=-Wl,--out-implib=$(IMPLIB)
+ 
+ # Options for the compiler: A high optimization level is suggested
+ CFLAGS = -g -O -Wall -ansi -pedantic # --coverage
+ 
+-all: libjbig.a tstcodec tstcodec85
++OBJS = jbig.o jbig_ar.o
++OBJSDLL = $(OBJS)
++
++.SUFFIXES:     .c .o
++
++%.o : %.c
++	$(CC) -c $(CFLAGS) -o $@ $<
+ 
+-tstcodec: tstcodec.o jbig.o jbig_ar.o
+-	$(CC) $(CFLAGS) -o tstcodec $+
++all: $(SHAREDLIB) $(STATLIB) $(STATLIB2)  tstcodec$(EXE) tstcodec85$(EXE)
+ 
+-tstcodec85: tstcodec85.o jbig85.o jbig_ar.o
+-	$(CC) $(CFLAGS) -o tstcodec85 $+
++$(STATLIB): $(OBJS)
++	rm -f $@
++	ar rc $@ $(OBJS)
++	ranlib $@
+ 
+-libjbig.a: jbig.o jbig_ar.o
+-	rm -f libjbig.a
+-	ar rc libjbig.a jbig.o jbig_ar.o
+-	-ranlib libjbig.a
++$(SHAREDLIB): $(OBJSDLL)
++	$(LDSHARED) -o $@ $(LDEXTRA) $(OBJSDLL)
+ 
+-libjbig85.a: jbig85.o jbig_ar.o
++tstcodec$(EXE): tstcodec.o jbig.o jbig_ar.o
++	$(CC) $(CFLAGS) -o $@ $+
++
++tstcodec85$(EXE): tstcodec85.o jbig85.o jbig_ar.o
++	$(CC) $(CFLAGS) -o $@ $+
++
++$(STATLIB2): jbig85.o jbig_ar.o
+ 	rm -f libjbig85.a
+ 	ar rc libjbig85.a jbig85.o jbig_ar.o
+ 	-ranlib libjbig85.a
+@@ -36,13 +67,23 @@ jbig.pot: jbig.c
+ 	  --copyright-holder='Markus Kuhn' \
+ 	  --msgid-bugs-address='http://www.cl.cam.ac.uk/~mgk25/jbigkit/' $+
+ 
+-test: tstcodec tstcodec85
+-	./tstcodec
+-	./tstcodec85
+-
+-t82test.pbm: tstcodec
+-	./tstcodec $@
++test: tstcodec$(EXE) tstcodec85$(EXE)
++	./tstcodec$(EXE)
++	./tstcodec85$(EXE)
++
++t82test.pbm: tstcodec$(EXE)
++	./tstcodec$(EXE) $@
++
++install: $(STATLIB) $(SHAREDLIB)
++	-@if [ ! -d $(DESTDIR)$(INCPATH) ]; then mkdir -p $(DESTDIR)$(INCPATH); fi
++	-@if [ ! -d $(DESTDIR)$(LIBPATH) ]; then mkdir -p $(DESTDIR)$(LIBPATH); fi
++	-@if [ ! -d $(DESTDIR)$(BINPATH) ]; then mkdir -p $(DESTDIR)$(BINPATH); fi
++	$(INSTALL) -m 644 jbig.h jbig85.h jbig_ar.h $(DESTDIR)$(INCPATH)
++	$(INSTALL) -m 644 $(STATLIB) $(STATLIB2) $(IMPLIB) $(DESTDIR)$(LIBPATH)
++	$(INSTALL) -s -m 755 $(SHAREDLIB) $(DESTDIR)$(BINPATH)
+ 
+ clean:
+ 	rm -f *.{o,gcda,gcno,gcov} *~ core gmon.out dbg_d\=??.pbm t82test.pbm
+-	rm -f tstcodec tstcodec85
++	rm -f tstcodec$(EXE) tstcodec85$(EXE)
++	rm -f *.dll.a *.a *.dll
++
+--- jbigkit/pbmtools/Makefile	2008-08-25 18:26:39.000000000 -0400
++++ jbigkit/pbmtools/Makefile	2009-12-23 11:59:00.872600000 -0500
+@@ -1,45 +1,67 @@
+ # Unix makefile for the JBIG-KIT PBM tools
+ # $Id: Makefile 1293 2008-08-25 22:26:39Z mgk25 $
+ 
++#PREFIX=/usr # inherited from parent dir
++#VERSION=1.5 # inherited from parent dir
++#DESTDIR=#     inherited from parent dir
++
++BINPATH=$(PREFIX)/bin
++MANPATH=$(PREFIX)/share/man
++MAN1PATH=$(MANPATH)/man1
++MAN5PATH=$(MANPATH)/man5
++
++SHAREDLIB=libjbig-2.dll
++STATLIB=libjbig.a
++STATLIB2=libjbig85.a
++EXE=.exe
++
+ # Select an ANSI/ISO C compiler here, e.g. GNU gcc is recommended
+ CC = gcc
++INSTALL = install
+ 
+ # Options for the compiler
+ CFLAGS = -g -Wall -ansi -pedantic -I../libjbig # --coverage
+ 
+ .SUFFIXES: .1 .5 .txt $(SUFFIXES)
+ 
+-all: pbmtojbg jbgtopbm pbmtojbg85 jbgtopbm85 \
++PROGS = pbmtojbg$(EXE) jbgtopbm$(EXE) pbmtojbg85$(EXE) jbgtopbm85$(EXE)
++
++all: $(PROGS) \
+ 	pbmtojbg.txt jbgtopbm.txt pbm.txt pgm.txt
+ 
+-pbmtojbg: pbmtojbg.o ../libjbig/libjbig.a
+-	$(CC) $(CFLAGS) -o pbmtojbg pbmtojbg.o -L../libjbig -ljbig
++pbmtojbg$(EXE): pbmtojbg.o ../libjbig/$(SHAREDLIB)
++	$(CC) $(CFLAGS) -o $@ $< -L../libjbig -ljbig
+ 
+-jbgtopbm: jbgtopbm.o ../libjbig/libjbig.a
+-	$(CC) $(CFLAGS) -o jbgtopbm jbgtopbm.o -L../libjbig -ljbig
++jbgtopbm$(EXE): jbgtopbm.o ../libjbig/$(SHAREDLIB)
++	$(CC) $(CFLAGS) -o $@ $< -L../libjbig -ljbig
+ 
+-pbmtojbg85: pbmtojbg85.o ../libjbig/libjbig85.a
+-	$(CC) $(CFLAGS) -o pbmtojbg85 pbmtojbg85.o -L../libjbig -ljbig85
++pbmtojbg85$(EXE): pbmtojbg85.o ../libjbig/$(STATLIB2)
++	$(CC) $(CFLAGS) -o $@ $< -L../libjbig -ljbig85
+ 
+-jbgtopbm85: jbgtopbm85.o ../libjbig/libjbig85.a
+-	$(CC) $(CFLAGS) -o jbgtopbm85 jbgtopbm85.o -L../libjbig -ljbig85
++jbgtopbm85$(EXE): jbgtopbm85.o ../libjbig/$(STATLIB2)
++	$(CC) $(CFLAGS) -o $@ $< -L../libjbig -ljbig85
+ 
+ jbgtopbm.o: jbgtopbm.c ../libjbig/jbig.h
+ pbmtojbg.o: pbmtojbg.c ../libjbig/jbig.h
+ jbgtopbm85.o: jbgtopbm85.c ../libjbig/jbig85.h
+ pbmtojbg85.o: pbmtojbg85.c ../libjbig/jbig85.h
+ 
+-../libjbig/libjbig.a: ../libjbig/jbig.c ../libjbig/jbig.h \
++../libjbig/$(STATLIB): ../libjbig/jbig.c ../libjbig/jbig.h \
+ 	../libjbig/jbig_ar.c ../libjbig/jbig_ar.h
+-	make -C ../libjbig libjbig.a
++	make -C ../libjbig $(STATLIB) "CC=$(CC)" "CFLAGS=$(CFLAGS)" \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)"
+ 
+-../libjbig/libjbig85.a: ../libjbig/jbig85.c ../libjbig/jbig85.h \
++../libjbig/$(STATLIB2): ../libjbig/jbig85.c ../libjbig/jbig85.h \
+ 	../libjbig/jbig_ar.c ../libjbig/jbig_ar.h
+-	make -C ../libjbig libjbig85.a
++	make -C ../libjbig $(STATLIB2) "CC=$(CC)" "CFLAGS=$(CFLAGS)" \
++		"DESTDIR=$(DESTDIR)" "PREFIX=$(PREFIX)" \
++		"VERSION=$(VERSION)" "INSTALL=$(INSTALL)"
+ 
+ test: test82 test85
+ 
+-test82: pbmtojbg jbgtopbm
++test82: pbmtojbg$(EXE) jbgtopbm$(EXE)
++	cp ../libjbig/$(SHAREDLIB) .
+ 	make IMG=ccitt1     OPTIONSP=                      dotest1
+ 	make IMG=ccitt2     OPTIONSP=                      dotest1
+ 	make IMG=ccitt3     OPTIONSP=                      dotest1
+@@ -57,18 +79,18 @@ test82: pbmtojbg jbgtopbm
+ 	make IMG=mx        "OPTIONSP=-q -Y -1"             dotest2b
+ 	make IMG=mx        "OPTIONSP=-Y -1"                dotest2b
+ 	rm -f test-*.jbg test-*.pbm test-*.pgm
+-	./jbgtopbm ../examples/ccitt1.jbg | ./pbmtojbg > test-ccitt1.jbg
++	./jbgtopbm$(EXE) ../examples/ccitt1.jbg | ./pbmtojbg$(EXE) > test-ccitt1.jbg
+ 	cmp ../examples/ccitt1.jbg test-ccitt1.jbg
+ 	rm -f test-*.jbg test-*.pbm test-*.pgm
+-	./jbgtopbm < ../examples/ccitt1.jbg | ./pbmtojbg - test-ccitt1.jbg
++	./jbgtopbm$(EXE) < ../examples/ccitt1.jbg | ./pbmtojbg$(EXE) - test-ccitt1.jbg
+ 	cmp ../examples/ccitt1.jbg test-ccitt1.jbg
+ 	rm -f test-*.jbg test-*.pbm test-*.pgm
+-	./jbgtopbm < ../examples/ccitt1.jbg - test-ccitt1.pbm ; \
+-	  ./pbmtojbg test-ccitt1.pbm test-ccitt1.jbg
++	./jbgtopbm$(EXE) < ../examples/ccitt1.jbg - test-ccitt1.pbm ; \
++	  ./pbmtojbg$(EXE) test-ccitt1.pbm test-ccitt1.jbg
+ 	cmp ../examples/ccitt1.jbg test-ccitt1.jbg
+ 	rm -f test-*.jbg test-*.pbm test-*.pgm
+-	./jbgtopbm ../examples/ccitt1.jbg test-ccitt1.pbm ; \
+-	  ./pbmtojbg test-ccitt1.pbm >test-ccitt1.jbg
++	./jbgtopbm$(EXE) ../examples/ccitt1.jbg test-ccitt1.pbm ; \
++	  ./pbmtojbg$(EXE) test-ccitt1.pbm >test-ccitt1.jbg
+ 	cmp ../examples/ccitt1.jbg test-ccitt1.jbg
+ 	rm -f test-*.jbg test-*.pbm test-*.pgm
+ 	@echo
+@@ -76,21 +98,21 @@ test82: pbmtojbg jbgtopbm
+ 	@echo
+ 
+ dotest1:
+-	./jbgtopbm ../examples/$(IMG).jbg test-$(IMG).pbm
+-	./pbmtojbg $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg
++	./jbgtopbm$(EXE) ../examples/$(IMG).jbg test-$(IMG).pbm
++	./pbmtojbg$(EXE) $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg
+ 	cmp test-$(IMG).jbg ../examples/$(IMG).jbg
+ 
+ dotest2b:
+-	./pbmtojbg $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg
+-	./jbgtopbm $(OPTIONSJ) test-$(IMG).jbg test-$(IMG)-2.pbm
++	./pbmtojbg$(EXE) $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg
++	./jbgtopbm$(EXE) $(OPTIONSJ) test-$(IMG).jbg test-$(IMG)-2.pbm
+ 	cmp test-$(IMG).pbm test-$(IMG)-2.pbm
+ 
+ dotest2g:
+-	./pbmtojbg $(OPTIONSP) ../examples/$(IMG).pgm test-$(IMG).jbg
+-	./jbgtopbm $(OPTIONSJ) test-$(IMG).jbg test-$(IMG).pgm
++	./pbmtojbg$(EXE) $(OPTIONSP) ../examples/$(IMG).pgm test-$(IMG).jbg
++	./jbgtopbm$(EXE) $(OPTIONSJ) test-$(IMG).jbg test-$(IMG).pgm
+ 	cmp test-$(IMG).pgm ../examples/$(IMG).pgm
+ 
+-test85: pbmtojbg jbgtopbm pbmtojbg85 jbgtopbm85 test-t82.pbm
++test85: pbmtojbg$(EXE) jbgtopbm$(EXE) pbmtojbg85$(EXE) jbgtopbm85$(EXE) test-t82.pbm
+ 	make IMG=t82 "OPTIONSP=-p 0"      dotest85
+ 	make IMG=t82 "OPTIONSP=-p 8"      dotest85
+ 	make IMG=t82 "OPTIONSP=-p 8 -r"   dotest85b
+@@ -115,40 +137,53 @@ test85: pbmtojbg jbgtopbm pbmtojbg85 jbg
+ 	@echo
+ 
+ dotest85: test-$(IMG).pbm
+-	./pbmtojbg85  $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg85
++	./pbmtojbg85$(EXE) $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg85
+ 	ls -l test-$(IMG).jbg85
+-	./jbgtopbm test-$(IMG).jbg85 test-$(IMG).pbm85
++	./jbgtopbm$(EXE) test-$(IMG).jbg85 test-$(IMG).pbm85
+ 	cmp test-$(IMG).pbm test-$(IMG).pbm85
+ 	rm test-$(IMG).pbm85
+-	./jbgtopbm85 test-$(IMG).jbg85 test-$(IMG).pbm85
++	./jbgtopbm85$(EXE) test-$(IMG).jbg85 test-$(IMG).pbm85
+ 	cmp test-$(IMG).pbm test-$(IMG).pbm85
+ 	rm test-$(IMG).pbm85
+-	./jbgtopbm85 -B 1 test-$(IMG).jbg85 test-$(IMG).pbm85
++	./jbgtopbm85$(EXE) -B 1 test-$(IMG).jbg85 test-$(IMG).pbm85
+ 	cmp test-$(IMG).pbm test-$(IMG).pbm85
+ 
+ dotest85b: test-$(IMG).pbm
+-	./pbmtojbg -f $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg85
++	./pbmtojbg$(EXE) -f $(OPTIONSP) test-$(IMG).pbm test-$(IMG).jbg85
+ 	ls -l test-$(IMG).jbg85
+-	./jbgtopbm test-$(IMG).jbg85 test-$(IMG).pbm85
++	./jbgtopbm$(EXE) test-$(IMG).jbg85 test-$(IMG).pbm85
+ 	cmp test-$(IMG).pbm test-$(IMG).pbm85
+ 	rm test-$(IMG).pbm85
+-	./jbgtopbm85 test-$(IMG).jbg85 test-$(IMG).pbm85
++	./jbgtopbm85$(EXE) test-$(IMG).jbg85 test-$(IMG).pbm85
+ 	cmp test-$(IMG).pbm test-$(IMG).pbm85
+ 	rm test-$(IMG).pbm85
+-	./jbgtopbm85 -B 1 test-$(IMG).jbg85 test-$(IMG).pbm85
++	./jbgtopbm85$(EXE) -B 1 test-$(IMG).jbg85 test-$(IMG).pbm85
+ 	cmp test-$(IMG).pbm test-$(IMG).pbm85
+ 
+ test-%.pbm: ../examples/%.jbg
+-	./jbgtopbm $< $@
++	./jbgtopbm$(EXE) $< $@
+ 
+ test-t82.pbm:
+-	make -C ../libjbig tstcodec
+-	../libjbig/tstcodec $@
++	make -C ../libjbig tstcodec$(EXE)
++	../libjbig/tstcodec$(EXE) $@
+ 
+ .1.txt .5.txt:
+ 	groff -man -Tascii -P -c -P -b -P -u $< >$@
+ 
++install: all
++	-@if [ ! -d $(DESTDIR)$(BINPATH) ]; then mkdir -p $(DESTDIR)$(BINPATH); fi
++	-@if [ ! -d $(DESTDIR)$(MAN1PATH) ]; then mkdir -p $(DESTDIR)$(MAN1PATH); fi
++	-@if [ ! -d $(DESTDIR)$(MAN5PATH) ]; then mkdir -p $(DESTDIR)$(MAN5PATH); fi
++	$(INSTALL) -m 755 -s pbmtojbg$(EXE) $(DESTDIR)$(BINPATH)
++	$(INSTALL) -m 755 -s jbgtopbm$(EXE) $(DESTDIR)$(BINPATH)
++	$(INSTALL) -m 644 pbm.5 $(DESTDIR)$(MAN5PATH)
++	$(INSTALL) -m 644 pgm.5 $(DESTDIR)$(MAN5PATH)
++	$(INSTALL) -m 644 jbgtopbm.1 $(DESTDIR)$(MAN1PATH)
++	$(INSTALL) -m 644 pbmtojbg.1 $(DESTDIR)$(MAN1PATH)
++
++
+ clean:
+-	rm -f *.o *~ core pbmtojbg jbgtopbm pbmtojbg85 jbgtopbm85
++	rm -f *.o *~ core pbmtojbg$(EXE) jbgtopbm$(EXE) pbmtojbg85$(EXE) jbgtopbm85$(EXE)
+ 	rm -f test-*.jbg test-*.pbm test-*.pgm test-*.jbg85 test-*.pbm85
+ 	rm -f *.gcda *.gcno
++	rm -f $(SHAREDLIB)

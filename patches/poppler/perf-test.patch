@@ -1,0 +1,35 @@
+--- a/test/perf-test.cc	2012-06-11 17:19:41 +0400
++++ b/test/perf-test.cc	2012-08-22 14:49:53 +0400
+@@ -325,32 +325,6 @@
+ #endif
+ }
+ 
+-#ifndef _MSC_VER
+-void strcpy_s(char* dst, size_t dst_size, const char* src)
+-{
+-    size_t src_size = strlen(src) + 1;
+-    if (src_size <= dst_size)
+-        memcpy(dst, src, src_size);
+-    else {
+-        if (dst_size > 0) {
+-            memcpy(dst, src, dst_size);
+-            dst[dst_size-1] = 0;
+-        }
+-    }
+-}
+-
+-void strcat_s(char *dst, size_t dst_size, const char* src)
+-{
+-    size_t dst_len = strlen(dst);
+-    if (dst_len >= dst_size) {
+-        if (dst_size > 0)
+-            dst[dst_size-1] = 0;
+-        return;
+-    }
+-    strcpy_s(dst+dst_len, dst_size - dst_len, src);
+-}
+-#endif
+-
+ static SplashColorMode gSplashColorMode = splashModeBGR8;
+ 
+ static SplashColor splashColRed;

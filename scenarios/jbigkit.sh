@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,55 +35,70 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
+P=jbigkit
+P_V=${P}-${JBIGKIT_VERSION}
+SRC_FILE="$P_V.tar.gz"
+URL=http://www.cl.cam.ac.uk/~mgk25/download/${SRC_FILE}
+DEPENDS=()
+
+src_download() {
+	func_download $P_V ".tar.gz" $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+
+	pushd $BUILD_DIR > /dev/null
+	if ! [ -f $P_V/post-unpack.marker ]
+		then
+		echo -n "--> Move ${P} to ${P_V}..."
+		mv -f $P $P_V
+		echo "done"
+	fi
+	touch $P_V/post-unpack.marker
+	popd > /dev/null
+}
+
+src_patch() {
+	local _patches=(
+		$P/jbigkit-2.0-11.src.patch
 	)
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@] \
+		$BUILD_DIR
+}
+
+src_configure() {
+	echo "--> Configure empty"
+}
+
+pkg_build() {
+	local _make_flags=(
+		PREFIX=${PREFIX}
+		${MAKE_OPTS}
 	)
-	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		PREFIX=${PREFIX}
+		${MAKE_OPTS}
+		install
 	)
-	yaml
-	ruby
-	dmake
-	perl 
-	# gettext
-	freetype
-	fontconfig
-	qt-$QT_VERSION
-	qbs
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_QDESKTOPCOMPONENTS == yes ]] \
-		&& echo "qdesktopcomponents" \
-	)
-	nasm
-	libjpeg-turbo
-	libpng
-	jbigkit
-	freeglut
-	tiff
-	libidn
-	libssh2
-	curl
-	poppler-data
-	poppler
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
