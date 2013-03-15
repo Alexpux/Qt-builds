@@ -293,6 +293,12 @@ function func_configure {
 	# $1 - build dir name
 	# $2 - src dir name
 	# $3 - flags
+	# $4 - parent source directory (set if it not $SRC_DIR)
+
+	local _src_dir=$SRC_DIR/$2
+	[[ "x$4" != "x" ]] && {
+		_src_dir=$4/$2
+	}
 
 	local _marker=$BUILD_DIR/$1/_configure.marker
 	local _result=0
@@ -301,7 +307,7 @@ function func_configure {
 	[[ ! -f $_marker ]] && {
 		echo -n "--> configure..."
 		mkdir -p $BUILD_DIR/$1
-		( cd $BUILD_DIR/$1 && eval $( func_absolute_to_relative $BUILD_DIR/$1 $SRC_DIR/$2 )/configure "${3}" > $_log_name 2>&1 )
+		( cd $BUILD_DIR/$1 && eval $( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )/configure "${3}" > $_log_name 2>&1 )
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"
