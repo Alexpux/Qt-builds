@@ -82,6 +82,9 @@ BUILD_QTCREATOR=yes
 # Build QDesktopComponents
 BUILD_QDESKTOPCOMPONENTS=no
 
+# Build some extra libraries
+BUILD_EXTRA_STUFF=no
+
 # Build Flags
 MAKE_OPTS="-j3"
 STATIC_LINK_FLAGS="--enable-static --disable-shared"
@@ -117,6 +120,7 @@ RUN_ARGS="$@"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --desktopcomponents     - build QDesktopComponents"
 	echo "    --static-qt             - build Qt to static libraries"
+	echo "    --extra-stuff           - build extra libraries"
 	echo "    --version               - pring the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 5.0.0, 5.0.1, 5.0.2"
@@ -195,6 +199,7 @@ while [[ $# > 0 ]]; do
 			STATIC_SUFFIX="-s"
 			STATIC_LD="-Wl,-Bstatic -lwinpthread -static"
 		;;
+		--extra-stuff) BUILD_EXTRA_STUFF=yes ;;
 		x32)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )

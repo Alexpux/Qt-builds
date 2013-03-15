@@ -73,15 +73,17 @@ PACKAGES=(
 	$( [[ $BUILD_QDESKTOPCOMPONENTS == yes ]] \
 		&& echo "qdesktopcomponents" \
 	)
-	nasm
-	libjpeg-turbo
-	libpng
-	jbigkit
-	freeglut
-	tiff
-	libidn
-	libssh2
-	curl
-	poppler-data
-	poppler
+	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
+		&& echo "nasm \
+				libjpeg-turbo \
+				libpng \
+				jbigkit \
+				freeglut \
+				tiff \
+				libidn \
+				libssh2 \
+				curl \
+				poppler-data \
+				poppler" \
+	)
 )
