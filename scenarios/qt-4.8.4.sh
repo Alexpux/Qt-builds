@@ -225,6 +225,7 @@ pkg_install() {
 	
 	restore_paths
 	private_headers
+	pkgconfig_files
 
 	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/qt-conf.marker ]
 	then
@@ -341,5 +342,13 @@ private_headers() {
 		echo "--> Done install private headers"
 		touch private_headers.marker
 		popd > /dev/null
+	fi
+}
+
+pkgconfig_files() {
+	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.marker ]
+	then
+		cp -rf $BUILD_DIR/$P-$QT_VERSION/lib/pkgconfig/* $QTDIR/lib/pkgconfig/ > $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.log 2>&1
+		touch $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.marker
 	fi
 }
