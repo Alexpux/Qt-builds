@@ -16,11 +16,11 @@ diff --git a/qtbase/src/angle/src/config.pri b/qtbase/src/angle/src/config.pri
 index 63792b9..f8b877d 100644
 --- a/qtbase/src/angle/src/config.pri
 +++ b/qtbase/src/angle/src/config.pri
-@@ -13,17 +13,17 @@ isEmpty(ANGLE_DIR) {
+@@ -13,18 +13,18 @@
  }
  
  win32 {
--    GNUTOOLS_DIR = $$absolute_path(../../../../gnuwin32/bin)
+-    GNUTOOLS_DIR=$$PWD/../../../../gnuwin32/bin
 -    exists($$GNUTOOLS_DIR/gperf.exe) {
 -        # Escape closing parens when expanding the variable, otherwise cmd confuses itself.
 -        GNUTOOLS = "(set PATH=$$replace(GNUTOOLS_DIR, [/\\\\], $${QMAKE_DIR_SEP});%PATH:)=^)%)"
@@ -32,12 +32,13 @@ index 63792b9..f8b877d 100644
  }
  
  defineReplace(addGnuPath) {
+     unset(gnuPath)
      gnuPath = $$1
 -    !isEmpty(gnuPath):!isEmpty(GNUTOOLS) {
--        gnuPath = $${GNUTOOLS} && $$gnuPath
+-        eval(gnuPath = $${GNUTOOLS} && $$gnuPath)
 +    !isEmpty(gnuPath):!isEmpty(gnutools.name) {
 +        qtAddToolEnv(gnuPath, gnutools)
-         silent: gnuPath = @echo generating sources from ${QMAKE_FILE_IN} && $$gnuPath
+         silent: eval(gnuPath = @echo generating sources from ${QMAKE_FILE_IN} && $$val_escape($$gnuPath))
      }
      return($$gnuPath)
 -- 
