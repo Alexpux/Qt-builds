@@ -166,7 +166,7 @@ src_configure() {
 		)
 		local _allconf="${_conf_flags[@]}"
 		$PREFIX/perl/bin/perl configure \
-			"$_allconf" \
+			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths
