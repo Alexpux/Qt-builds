@@ -42,7 +42,7 @@ URL=git://gitorious.org/qtplayground/qtdesktopcomponents.git
 DEPENDS=()
 
 src_download() {
-	func_download $P_V "git" $URL
+	func_download $P_V "git" $URL stable
 }
 
 src_unpack() {
