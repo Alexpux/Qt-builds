@@ -69,7 +69,7 @@ USER_DEFINED_TOOLCHAINS=no
 DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
 
 # MinGW toolchain links
-URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/32-bit/threads-posix/sjlj/x32-4.7.2-release-posix-sjlj-rev11.7z
+URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/32-bit/threads-posix/dwarf/x32-4.7.2-release-posix-dwarf-rev11.7z
 URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.2/64-bit/threads-posix/sjlj/x64-4.7.2-release-posix-sjlj-rev11.7z
 
 # MinGW-builds contain prebuilded python in opt subdirectory.
