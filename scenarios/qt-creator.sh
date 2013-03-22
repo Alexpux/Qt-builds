@@ -103,15 +103,6 @@ pkg_install() {
 		"installed"
 
 	# install_docs
-
-	if ! [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/post-install.marker ]
-	then
-		echo -n "--> Execute after install..."
-		for i in ${QTDIR}/bin/*.a ; \
-        	do cp -f ${i} ${QTDIR}/lib/; done
-		echo " done"
-		touch $BUILD_DIR/${P_V}-${QT_VERSION}/post-install.marker
-	fi
 }
 
 install_docs() {
