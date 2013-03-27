@@ -70,8 +70,8 @@ PACKAGES=(
 	$( [[ $BUILD_QTCREATOR == yes ]] \
 		&& echo "qt-creator" \
 	)
-	$( [[ $BUILD_QDESKTOPCOMPONENTS == yes ]] \
-		&& echo "qdesktopcomponents" \
+	$( [[ $BUILD_QUICKCONTROLS == yes ]] \
+		&& echo "quickcontrols" \
 	)
 	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
 		&& echo "nasm \

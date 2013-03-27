@@ -80,7 +80,7 @@ USE_MINGWBUILDS_PYTHON=yes
 BUILD_QTCREATOR=yes
 
 # Build QDesktopComponents
-BUILD_QDESKTOPCOMPONENTS=no
+BUILD_QUICKCONTROLS=no
 
 # Build some extra libraries
 BUILD_EXTRA_STUFF=no
@@ -118,7 +118,7 @@ RUN_ARGS="$@"
 	echo "                              Default Qt version is 5.0.0"
 	echo "    --build-python          - specifies to the script to build Python"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
-	echo "    --desktopcomponents     - build QDesktopComponents"
+	echo "    --quickcontrols         - build QtQuickControls"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
 	echo "    --version               - pring the version of the Qt-builds scripts"
@@ -184,9 +184,9 @@ while [[ $# > 0 ]]; do
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
 		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
-		--desktopcomponents)
+		--quickcontrols)
 			[[ $STATIC_DEPS == no ]] && {
-				BUILD_QDESKTOPCOMPONENTS=yes
+				BUILD_QUICKCONTROLS=yes
 			}
 		;;
 		--static-qt)
