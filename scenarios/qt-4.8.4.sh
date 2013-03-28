@@ -142,6 +142,7 @@ src_configure() {
 				&& echo "-plugin-sql-ibase \
 						 -plugin-sql-mysql \
 						 -plugin-sql-psql \
+						 -plugin-sql-odbc \
 						 -plugin-sql-oci" \
 				|| echo "-qt-sql-sqlite \
 						 -qt-zlib" \

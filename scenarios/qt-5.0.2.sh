@@ -146,6 +146,7 @@ src_configure() {
 						 -plugin-sql-mysql \
 						 -plugin-sql-psql \
 						 -plugin-sql-oci \
+						 -plugin-sql-odbc \
 						 -no-iconv \
 						 -icu \
 						 -system-pcre \
