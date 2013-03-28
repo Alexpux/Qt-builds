@@ -1,0 +1,31 @@
+From 823d48d2188727a91a1b23e9daad435ba462f1a1 Mon Sep 17 00:00:00 2001
+From: Kai Koehne <kai.koehne@digia.com>
+Date: Tue, 26 Mar 2013 14:31:29 +0100
+Subject: [PATCH] Fix check for declarative with Qt 5.0.2
+
+QT_CONFIG doesn't contain module names any more. Therefore
+also check for QT.declarative.name (available since 5.0.0)
+
+Task-number: QTBUG-30384
+Change-Id: I2df090d510266c25e7bb50ba4f045eaedd98c643
+Reviewed-by: Oswald Buddenhagen <oswald.buddenhagen@digia.com>
+---
+ src/plugins/plugins.pro | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/plugins/plugins.pro b/src/plugins/plugins.pro
+index 2a8628c..546c018 100644
+--- a/src/plugins/plugins.pro
++++ b/src/plugins/plugins.pro
+@@ -63,7 +63,7 @@ linux-* {
+ 
+ include(../../qtcreator.pri)
+ 
+-contains(QT_CONFIG, declarative) {
++contains(QT_CONFIG, declarative)|!isEmpty(Qt.declarative.name) {
+     SUBDIRS += \
+             plugin_qmlprojectmanager \
+             plugin_qmlprofiler
+-- 
+1.8.2
+

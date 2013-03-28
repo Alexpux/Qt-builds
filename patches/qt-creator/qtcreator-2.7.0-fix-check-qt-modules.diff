@@ -1,0 +1,58 @@
+From d1aa986735cb352f46a3018361acdd88f2e3048f Mon Sep 17 00:00:00 2001
+From: Kai Koehne <kai.koehne@digia.com>
+Date: Tue, 26 Mar 2013 15:58:20 +0100
+Subject: [PATCH] Fix checks for qt modules
+
+The fix in 823d48d2188727a91a1b23e9daad435ba462f1a1 had a typo
+(Qt vs QT). Also fix other places where QT_CONFIG was used to
+identify Qt modules.
+
+Change-Id: Ie32b678b959f7b5573574ef87ae7ad92860e8323
+Reviewed-by: Eike Ziller <eike.ziller@digia.com>
+---
+ share/qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pri | 2 +-
+ src/plugins/plugins.pro                                 | 2 +-
+ tests/manual/debugger/simple/simple_test_app.pro        | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/share/qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pri b/share/qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pri
+index 0834e57..894234d 100644
+--- a/share/qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pri
++++ b/share/qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pri
+@@ -1,6 +1,6 @@
+ 
+ QT += core gui widgets qml quick network v8
+-contains (QT_CONFIG, webkit) {
++!isEmpty(QT.webkit.name) {
+     QT += webkit
+ }
+ 
+diff --git a/src/plugins/plugins.pro b/src/plugins/plugins.pro
+index 546c018..520ef0a 100644
+--- a/src/plugins/plugins.pro
++++ b/src/plugins/plugins.pro
+@@ -63,7 +63,7 @@ linux-* {
+ 
+ include(../../qtcreator.pri)
+ 
+-contains(QT_CONFIG, declarative)|!isEmpty(Qt.declarative.name) {
++contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
+     SUBDIRS += \
+             plugin_qmlprojectmanager \
+             plugin_qmlprofiler
+diff --git a/tests/manual/debugger/simple/simple_test_app.pro b/tests/manual/debugger/simple/simple_test_app.pro
+index 12a6cc4..fa092f8 100644
+--- a/tests/manual/debugger/simple/simple_test_app.pro
++++ b/tests/manual/debugger/simple/simple_test_app.pro
+@@ -10,7 +10,7 @@ QT += network
+ QT += script
+ QT += xml
+ 
+-contains(QT_CONFIG, webkit) {
++contains(QT_CONFIG, webkit)|!isEmpty(QT.webkit.name) {
+     QT += webkit
+     greaterThan(QT_MAJOR_VERSION, 4) {
+         QT += webkitwidgets
+-- 
+1.8.2
+

@@ -51,6 +51,8 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
+		$P/qtcreator-2.7.0-fix-check-for-declarative.diff
+		$P/qtcreator-2.7.0-fix-check-qt-modules.diff
 	)
 	
 	func_apply_patches \
