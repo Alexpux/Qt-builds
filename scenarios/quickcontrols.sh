@@ -35,7 +35,7 @@
 
 # **************************************************************************
 
-P=qdesktopcomponents
+P=qtquickcontrols
 P_V=${P}
 SRC_FILE=""
 URL=git://gitorious.org/qt/qtquickcontrols.git
