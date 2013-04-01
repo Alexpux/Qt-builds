@@ -38,7 +38,7 @@
 P=sqlite
 P_V=${P}-autoconf-${SQLITE_VERSION}
 SRC_FILE="${P_V}.tar.gz"
-URL=http://www.sqlite.org/${SRC_FILE}
+URL=http://www.sqlite.org/2013/${SRC_FILE}
 DEPENDS=("icu" "readline")
 
 src_download() {
