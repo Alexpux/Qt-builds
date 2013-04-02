@@ -67,6 +67,7 @@ USER_DEFINED_TOOLCHAINS=no
 
 # DirectX SDK installation path
 DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
+echo "WARNING: You need installed DirectX SDK for building Qt5..."
 
 # MinGW toolchain links
 URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev1.7z

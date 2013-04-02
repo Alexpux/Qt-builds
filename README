@@ -4,23 +4,26 @@ The scripts are distributed under the 'BSD 3' license[1].
 
 In order to use the scripts provided by the Qt-builds project it is needed:
 
-1. Windows
+1. Windows with installed Microsoft DirectX SDK (needed for Qt5).
+   DirectX SDK available for download from http://www.microsoft.com/en-us/download/details.aspx?id=6812.
 
-2. Install MSYS:
+2. Notepad++ (http://notepad-plus-plus.org) for viewing log files.
+
+3. Install MSYS:
   http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/
   Recommended version is rev9 or higher.
 
-3. Get the scripts into '<msys root>/home/<user>/Qt-builds':
+4. Get the scripts into '<msys root>/home/<user>/Qt-builds':
   "cd && git clone git://github.com/Alexpux/Qt-builds.git"
 
-4. In the MSYS file structure delete the '/MinGW' directory.
+5. In the MSYS file structure delete the '/MinGW' directory.
 
-5. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
+6. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
 
-6. Go into the Qt-builds root directory.
+7. Go into the Qt-builds root directory.
   "cd && cd Qt-builds"
 
-7. Build script has next parameters:
+8. Build script has next parameters:
   The '--buildroot=<path>' option specifies to the script to use '<path>' as build directory.
     By default used <SCRIPTS_DIR>/work.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
@@ -36,7 +39,7 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 
-8. Run:
+9. Run:
   "./buildall x32" - for building 32-bit Qt
   "./buildall x64" - for building 64-bit Qt
   "./buildall x32 x64" - for building both 32 and 64 bits Qt
