@@ -197,7 +197,7 @@ function func_uncompress {
 	# $2 - ext
 	# $3 - src dir name
 
-	local _src_dir=$SRC_DIR
+	local _src_dir=$UNPACK_DIR
 	local _marker_location=$MARKERS_DIR
 	[[ "x$3" != "x" ]] && {
 		_src_dir=$3
@@ -245,7 +245,7 @@ function func_apply_patches {
 	# $2 - patches list
 	# $3 - sources directory
 	
-	local _src_dir=$SRC_DIR
+	local _src_dir=$UNPACK_DIR
 	[[ "x$3" != "x" ]] && {
 		_src_dir=$3
 	}
@@ -299,7 +299,7 @@ function func_configure {
 	# $3 - flags
 	# $4 - parent source directory (set if it not $SRC_DIR)
 
-	local _src_dir=$SRC_DIR/$2
+	local _src_dir=$UNPACK_DIR/$2
 	[[ "x$4" != "x" ]] && {
 		_src_dir=$4/$2
 	}

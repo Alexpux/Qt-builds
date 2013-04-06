@@ -53,14 +53,15 @@ export PATH=$MSYS_PART_PATH:$WINDOWS_PART_PATH
 # directories
 TOP_DIR=`pwd`
 PREFIX_TOP=/c/QtSDK
-SRC_DIR=${TOP_DIR}/src
-MARKERS_DIR=${SRC_DIR}/markers
 PATCH_DIR=${TOP_DIR}/patches
 PACKAGE_DIR=${TOP_DIR}/packages
+PROG_DIR=${TOP_DIR}/progs
 SCENARIOS=${TOP_DIR}/scenarios
-ROOT_DIR=${TOP_DIR}/work
-UNPACK_DIR=${ROOT_DIR}/sources
 TOOLCHAINS_DIR=${TOP_DIR}/toolchains
+ROOT_DIR=${TOP_DIR}/work
+SRC_DIR=${ROOT_DIR}/src
+MARKERS_DIR=${ROOT_DIR}/markers
+UNPACK_DIR=${ROOT_DIR}/sources
 
 # Use system installed toolchains
 USER_DEFINED_TOOLCHAINS=no
