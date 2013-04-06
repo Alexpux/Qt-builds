@@ -53,6 +53,7 @@ src_patch() {
 	local _patches=(
 		$P/qtcreator-2.7.0-fix-check-for-declarative.diff
 		$P/qtcreator-2.7.0-fix-check-qt-modules.diff
+		$P/qtcreator-2.7.0-maybe_quote.patch
 	)
 	
 	func_apply_patches \
