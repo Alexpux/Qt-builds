@@ -89,6 +89,7 @@ src_patch() {
 		$P/4.8.x/qt-4.8.3-qmake-cmd-mkdir-slash-direction.patch
 		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch
 		$P/4.8.x/qt-4.8.4-qmake-static.patch
+		$P/4.8.x/qt-4.8.4-fix-sse-suppport-build-regression.patch
 	)
 	
 	func_apply_patches \
