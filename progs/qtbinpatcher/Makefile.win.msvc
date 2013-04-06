@@ -1,0 +1,25 @@
+CC      = cl
+CFLAGS  = -nologo -c -O2 -MT -EHsc -W3
+LINK    = link
+LFLAGS  = /nologo /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE /MANIFEST /MANIFESTFILE:"$(MANIFEST)"
+DESTDIR = out
+TARGET  = qtbinpatcher.exe
+MANIFEST = $(DESTDIR)\$(TARGET).embed.manifest
+
+release : all
+all : $(DESTDIR) $(DESTDIR)\$(TARGET)
+
+$(DESTDIR) :
+	-@if not exist $(DESTDIR) mkdir $(DESTDIR)
+
+$(DESTDIR)\QtBinPatcher.obj : QtBinPatcher.cpp
+	$(CC) -c $(CFLAGS) -Fo$@ $**
+
+$(DESTDIR)\$(TARGET) : $(DESTDIR)\QtBinPatcher.obj
+	$(LINK) $(LFLAGS) /OUT:$(DESTDIR)/$(TARGET) $**
+	mt /nologo /manifest $(DESTDIR)\$(TARGET).embed.manifest /outputresource:$(DESTDIR)\$(TARGET);1
+
+
+clean :
+	-del $(DESTDIR)\QtBinPatcher.obj
+	-del $(MANIFEST)

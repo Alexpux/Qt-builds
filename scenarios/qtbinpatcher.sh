@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,58 +35,51 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
+P=qtbinpatcher
+P_V=${P}-0.1
+SRC_FILE=
+URL=
+
+src_download() {
+	echo "--> Local sources"
+}
+
+src_unpack() {
+	if [ -f $BUILD_DIR/$P_V.marker ]
+	then
+		echo "--> Sources copied"
+	else
+		echo -n "--> Copy sources..."
+		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $PROG_DIR"
+		echo " done"
+	fi
+}
+
+src_patch() {
+	echo "--> No patches needed"
+}
+
+src_configure() {
+	echo "--> Don't need configure"
+}
+
+pkg_build() {
+	local _make_flags=(
+		"-f Makefile.win.mingw"
 	)
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
-	)
-	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
-	)
-	yaml
-	ruby
-	dmake
-	perl 
-	# gettext
-	freetype
-	fontconfig
-	qt-$QT_VERSION
-	qtbinpatcher
-	qbs
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_QUICKCONTROLS == yes ]] \
-		&& echo "quickcontrols" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
-		&& echo "nasm \
-				libjpeg-turbo \
-				libpng \
-				jbigkit \
-				freeglut \
-				tiff \
-				libidn \
-				libssh2 \
-				curl \
-				poppler-data \
-				poppler" \
-	)
-)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	if [ ! -f $BUILD_DIR/$P/install.marker ]
+	then
+		cp -f $BUILD_DIR/$P/${P}.exe ${QTDIR}/bin/ || die "Error copying ${P}.exe"
+		touch $BUILD_DIR/$P/install.marker
+	fi
+}

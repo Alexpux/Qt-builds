@@ -1,0 +1,24 @@
+CC      = g++
+CFLAGS  = -Os
+LINK    = g++
+LFLAGS  = -Wl,-s -Wl,--strip-all
+DESTDIR = out
+TARGET  = qtbinpatcher
+
+release : all
+all : $(DESTDIR) $(DESTDIR)\$(TARGET)
+
+$(DESTDIR) :
+	-@if [ ! -d $(DESTDIR) ]; then \
+	    mkdir $(DESTDIR); \
+	fi
+
+$(DESTDIR)/QtBinPatcher.o : QtBinPatcher.cpp
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(DESTDIR)\$(TARGET) : $(DESTDIR)/QtBinPatcher.o
+	$(LINK) $(LFLAGS) -o $(DESTDIR)/$(TARGET) $^
+
+
+clean :
+	-del $(DESTDIR)\QtBinPatcher.o

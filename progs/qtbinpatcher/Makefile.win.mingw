@@ -1,0 +1,27 @@
+CC      = g++
+CFLAGS  = -Os
+LINK    = g++
+LFLAGS  = -Wl,-s --static
+DESTDIR = out
+TARGET  = qtbinpatcher.exe
+
+release : all
+all : $(DESTDIR) $(DESTDIR)\$(TARGET)
+
+$(DESTDIR) :
+	-@if not exist $(DESTDIR) mkdir $(DESTDIR)
+
+$(DESTDIR)/QtBinPatcher.o : QtBinPatcher.cpp
+	$(CC) -c $(CFLAGS) -o $@ $<
+	
+$(DESTDIR)/QtBinPatcher.win.rc.o : QtBinPatcher.win.rc
+	windres -o $@ -i $<
+	
+$(DESTDIR)\$(TARGET) : $(DESTDIR)/QtBinPatcher.o $(DESTDIR)/QtBinPatcher.win.rc.o
+	$(LINK) $(LFLAGS) -o $(DESTDIR)/$(TARGET) $^
+
+
+clean :
+	-del $(DESTDIR)\QtBinPatcher.o
+	-del $(DESTDIR)\QtBinPatcher.win.rc.o
+	
