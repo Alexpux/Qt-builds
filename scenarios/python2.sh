@@ -76,9 +76,9 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $SRC_DIR/$P_V/post-patch.marker ]
+	if ! [ -f $UNPACK_DIR/$P_V/post-patch.marker ]
 	then
-		pushd $SRC_DIR/$P_V > /dev/null
+		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "--> Executing..."
 		rm -rf Modules/expat
 		rm -rf Modules/_ctypes/libffi*

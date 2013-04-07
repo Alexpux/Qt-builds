@@ -58,9 +58,9 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $SRC_DIR/$P_V/post-patch.marker ]
+	if ! [ -f $UNPACK_DIR/$P_V/post-patch.marker ]
 	then
-		pushd $SRC_DIR/$P_V > /dev/null
+		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "--> Execute after patch..."
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-configure.ac configure.ac
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-Makefile.am Makefile.am

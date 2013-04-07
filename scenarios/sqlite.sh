@@ -51,9 +51,9 @@ src_unpack() {
 
 src_patch() {
 
-	if ! [ -f $SRC_DIR/$P_V/pre-configure.marker ]
+	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
 	then
-		pushd $SRC_DIR/$P_V > /dev/null
+		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "--> Execute after patch..."
 		perl -pi -e 's#archive_cmds_need_lc=yes#archive_cmds_need_lc=no#g' configure > execute.log 2>&1
 		echo " done"

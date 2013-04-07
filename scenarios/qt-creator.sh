@@ -70,7 +70,7 @@ src_configure() {
 	else
 		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
 		echo -n "--> configure..."
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/$P_V ) 
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $UNPACK_DIR/$P_V ) 
 		${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
 		echo " done"

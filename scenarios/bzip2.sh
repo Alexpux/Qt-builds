@@ -63,9 +63,9 @@ src_patch() {
 }
 
 src_configure() {
-	if ! [ -f $SRC_DIR/$P_V/pre-configure.marker ]
+	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
 	then
-		pushd $SRC_DIR/$P_V > /dev/null
+		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "--> Execute before configure..."
 		./autogen.sh > execute.log 2>&1
 		echo " done"

@@ -48,7 +48,7 @@ src_download() {
 src_unpack() {
 	func_uncompress $P_V ".tgz"
 	
-	pushd $SRC_DIR > /dev/null
+	pushd $UNPACK_DIR > /dev/null
 	if ! [ -f $P_V/post-unpack.marker ]
 		then
 		echo -n "--> Move icu to $P_V..."
@@ -74,7 +74,7 @@ src_patch() {
 }
 
 src_configure() {
-	pushd $SRC_DIR/$P_V/source > /dev/null
+	pushd $UNPACK_DIR/$P_V/source > /dev/null
 	if ! [ -f pre-configure.marker ]
 	then
 		echo -n "--> Execute before configure..."
