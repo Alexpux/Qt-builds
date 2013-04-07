@@ -58,7 +58,7 @@ src_configure() {
 	pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
 	if ! [ -f configure.marker ]
 	then
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $UNPACK_DIR/${P_V} ) 
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/${P_V} ) 
 		${QTDIR}/bin/qmake.exe -r $_rel_path/qtquickcontrols.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
 		touch configure.marker
