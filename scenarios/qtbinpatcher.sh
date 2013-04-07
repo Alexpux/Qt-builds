@@ -51,6 +51,7 @@ src_unpack() {
 	else
 		echo -n "--> Copy sources..."
 		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $PROG_DIR"
+		touch $BUILD_DIR/$P_V.marker
 		echo " done"
 	fi
 }
