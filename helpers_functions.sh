@@ -196,10 +196,18 @@ function func_uncompress {
 	# $1 - name
 	# $2 - ext
 	# $3 - src dir name
+	# $4 - ignore unpack errors
 
 	local _src_dir=$UNPACK_DIR
+	local _ignore_error=0
 	local _marker_location=$MARKERS_DIR
-	[[ "x$3" != "x" ]] && {
+	[[ "x$3" != "x" && "x$3" == "x--ignore" ]] && {
+		_ignore_error=1
+	}
+	[[ "x$4" != "x" && "x$4" == "x--ignore" ]] && {
+		_ignore_error=1
+	}
+	[[ "x$3" != "x" && "x$3" != "x--ignore" ]] && {
 		_src_dir=$3
 		_marker_location=$3
 	}
@@ -223,7 +231,7 @@ function func_uncompress {
 			esac
 			eval ${_unpack_cmd}
 			_result=$?
-			[[ $_result == 0 ]] && {
+			[[ $_result == 0 || $_ignore_error == 1 ]] && {
 				echo " done"
 				touch $_marker_name
 			} || {
