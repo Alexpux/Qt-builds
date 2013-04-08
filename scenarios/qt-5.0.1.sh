@@ -84,6 +84,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.1-qmake-static.patch
 		$P/5.0.x/qt-5.0.1-fix-angle-build-under-msys.patch
 		$P/5.0.x/qt-5.0.1-fix-angle-static-build.patch
+		$P/5.0.x/qt-5.0.1-fix-gcc-OOM-error.patch
 		#$P/5.0.x/qt-5.0.0-mingw-gcc-4.7.2.patch
 	)
 	

@@ -82,7 +82,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
-		$P/5.0.x/qt-5.0.1-fix-angle-static-build.patch
+		$P/5.0.x/qt-5.0.1-fix-gcc-OOM-error.patch
 	)
 	
 	func_apply_patches \
