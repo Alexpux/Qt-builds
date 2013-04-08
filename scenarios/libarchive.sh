@@ -39,18 +39,24 @@ P=libarchive
 P_V=${P}-${LIBARCHIVE_VERSION}
 SRC_FILE="$P_V.tar.gz"
 URL=http://www.libarchive.org/downloads/${SRC_FILE}
-DEPENDS=(expat libxml2 xz)
+DEPENDS=(bzip2 expat libgnurx libxml2 lzo xz)
 
 src_download() {
 	func_download $P_V ".tar.gz" $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V ".tar.gz"
 }
 
 src_patch() {
-	echo "--> Patch empty"
+	local _patches=(
+		$P/libarchive-3.0.3-undefinedsymbols.patch
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 }
 
 src_configure() {
@@ -62,7 +68,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf" $BUILD_DIR
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {

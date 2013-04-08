@@ -1,0 +1,22 @@
+diff --git a/Makefile.am b/Makefile.am
+index 0b8c85c..30dc576 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -199,7 +199,7 @@ endif
+ # -no-undefined marks that libarchive doesn't rely on symbols
+ # defined in the application.  This is mandatory for cygwin.
+ libarchive_la_LDFLAGS= -no-undefined -version-info $(ARCHIVE_LIBTOOL_VERSION)
+-libarchive_la_LIBADD= $(LTLIBICONV)
++libarchive_la_LIBADD=  -lbz2 $(LTLIBICONV)
+ 
+ # Manpages to install
+ libarchive_man_MANS=						\
+@@ -611,7 +611,7 @@ bsdtar_ldstatic=
+ bsdtar_ccstatic=
+ endif
+ 
+-bsdtar_LDADD= libarchive.la libarchive_fe.la $(LTLIBICONV)
++bsdtar_LDADD= libarchive.la libarchive_fe.la -lregex $(LTLIBICONV)
+ bsdtar_CPPFLAGS= -I$(top_srcdir)/libarchive -I$(top_srcdir)/libarchive_fe $(bsdtar_ccstatic) $(PLATFORMCPPFLAGS)
+ bsdtar_LDFLAGS= $(bsdtar_ldstatic)
+ 
