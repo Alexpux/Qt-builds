@@ -46,7 +46,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V ".tar.gz" "--ignore"
 }
 
 src_patch() {
