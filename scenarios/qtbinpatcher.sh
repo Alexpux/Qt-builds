@@ -78,9 +78,9 @@ pkg_build() {
 }
 
 pkg_install() {
-	if [ ! -f $BUILD_DIR/$P/install.marker ]
+	if [ ! -f $BUILD_DIR/$P/install-${QT_VERSION}.marker ]
 	then
 		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
-		touch $BUILD_DIR/$P/install.marker
+		touch $BUILD_DIR/$P/install-${QT_VERSION}.marker
 	fi
 }
