@@ -35,9 +35,7 @@
 
 PACKAGES=(
 	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
-	)
+	zlib
 	gperf
 	libgnurx
 	bzip2
