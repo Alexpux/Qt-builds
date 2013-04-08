@@ -53,7 +53,7 @@ building 32-bit Qt and installing Qt into C:/SDK/Qt32-<version>.
 
 Binary builds are hosted on https://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/Qt-Builds/.
 
-To relocate installation of Qt you need only run qtbinpatcher without parameters in <QTDIR>/bin folder.
+To relocate installation of Qt you need only run "qtbinpatcher --nobackup" from <QTDIR> folder.
 Thanks for Yuri Krugloff <krugloff@tver-soft.org> for qtbinpatcher.
 
 [1] http://www.opensource.org/licenses/BSD-3-Clause
