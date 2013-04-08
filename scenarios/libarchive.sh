@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,60 +35,59 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "zlib" \
+P=libarchive
+P_V=${P}-${LIBARCHIVE_VERSION}
+SRC_FILE="$P_V.tar.gz"
+URL=http://www.libarchive.org/downloads/${SRC_FILE}
+DEPENDS=(expat libxml2 xz)
+
+src_download() {
+	func_download $P_V ".tar.gz" $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+}
+
+src_patch() {
+	echo "--> Patch empty"
+}
+
+src_configure() {
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--host=${HOST}
+		CFLAGS="\"${HOST_CFLAGS}\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf" $BUILD_DIR
+}
+
+pkg_build() {
+	local _make_flags=(
+		all
 	)
-	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
 	)
-	yaml
-	ruby
-	dmake
-	perl 
-	# gettext
-	freetype
-	fontconfig
-	qt-$QT_VERSION
-	qtbinpatcher
-	qbs
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_QUICKCONTROLS == yes ]] \
-		&& echo "quickcontrols" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
-		&& echo "nasm \
-				libjpeg-turbo \
-				libpng \
-				jbigkit \
-				freeglut \
-				tiff \
-				libidn \
-				libssh2 \
-				curl \
-				libarchive \
-				cmake \
-				poppler-data \
-				poppler" \
-	)
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}

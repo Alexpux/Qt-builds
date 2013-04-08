@@ -35,6 +35,7 @@
 
 # Versions of packages
 export BZIP2_VERSION="1.0.6"
+export CMAKE_VERSION="2.8.10.2"
 export CURL_VERSION="7.29.0"
 export DMAKE_VERSION="4.12.2"
 export EXPAT_VERSION="2.1.0"
@@ -45,6 +46,7 @@ export GETTEXT_VERSION="0.18.2"
 export GPERF_VERSION="3.0.4"
 export ICU_VERSION="50.1.2"
 export JBIGKIT_VERSION="2.0"
+export LIBARCHIVE_VERSION="3.1.2"
 export LIBFFI_VERSION="3.0.13"
 export LIBGNURX_VERSION="2.5.1"
 export LIBICONV_VERSION="1.14"
