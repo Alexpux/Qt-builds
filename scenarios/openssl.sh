@@ -144,11 +144,4 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-
-	if [ ! -f $BUILD_DIR/$P_V/post-install.marker ]
-	then
-		cp -f ${PREFIX}/bin/libeay32.dll ${PREFIX}/lib/ || die "Error copying libeay32.dll"
-		cp -f ${PREFIX}/bin/ssleay32.dll ${PREFIX}/lib/ || die "Error copying ssleay32.dll"
-		touch $BUILD_DIR/$P_V/post-install.marker
-	fi
 }
