@@ -46,7 +46,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V ".tar.gz"
 }
 
 src_patch() {
@@ -56,14 +56,13 @@ src_patch() {
 src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
-		--host=${HOST}
 		--system-libs
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf" $BUILD_DIR
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
