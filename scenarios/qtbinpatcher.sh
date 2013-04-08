@@ -80,7 +80,7 @@ pkg_build() {
 pkg_install() {
 	if [ ! -f $BUILD_DIR/$P/install.marker ]
 	then
-		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/bin/ || die "Error copying ${P}.exe"
+		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
 		touch $BUILD_DIR/$P/install.marker
 	fi
 }
