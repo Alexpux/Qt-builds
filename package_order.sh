@@ -63,15 +63,6 @@ PACKAGES=(
 	# gettext
 	freetype
 	fontconfig
-	qt-$QT_VERSION
-	qtbinpatcher
-	qbs
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_QUICKCONTROLS == yes ]] \
-		&& echo "quickcontrols" \
-	)
 	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
 		&& echo "nasm \
 				libjpeg-turbo \
@@ -83,8 +74,19 @@ PACKAGES=(
 				libssh2 \
 				curl \
 				libarchive \
-				cmake \
-				poppler-data \
+				cmake" \
+	)
+	qt-$QT_VERSION
+	qtbinpatcher
+	qbs
+	$( [[ $BUILD_QTCREATOR == yes ]] \
+		&& echo "qt-creator" \
+	)
+	$( [[ $BUILD_QUICKCONTROLS == yes ]] \
+		&& echo "quickcontrols" \
+	)
+	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
+		&& echo "poppler-data \
 				poppler" \
 	)
 )
