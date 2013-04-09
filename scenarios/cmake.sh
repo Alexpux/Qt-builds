@@ -57,7 +57,7 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--system-libs
-		-no-qt-gui
+		--no-qt-gui
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure $P_V $P_V "$_allconf"
