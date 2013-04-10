@@ -38,8 +38,8 @@
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.gz"
-URL=http://releases.qt-project.org/digia/${QT_VERSION}/latest/single/$SRC_FILE
-#URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
+URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
+MIRROR=http://download.qt-project.org/official_releases/qt/5.0/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
