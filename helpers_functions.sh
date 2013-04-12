@@ -160,10 +160,15 @@ function func_download {
 				_result=$?
 			;;
 			git)
-				[[ -n $4 ]] && {
-					git clone --branch $4 $3 $_lib_name > $_log_name 2>&1
+				[[ -d $_lib_name/.git ]] && {
+					cd $_lib_name
+					git pull > $_log_name 2>&1
 				} || {
-					git clone $3 $_lib_name > $_log_name 2>&1
+					[[ -n $4 ]] && {
+						git clone --branch $4 $3 $_lib_name > $_log_name 2>&1
+					} || {
+						git clone $3 $_lib_name > $_log_name 2>&1
+					}
 				}
 				_result=$?
 			;;
