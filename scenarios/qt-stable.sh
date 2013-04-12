@@ -71,7 +71,7 @@ change_paths() {
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P_V/gnuwin32/bin:$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$SRC_DIR/$P_V/gnuwin32/bin:$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
 }
 
 restore_paths() {
@@ -104,19 +104,7 @@ src_download() {
 }
 
 src_unpack() {
-	echo -n "--> Copy sources to ${BUILD_DIR}..."
-	if [ -f $BUILD_DIR/${P_V}.marker ]
-	then
-		echo " copyied"
-	else
-		if [ -d $BUILD_DIR/${P_V} ]
-		then
-			rm -rf $BUILD_DIR/${P_V} || die "Cannot remove corrupted directory $BUILD_DIR/${P_V}"
-		fi
-		cp -rf $SRC_DIR/$P_V $BUILD_DIR || die "Copy failed"
-		touch $BUILD_DIR/${P_V}.marker
-		echo " done"
-	fi
+	echo "--> Empty unpack"
 }
 
 src_patch() {
@@ -124,16 +112,16 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
-		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
+		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
 	)
 	
 	func_apply_patches \
 		$P_V \
 		_patches[@] \
-		$BUILD_DIR
+		$SRC_DIR
 	
-	pushd $BUILD_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
+	pushd $SRC_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
 			rm -f qmake.conf
@@ -161,6 +149,7 @@ src_configure() {
 	then
 		echo "--> configured"
 	else
+		mkdir -p $BUILD_DIR/$P_V
 		pushd $BUILD_DIR/$P_V > /dev/null
 		echo -n "--> configure..."
 		local _opengl
@@ -206,7 +195,8 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		$PREFIX/perl/bin/perl configure \
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $SRC_DIR/${P_V} )
+		$PREFIX/perl/bin/perl $_rel_path/configure \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
@@ -220,15 +210,17 @@ src_configure() {
 pkg_build() {
 	change_paths
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
-		# Workaround for
-		# https://bugreports.qt-project.org/browse/QTBUG-28845
+		#Workaround for
+		#https://bugreports.qt-project.org/browse/QTBUG-28845
+		mkdir -p $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2
 		pushd $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
 		if [ -f workaround.marker ]
 		then
 			echo "--> Workaround applied"
 		else
 			echo -n "--> Applying workaround..."
-			qmake libGLESv2.pro
+			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
+			qmake $_rel_path/libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
 			touch workaround.marker
