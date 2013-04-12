@@ -49,6 +49,7 @@ URL_QTJSBACKEND=git://gitorious.org/qt/qtjsbackend.git
 URL_QTMULTIMEDIA=git://gitorious.org/qt/qtmultimedia.git
 URL_QTQUICK1=git://gitorious.org/qt/qtquick1.git
 URL_QTSCRIPT=git://gitorious.org/qt/qtscript.git
+URL_QTSERIALPORT=git://gitorious.org/qt/qtserialport.git
 URL_QTSVG=git://gitorious.org/qt/qtsvg.git
 URL_QTTOOLS=git://gitorious.org/qt/qttools.git
 URL_QTTRANSLATIONS=git://gitorious.org/qt/qttranslations.git
@@ -92,6 +93,7 @@ src_download() {
 	func_download $P_V/qtmultimedia "git" $URL_QTMULTIMEDIA $BRANCH
 	func_download $P_V/qtquick1 "git" $URL_QTQUICK1 $BRANCH
 	func_download $P_V/qtscript "git" $URL_QTSCRIPT $BRANCH
+	func_download $P_V/qtserialport "git" $URL_QTSERIALPORT $BRANCH
 	func_download $P_V/qtsvg "git" $URL_QTSVG $BRANCH
 	func_download $P_V/qttools "git" $URL_QTTOOLS $BRANCH
 	func_download $P_V/qttranslations "git" $URL_QTTRANSLATIONS $BRANCH
