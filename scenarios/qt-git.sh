@@ -36,7 +36,7 @@
 # **************************************************************************
 
 P=qt
-P_V=$P-stable
+P_V=$P-$QT_GIT_BRANCH
 SRC_FILE=
 URL_QT5=git://gitorious.org/qt/qt5.git
 URL_QTACTIVEQT=git://gitorious.org/qt/qtactiveqt.git
@@ -58,7 +58,6 @@ URL_QTWEBKIT_EXAMPLES=git://gitorious.org/qt/qtwebkit-examples-and-demos.git
 URL_QTXMLPATTERNS=git://gitorious.org/qt/qtxmlpatterns.git
 URL_QTQUICKCONTROLS=git://gitorious.org/qt/qtquickcontrols.git
 
-BRANCH="stable"
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
@@ -82,25 +81,25 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V "git" $URL_QT5 $BRANCH
-	func_download $P_V/qtactiveqt "git" $URL_QTACTIVEQT $BRANCH
-	func_download $P_V/qtbase "git" $URL_QTBASE $BRANCH
-	func_download $P_V/qtdeclarative "git" $URL_QTDECLARATIVE $BRANCH
-	func_download $P_V/qtdoc "git" $URL_QTDOC $BRANCH
-	func_download $P_V/qtgraphicaleffects "git" $URL_QTGRAPHICALEFFECTS $BRANCH
-	func_download $P_V/qtimageformats "git" $URL_QTIMAGEFOMATS $BRANCH
-	func_download $P_V/qtjsbackend "git" $URL_QTJSBACKEND $BRANCH
-	func_download $P_V/qtmultimedia "git" $URL_QTMULTIMEDIA $BRANCH
-	func_download $P_V/qtquick1 "git" $URL_QTQUICK1 $BRANCH
-	func_download $P_V/qtscript "git" $URL_QTSCRIPT $BRANCH
-	func_download $P_V/qtserialport "git" $URL_QTSERIALPORT $BRANCH
-	func_download $P_V/qtsvg "git" $URL_QTSVG $BRANCH
-	func_download $P_V/qttools "git" $URL_QTTOOLS $BRANCH
-	func_download $P_V/qttranslations "git" $URL_QTTRANSLATIONS $BRANCH
-	func_download $P_V/qtwebkit "git" $URL_QTWEBKIT $BRANCH
-	func_download $P_V/qtwebkit-examples-and-demos "git" $URL_QTWEBKIT_EXAMPLES $BRANCH
-	func_download $P_V/qtxmlpatterns "git" $URL_QTXMLPATTERNS $BRANCH
-	func_download $P_V/qtquickcontrols "git" $URL_QTQUICKCONTROLS $BRANCH
+	func_download $P_V "git" $URL_QT5 $QT_GIT_BRANCH
+	func_download $P_V/qtactiveqt "git" $URL_QTACTIVEQT $QT_GIT_BRANCH
+	func_download $P_V/qtbase "git" $URL_QTBASE $QT_GIT_BRANCH
+	func_download $P_V/qtdeclarative "git" $URL_QTDECLARATIVE $QT_GIT_BRANCH
+	func_download $P_V/qtdoc "git" $URL_QTDOC $QT_GIT_BRANCH
+	func_download $P_V/qtgraphicaleffects "git" $URL_QTGRAPHICALEFFECTS $QT_GIT_BRANCH
+	func_download $P_V/qtimageformats "git" $URL_QTIMAGEFOMATS $QT_GIT_BRANCH
+	func_download $P_V/qtjsbackend "git" $URL_QTJSBACKEND $QT_GIT_BRANCH
+	func_download $P_V/qtmultimedia "git" $URL_QTMULTIMEDIA $QT_GIT_BRANCH
+	func_download $P_V/qtquick1 "git" $URL_QTQUICK1 $QT_GIT_BRANCH
+	func_download $P_V/qtscript "git" $URL_QTSCRIPT $QT_GIT_BRANCH
+	func_download $P_V/qtserialport "git" $URL_QTSERIALPORT $QT_GIT_BRANCH
+	func_download $P_V/qtsvg "git" $URL_QTSVG $QT_GIT_BRANCH
+	func_download $P_V/qttools "git" $URL_QTTOOLS $QT_GIT_BRANCH
+	func_download $P_V/qttranslations "git" $URL_QTTRANSLATIONS $QT_GIT_BRANCH
+	func_download $P_V/qtwebkit "git" $URL_QTWEBKIT $QT_GIT_BRANCH
+	func_download $P_V/qtwebkit-examples-and-demos "git" $URL_QTWEBKIT_EXAMPLES $QT_GIT_BRANCH
+	func_download $P_V/qtxmlpatterns "git" $URL_QTXMLPATTERNS $QT_GIT_BRANCH
+	func_download $P_V/qtquickcontrols "git" $URL_QTQUICKCONTROLS $QT_GIT_BRANCH
 }
 
 src_unpack() {
