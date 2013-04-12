@@ -127,7 +127,7 @@ function func_download {
 	# } || {
 		# local _lib_name=$1/$2$3
 	# }
-	[[ ! -f $_marker_name ]] && {
+	[[ ! -f $_marker_name && $2 != git ]] && {
 		[[ -f $SRC_DIR/$_filename ]] && {
 			echo -n "--> Delete corrupted download..."
 			rm -f $SRC_DIR/$_filename
