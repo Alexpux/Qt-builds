@@ -231,7 +231,7 @@ function func_uncompress {
 				.tar.lzma) _unpack_cmd="tar xvJf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.xz) _unpack_cmd="tar -xv --xz -f $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.7z) die "unimplemented. terminate." ;;
-				.7z) _unpack_cmd="7za x $SRC_DIR/$1$2 -o$_src_dir > $_log_name 2>&1" ;;
+				.7z) _unpack_cmd="7za x -y $SRC_DIR/$1$2 -o$_src_dir > $_log_name 2>&1" ;;
 				*) die " error. bad archive type: $2" ;;
 			esac
 			eval ${_unpack_cmd}
