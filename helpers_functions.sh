@@ -116,8 +116,8 @@ function func_download {
 	local _WGET_TRIES=10
 	local _WGET_WAIT=2
 	local _result=0
-	local _log_name=$MARKERS_DIR/$1-download.log
-	local _marker_name=$MARKERS_DIR/$1-download.marker
+	local _log_name=$MARKERS_DIR/${1//\//_}-download.log
+	local _marker_name=$MARKERS_DIR/${1//\//_}-download.marker
 
 	local _lib_name=$SRC_DIR/$1
 	local _filename=$(basename $3)
