@@ -123,7 +123,7 @@ RUN_ARGS="$@"
 	echo "    --quickcontrols         - build QtQuickControls"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
-	echo "    --version               - pring the version of the Qt-builds scripts"
+	echo "    --version               - print the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 5.0.0, 5.0.1, 5.0.2, 5.1.0"
 
