@@ -113,6 +113,7 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
+		$P/5.1.x/qt-5.1.0-webkit-implement-JIT-for-MinGW-w64-64-bit.patch
 	)
 	
 	func_apply_patches \
