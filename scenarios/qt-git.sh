@@ -39,24 +39,26 @@ P=qt
 P_V=$P-$QT_GIT_BRANCH
 SRC_FILE=
 URL_QT5=git://gitorious.org/qt/qt5.git
-URL_QTACTIVEQT=git://gitorious.org/qt/qtactiveqt.git
-URL_QTBASE=git://gitorious.org/qt/qtbase.git
-URL_QTDECLARATIVE=git://gitorious.org/qt/qtdeclarative.git
-URL_QTDOC=git://gitorious.org/qt/qtdoc.git
-URL_QTGRAPHICALEFFECTS=git://gitorious.org/qt/qtgraphicaleffects.git
-URL_QTIMAGEFOMATS=git://gitorious.org/qt/qtimageformats.git
-URL_QTJSBACKEND=git://gitorious.org/qt/qtjsbackend.git
-URL_QTMULTIMEDIA=git://gitorious.org/qt/qtmultimedia.git
-URL_QTQUICK1=git://gitorious.org/qt/qtquick1.git
-URL_QTSCRIPT=git://gitorious.org/qt/qtscript.git
-URL_QTSERIALPORT=git://gitorious.org/qt/qtserialport.git
-URL_QTSVG=git://gitorious.org/qt/qtsvg.git
-URL_QTTOOLS=git://gitorious.org/qt/qttools.git
-URL_QTTRANSLATIONS=git://gitorious.org/qt/qttranslations.git
-URL_QTWEBKIT=git://gitorious.org/qt/qtwebkit.git
-URL_QTWEBKIT_EXAMPLES=git://gitorious.org/qt/qtwebkit-examples-and-demos.git
-URL_QTXMLPATTERNS=git://gitorious.org/qt/qtxmlpatterns.git
-URL_QTQUICKCONTROLS=git://gitorious.org/qt/qtquickcontrols.git
+
+SUBMODULES=(qtactiveqt
+			qtbase
+			qtdeclarative
+			qtdoc
+			qtgraphicaleffects
+			qtimageformats
+			qtjsbackend
+			qtmultimedia
+			qtquick1
+			qtquickcontrols
+			qtscript
+			qtserialport
+			qtsvg
+			qttools
+			qttranslations
+			qtwebkit
+			qtwebkit-examples-and-demos
+			qtxmlpatterns
+)
 
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
@@ -81,25 +83,25 @@ restore_paths() {
 }
 
 src_download() {
+	
+	if [ -d $SRC_DIR/$P_V]
+	then
+		pushd $SRC_DIR/$P_V > /dev/null
+			git clean -f > /dev/null
+		popd > /dev/null
+	fi
 	func_download $P_V "git" $URL_QT5 $QT_GIT_BRANCH
-	func_download $P_V/qtactiveqt "git" $URL_QTACTIVEQT $QT_GIT_BRANCH
-	func_download $P_V/qtbase "git" $URL_QTBASE $QT_GIT_BRANCH
-	func_download $P_V/qtdeclarative "git" $URL_QTDECLARATIVE $QT_GIT_BRANCH
-	func_download $P_V/qtdoc "git" $URL_QTDOC $QT_GIT_BRANCH
-	func_download $P_V/qtgraphicaleffects "git" $URL_QTGRAPHICALEFFECTS $QT_GIT_BRANCH
-	func_download $P_V/qtimageformats "git" $URL_QTIMAGEFOMATS $QT_GIT_BRANCH
-	func_download $P_V/qtjsbackend "git" $URL_QTJSBACKEND $QT_GIT_BRANCH
-	func_download $P_V/qtmultimedia "git" $URL_QTMULTIMEDIA $QT_GIT_BRANCH
-	func_download $P_V/qtquick1 "git" $URL_QTQUICK1 $QT_GIT_BRANCH
-	func_download $P_V/qtscript "git" $URL_QTSCRIPT $QT_GIT_BRANCH
-	func_download $P_V/qtserialport "git" $URL_QTSERIALPORT $QT_GIT_BRANCH
-	func_download $P_V/qtsvg "git" $URL_QTSVG $QT_GIT_BRANCH
-	func_download $P_V/qttools "git" $URL_QTTOOLS $QT_GIT_BRANCH
-	func_download $P_V/qttranslations "git" $URL_QTTRANSLATIONS $QT_GIT_BRANCH
-	func_download $P_V/qtwebkit "git" $URL_QTWEBKIT $QT_GIT_BRANCH
-	func_download $P_V/qtwebkit-examples-and-demos "git" $URL_QTWEBKIT_EXAMPLES $QT_GIT_BRANCH
-	func_download $P_V/qtxmlpatterns "git" $URL_QTXMLPATTERNS $QT_GIT_BRANCH
-	func_download $P_V/qtquickcontrols "git" $URL_QTQUICKCONTROLS $QT_GIT_BRANCH
+	
+	for mod in ${SUBMODULES[@]}; do
+		if [ -d $SRC_DIR/$P_V/$mod ]
+		then
+			pushd $SRC_DIR/$P_V/$mod > /dev/null
+				git clean -f > /dev/null
+				git reset --hard > /dev/null
+			popd > /dev/null
+		fi
+		func_download $P_V/$mod "git" git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
+	done
 }
 
 src_unpack() {
