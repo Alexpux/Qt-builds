@@ -18,7 +18,7 @@ diff --git a/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf b/qtwebkit/To
 index 75acbc3..2b2a7b1 100644
 --- a/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf
 +++ b/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf
-@@ -37,11 +37,7 @@ equals(OUT_PWD, $${ROOT_BUILD_DIR}) {
+@@ -40,11 +40,7 @@
  }
  
  # Try to detect if we're running under Windows cmd.exe or not
@@ -31,3 +31,14 @@ index 75acbc3..2b2a7b1 100644
  
  # Default location of generated sources
  GENERATED_SOURCES_DESTDIR = generated
+@@ -55,8 +51,8 @@
+ win_cmd_shell {
+     ESCAPE = "^"
+ } else {
+-    QUOTE = "\'"
+-    DOUBLE_ESCAPED_QUOTE = "\\\'"
++    QUOTE = "\""
++    DOUBLE_ESCAPED_QUOTE = "\\\''"
+ }
+ EOL = $$escape_expand(\\n)
+ EOC = $$escape_expand(\\n\\t)
