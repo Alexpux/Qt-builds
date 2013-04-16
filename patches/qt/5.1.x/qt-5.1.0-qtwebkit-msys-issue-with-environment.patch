@@ -15,12 +15,3 @@ index 75acbc3..2b2a7b1 100644
  
  # Default location of generated sources
  GENERATED_SOURCES_DESTDIR = generated
-@@ -55,7 +51,7 @@
-     ESCAPE = "^"
- } else {
-     QUOTE = "\'"
--    DOUBLE_ESCAPED_QUOTE = "\\\'"
-+    DOUBLE_ESCAPED_QUOTE = "\\\''"
- }
- EOL = $$escape_expand(\\n)
- EOC = $$escape_expand(\\n\\t)
