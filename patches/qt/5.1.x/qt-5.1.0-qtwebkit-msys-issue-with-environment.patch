@@ -1,19 +1,3 @@
-diff --git a/qtwebkit/Source/WebCore/DerivedSources.pri b/qtwebkit/Source/WebCore/DerivedSources.pri
-index 3457f35..12028a2 100644
---- a/qtwebkit/Source/WebCore/DerivedSources.pri
-+++ b/qtwebkit/Source/WebCore/DerivedSources.pri
-@@ -725,8 +725,9 @@ GENERATORS += preprocessIdls
- # GENERATOR 1: Generate .h and .cpp from IDLs
- generateBindings.input = IDL_BINDINGS
- generateBindings.script = $$PWD/bindings/scripts/generate-bindings.pl
--generateBindings.commands = $$setEnvironmentVariable(SOURCE_ROOT, $$toSystemPath($$PWD)) && perl -I$$PWD/bindings/scripts $$generateBindings.script \
--                            --defines \"$$javascriptFeatureDefines()\" \
-+win_cmd_shell: generateBindings.commands = $$setEnvironmentVariable(SOURCE_ROOT, $$toSystemPath($$PWD)) && perl -I$$PWD/bindings/scripts $$generateBindings.script
-+else: generateBindings.commands = SOURCE_ROOT=\"$$toSystemPath($$PWD)\" perl -I$$PWD/bindings/scripts $$generateBindings.script
-+generateBindings.commands += --defines \"$$javascriptFeatureDefines()\" \
-                             --generator JS \
-                             --include Modules/filesystem \
-                             --include Modules/geolocation \
 diff --git a/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf b/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf
 index 75acbc3..2b2a7b1 100644
 --- a/qtwebkit/Tools/qmake/mkspecs/features/default_pre.prf
@@ -27,17 +11,15 @@ index 75acbc3..2b2a7b1 100644
 -    pwd_starts_with_slash = $$find(pwd, ^/)
 -    isEmpty(pwd_starts_with_slash): CONFIG += win_cmd_shell
 -}
-+win32:isEmpty(QMAKE_SH): CONFIG += win_cmd_shell
++win32:isEmpty(MINGW_IN_SHELL): CONFIG += win_cmd_shell
  
  # Default location of generated sources
  GENERATED_SOURCES_DESTDIR = generated
-@@ -55,8 +51,8 @@
- win_cmd_shell {
+@@ -55,7 +51,7 @@
      ESCAPE = "^"
  } else {
--    QUOTE = "\'"
+     QUOTE = "\'"
 -    DOUBLE_ESCAPED_QUOTE = "\\\'"
-+    QUOTE = "\""
 +    DOUBLE_ESCAPED_QUOTE = "\\\''"
  }
  EOL = $$escape_expand(\\n)
