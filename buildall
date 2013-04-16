@@ -205,7 +205,7 @@ while [[ $# > 0 ]]; do
 			BUILD_QDESKTOPCOMPONENTS=no
 			STATIC_DEPS=yes
 			STATIC_SUFFIX="-s"
-			STATIC_LD="-Wl,-Bstatic -lwinpthread -static"
+			STATIC_LD="-static-libstdc++ -static-libgcc"
 		;;
 		--extra-stuff) BUILD_EXTRA_STUFF=yes ;;
 		x32)
