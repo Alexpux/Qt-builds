@@ -84,7 +84,7 @@ restore_paths() {
 
 src_download() {
 	
-	if [ -d $SRC_DIR/$P_V]
+	if [ -d $SRC_DIR/$P_V ]
 	then
 		pushd $SRC_DIR/$P_V > /dev/null
 			git clean -f > /dev/null
