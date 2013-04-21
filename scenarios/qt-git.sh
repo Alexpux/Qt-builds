@@ -38,8 +38,8 @@
 P=qt
 P_V=$P-$QT_GIT_BRANCH
 SRC_FILE=
-URL_QT5=git://gitorious.org/qt/qt5.git
 MAINMODULE=qt5
+URL_QT5=git://gitorious.org/qt/$MAINMODULE.git
 SUBMODULES=(qtactiveqt
 			qtbase
 			qtdeclarative
@@ -305,9 +305,9 @@ put_sha1() {
 	if [ -d $SRC_DIR/$P_V ]
 	then
 		pushd $SRC_DIR/$P_V > /dev/null
-			echo -n "$MAINMODULE SHA1:" > $QTDIR/sha1s
+			echo -n "$MAINMODULE SHA1: " > $QTDIR/sha1s
 			git log -1 --pretty=format:%H >> $QTDIR/sha1s
-			echo "--------------------------------------------" >> $QTDIR/sha1s
+			echo " ;" >> $QTDIR/sha1s
 		popd > /dev/null
 	fi
 	
@@ -315,9 +315,9 @@ put_sha1() {
 		if [ -d $SRC_DIR/$P_V/$mod ]
 		then
 			pushd $SRC_DIR/$P_V/$mod > /dev/null
-				echo -n "$mod SHA1:" >> $QTDIR/sha1s
+				echo -n "$mod SHA1: " >> $QTDIR/sha1s
 				git log -1 --pretty=format:%H >> $QTDIR/sha1s
-				echo "--------------------------------------------" >> $QTDIR/sha1s
+				echo " ;" >> $QTDIR/sha1s
 			popd > /dev/null
 		fi
 	done
