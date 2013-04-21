@@ -39,7 +39,7 @@ P=qt
 P_V=$P-$QT_GIT_BRANCH
 SRC_FILE=
 URL_QT5=git://gitorious.org/qt/qt5.git
-
+MAINMODULE=qt5
 SUBMODULES=(qtactiveqt
 			qtbase
 			qtdeclarative
@@ -261,6 +261,7 @@ pkg_install() {
 		"installed"
 
 	install_docs
+	put_sha1
 
 	# Workaround for build other components (qbs, qtcreator, etc)
 	if [[ ! -f $BUILD_DIR/$P_V/qwindows.marker && $STATIC_DEPS == yes ]]
@@ -298,4 +299,26 @@ install_docs() {
 		"$_allmake" \
 		"installing docs..." \
 		"installed-docs"
+}
+
+put_sha1() {
+	if [ -d $SRC_DIR/$P_V ]
+	then
+		pushd $SRC_DIR/$P_V > /dev/null
+			echo -n "$MAINMODULE SHA1:" > $QTDIR/sha1s
+			git log -1 --pretty=format:%H >> $QTDIR/sha1s
+			echo "--------------------------------------------" >> $QTDIR/sha1s
+		popd > /dev/null
+	fi
+	
+	for mod in ${SUBMODULES[@]}; do
+		if [ -d $SRC_DIR/$P_V/$mod ]
+		then
+			pushd $SRC_DIR/$P_V/$mod > /dev/null
+				echo -n "$mod SHA1:" >> $QTDIR/sha1s
+				git log -1 --pretty=format:%H >> $QTDIR/sha1s
+				echo "--------------------------------------------" >> $QTDIR/sha1s
+			popd > /dev/null
+		fi
+	done
 }
