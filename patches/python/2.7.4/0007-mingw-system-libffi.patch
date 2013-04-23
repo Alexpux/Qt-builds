@@ -1,7 +1,7 @@
-diff -urN a-2.7.3/configure.in b-2.7.3/configure.in
---- a-2.7.3/configure.in	2012-11-22 20:43:04.264639363 +0000
-+++ b-2.7.3/configure.in	2012-11-22 20:43:11.217073915 +0000
-@@ -2347,14 +2347,32 @@
+diff -urN a/configure.ac b/configure.ac
+--- a/configure.ac	2013-04-22 02:19:28.317468158 +0100
++++ b/configure.ac	2013-04-22 02:19:28.692471014 +0100
+@@ -2399,14 +2399,32 @@
              [],
              [with_system_ffi="no"])
  
@@ -37,9 +37,9 @@ diff -urN a-2.7.3/configure.in b-2.7.3/configure.in
  
  # Check for --with-dbmliborder
  AC_MSG_CHECKING(for --with-dbmliborder)
-diff -urN a-2.7.3/Lib/ctypes/test/test_as_parameter.py b-2.7.3/Lib/ctypes/test/test_as_parameter.py
---- a-2.7.3/Lib/ctypes/test/test_as_parameter.py	2012-11-22 20:43:04.188678317 +0000
-+++ b-2.7.3/Lib/ctypes/test/test_as_parameter.py	2012-11-22 20:43:11.205080065 +0000
+diff -urN a/Lib/ctypes/test/test_as_parameter.py b/Lib/ctypes/test/test_as_parameter.py
+--- a/Lib/ctypes/test/test_as_parameter.py	2013-04-22 02:19:28.421468950 +0100
++++ b/Lib/ctypes/test/test_as_parameter.py	2013-04-22 02:19:28.692471014 +0100
 @@ -1,6 +1,7 @@
  import unittest
  from ctypes import *
@@ -59,9 +59,9 @@ diff -urN a-2.7.3/Lib/ctypes/test/test_as_parameter.py b-2.7.3/Lib/ctypes/test/t
      def test_struct_return_8H(self):
          class S8I(Structure):
              _fields_ = [("a", c_int),
-diff -urN a-2.7.3/Lib/ctypes/test/test_functions.py b-2.7.3/Lib/ctypes/test/test_functions.py
---- a-2.7.3/Lib/ctypes/test/test_functions.py	2012-11-22 20:43:04.188678317 +0000
-+++ b-2.7.3/Lib/ctypes/test/test_functions.py	2012-11-22 20:43:11.209078015 +0000
+diff -urN a/Lib/ctypes/test/test_functions.py b/Lib/ctypes/test/test_functions.py
+--- a/Lib/ctypes/test/test_functions.py	2013-04-22 02:19:28.420468942 +0100
++++ b/Lib/ctypes/test/test_functions.py	2013-04-22 02:19:28.692471014 +0100
 @@ -359,6 +359,10 @@
              s2h = windll.s_ret_2h_func(S2H(99, 88))
              self.assertEqual((s2h.x, s2h.y), (99*2, 88*3))
@@ -73,29 +73,10 @@ diff -urN a-2.7.3/Lib/ctypes/test/test_functions.py b-2.7.3/Lib/ctypes/test/test
      def test_struct_return_8H(self):
          class S8I(Structure):
              _fields_ = [("a", c_int),
-diff -urN a-2.7.3/Makefile.pre.in b-2.7.3/Makefile.pre.in
---- a-2.7.3/Makefile.pre.in	2012-11-22 20:43:04.164690619 +0000
-+++ b-2.7.3/Makefile.pre.in	2012-11-22 20:43:11.209078015 +0000
-@@ -410,11 +410,10 @@
- 
- 
- # Build the shared modules
--# FIXME: in cross-compilation env. (mingw on linux) how to select correct
--# compiler/linker ?
--# The current py-code will created modules with .so suffix and environment
--# variable setting SO=$(SO) don't help.
--# Also it link modules with gcc instead mingw...
-+# The current py-code in case of cross-compilation (mingw on linux) will create
-+# modules with .so suffix and SO environment variable cannot help as
-+# the modules are linked with gcc instead *-mingw*-gcc.
-+# FIXME: in cross-compilation environment how to select correct compiler/linker ?
- sharedmods: $(BUILDPYTHON)
- 	@case $$MAKEFLAGS in \
- 	*s*) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(RUNPYTHON) -E $(srcdir)/setup.py build @PYMOD_BUILDOPT@;; \
-diff -urN a-2.7.3/Modules/_ctypes/callproc.c b-2.7.3/Modules/_ctypes/callproc.c
---- a-2.7.3/Modules/_ctypes/callproc.c	2012-11-22 20:43:04.104721374 +0000
-+++ b-2.7.3/Modules/_ctypes/callproc.c	2012-11-22 20:43:11.213075965 +0000
-@@ -822,8 +822,10 @@
+diff -urN a/Modules/_ctypes/callproc.c b/Modules/_ctypes/callproc.c
+--- a/Modules/_ctypes/callproc.c	2013-04-22 02:19:28.250467648 +0100
++++ b/Modules/_ctypes/callproc.c	2013-04-22 02:19:28.693471021 +0100
+@@ -827,8 +827,10 @@
  #ifndef DONT_USE_SEH
      __try {
  #endif
@@ -106,7 +87,7 @@ diff -urN a-2.7.3/Modules/_ctypes/callproc.c b-2.7.3/Modules/_ctypes/callproc.c
                  ffi_call(&cif, (void *)pProc, resmem, avalues);
  #ifdef MS_WIN32
  #ifndef DONT_USE_SEH
-@@ -856,6 +858,7 @@
+@@ -861,6 +863,7 @@
          return -1;
      }
  #endif
@@ -114,7 +95,7 @@ diff -urN a-2.7.3/Modules/_ctypes/callproc.c b-2.7.3/Modules/_ctypes/callproc.c
  #ifdef MS_WIN64
      if (delta != 0) {
          PyErr_Format(PyExc_RuntimeError,
-@@ -886,6 +889,7 @@
+@@ -891,6 +894,7 @@
      }
  #endif
  #endif
@@ -122,9 +103,9 @@ diff -urN a-2.7.3/Modules/_ctypes/callproc.c b-2.7.3/Modules/_ctypes/callproc.c
      if ((flags & FUNCFLAG_PYTHONAPI) && PyErr_Occurred())
          return -1;
      return 0;
-diff -urN a-2.7.3/Modules/_ctypes/libffi/fficonfig.py.in b-2.7.3/Modules/_ctypes/libffi/fficonfig.py.in
---- a-2.7.3/Modules/_ctypes/libffi/fficonfig.py.in	2012-11-22 20:43:04.116715221 +0000
-+++ b-2.7.3/Modules/_ctypes/libffi/fficonfig.py.in	2012-11-22 20:43:11.213075965 +0000
+diff -urN a/Modules/_ctypes/libffi/fficonfig.py.in b/Modules/_ctypes/libffi/fficonfig.py.in
+--- a/Modules/_ctypes/libffi/fficonfig.py.in	2013-04-22 02:19:28.262467739 +0100
++++ b/Modules/_ctypes/libffi/fficonfig.py.in	2013-04-22 02:19:28.693471021 +0100
 @@ -1,7 +1,6 @@
  ffi_sources = """
  src/prep_cif.c
@@ -151,10 +132,10 @@ diff -urN a-2.7.3/Modules/_ctypes/libffi/fficonfig.py.in b-2.7.3/Modules/_ctypes
  ffi_sources += ffi_platforms['@TARGET@']
  
  ffi_cflags = '@CFLAGS@'
-diff -urN a-2.7.3/pyconfig.h.in b-2.7.3/pyconfig.h.in
---- a-2.7.3/pyconfig.h.in	2012-11-22 20:43:04.088729575 +0000
-+++ b-2.7.3/pyconfig.h.in	2012-11-22 20:43:11.221071865 +0000
-@@ -1104,6 +1104,9 @@
+diff -urN a/pyconfig.h.in b/pyconfig.h.in
+--- a/pyconfig.h.in	2013-04-22 02:19:28.340468333 +0100
++++ b/pyconfig.h.in	2013-04-22 02:19:28.693471021 +0100
+@@ -1116,6 +1116,9 @@
  /* Define if you want to compile in Python-specific mallocs */
  #undef WITH_PYMALLOC
  
@@ -164,23 +145,22 @@ diff -urN a-2.7.3/pyconfig.h.in b-2.7.3/pyconfig.h.in
  /* Define if you want to compile in rudimentary thread support */
  #undef WITH_THREAD
  
-diff -urN a-2.7.3/setup.py b-2.7.3/setup.py
---- a-2.7.3/setup.py	2012-11-22 20:43:04.264639363 +0000
-+++ b-2.7.3/setup.py	2012-11-22 20:43:11.225069815 +0000
-@@ -16,7 +16,7 @@
+diff -urN a/setup.py b/setup.py
+--- a/setup.py	2013-04-22 02:19:28.304468059 +0100
++++ b/setup.py	2013-04-22 02:19:28.694471029 +0100
+@@ -16,6 +16,7 @@
  from distutils.command.install import install
  from distutils.command.install_lib import install_lib
  from distutils.spawn import find_executable
--
 +from string import maketrans
  
- def _get_platform():
-     # Get value of host platform (set only if cross-compile)
-@@ -1984,6 +1984,11 @@
+ cross_compiling = "_PYTHON_HOST_PLATFORM" in os.environ
+ 
+@@ -2047,6 +2048,11 @@
          return True
  
      def configure_ctypes(self, ext):
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            ext.libraries.extend(['ole32', 'oleaut32', 'uuid'])
 +            #AdditionalOptions="/EXPORT:DllGetClassObject,PRIVATE /EXPORT:DllCanUnloadNow,PRIVATE"
 +            ext.export_symbols.extend(['DllGetClassObject PRIVATE',
@@ -188,14 +168,14 @@ diff -urN a-2.7.3/setup.py b-2.7.3/setup.py
          if not self.use_system_libffi:
              if host_platform == 'darwin':
                  return self.configure_ctypes_darwin(ext)
-@@ -2010,6 +2015,10 @@
-                 #and do not modify configure script.
-                 config_args = sysconfig.get_config_var("CONFIG_ARGS")
+@@ -2071,6 +2077,10 @@
+                 if not self.verbose:
+                     config_args.append("-q")
  
-+                if host_platform in ['mingw', 'win32']:
++                if host_platform == 'win32':
 +                    table = maketrans('\\', '/')
 +                    ffi_builddir = ffi_builddir.translate(table)
 +                    ffi_srcdir = ffi_srcdir.translate(table)
                  # Pass empty CFLAGS because we'll just append the resulting
                  # CFLAGS to Python's; -g or -O2 is to be avoided.
-                 cmd = "cd %s && env CFLAGS='' '%s/configure' %s --srcdir='%s'" \
+                 cmd = "cd %s && env CFLAGS='' '%s/configure' %s" \

@@ -1,16 +1,16 @@
 diff -urN a/setup.py b/setup.py
---- a/setup.py	2012-06-24 21:00:44.404442659 +0100
-+++ b/setup.py	2012-06-24 21:00:44.607444094 +0100
-@@ -504,7 +504,7 @@
-         if host_platform in ['osf1', 'unixware7', 'openunix8']:
-             lib_dirs += ['/usr/ccs/lib']
+--- a/setup.py	2013-04-22 02:19:36.404529726 +0100
++++ b/setup.py	2013-04-22 02:19:36.794532695 +0100
+@@ -562,7 +562,7 @@
+         if host_platform == 'hp-ux11':
+             lib_dirs += ['/usr/lib/hpux64', '/usr/lib/hpux32']
  
 -        if host_platform == 'darwin':
 +        if host_platform in ['darwin', 'mingw', 'win32']:
              # This should work on any unixy platform ;-)
              # If the user has bothered specifying additional -I and -L flags
              # in OPT and LDFLAGS we might as well use them here.
-@@ -514,6 +514,8 @@
+@@ -572,6 +572,8 @@
              # FIXME: Why LDFLAGS again ?
              cflags, ldflags = sysconfig.get_config_vars(
                      'CFLAGS', 'LDFLAGS')
@@ -19,7 +19,7 @@ diff -urN a/setup.py b/setup.py
              for item in cflags.split():
                  if item.startswith('-I'):
                      inc_dirs.append(item[2:])
-@@ -1851,14 +1853,19 @@
+@@ -1915,14 +1917,19 @@
          # The versions with dots are used on Unix, and the versions without
          # dots on Windows, for detection by cygwin.
          tcllib = tklib = tcl_includes = tk_includes = None
@@ -47,7 +47,7 @@ diff -urN a/setup.py b/setup.py
                  break
  
          # Now check for the header files
-@@ -1927,15 +1934,21 @@
+@@ -1991,15 +1998,21 @@
              libs.append('BLT')
  
          # Add the Tcl/Tk libraries
@@ -55,7 +55,7 @@ diff -urN a/setup.py b/setup.py
 -        libs.append('tcl'+ version)
 +        libs.append('tk'+ version + tcltk_suffix)
 +        libs.append('tcl'+ version + tcltk_suffix)
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            for winlib in ['ws2_32','gdi32','comctl32','comdlg32','imm32','uuid','oleaut32','ole32']:
 +                libs.append( winlib )
  

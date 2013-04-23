@@ -51,25 +51,33 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/${PYTHON2_VERSION}/0000-CROSS.patch
 		$P/${PYTHON2_VERSION}/0005-MINGW.patch
 		$P/${PYTHON2_VERSION}/0006-mingw-removal-of-libffi-patch.patch
-		$P/${PYTHON2_VERSION}/0007-mingw-system-libffi.patch	
-		$P/${PYTHON2_VERSION}/0010-mingw-use-posix-getpath.patch
-		$P/${PYTHON2_VERSION}/0015-cross-darwin.patch
-		$P/${PYTHON2_VERSION}/0020-mingw-sysconfig-like-posix.patch
-		$P/${PYTHON2_VERSION}/0025-mingw-pdcurses_ISPAD.patch
-		$P/${PYTHON2_VERSION}/0030-mingw-static-tcltk.patch
-		$P/${PYTHON2_VERSION}/0035-mingw-x86_64-size_t-format-specifier-pid_t.patch
-		$P/${PYTHON2_VERSION}/0040-python-disable-dbm.patch
-		$P/${PYTHON2_VERSION}/0045-disable-grammar-dependency-on-pgen-executable.patch
-		$P/${PYTHON2_VERSION}/0050-add-python-config-sh.patch
-		$P/${PYTHON2_VERSION}/0055-mingw-nt-threads-vs-pthreads.patch
-		$P/${PYTHON2_VERSION}/0060-cross-dont-add-multiarch-paths-if.patch
-		$P/${PYTHON2_VERSION}/0065-mingw-reorder-bininstall-ln-symlink-creation.patch
-		$P/${PYTHON2_VERSION}/0070-mingw-use-backslashes-in-compileall-py.patch
-		$P/${PYTHON2_VERSION}/0075-mingw-distutils-MSYS-convert_path-fix-and-root-hack.patch
-		$P/${PYTHON2_VERSION}/0100-upgrade-internal-libffi-to-3.0.11.patch
+		$P/${PYTHON2_VERSION}/0007-mingw-system-libffi.patch
+		$P/${PYTHON2_VERSION}/0010-mingw-osdefs-DELIM.patch	
+		$P/${PYTHON2_VERSION}/0015-mingw-use-posix-getpath.patch
+		$P/${PYTHON2_VERSION}/0020-mingw-w64-test-for-REPARSE_DATA_BUFFER.patch
+		$P/${PYTHON2_VERSION}/0025-mingw-regen-with-stddef-instead.patch
+		$P/${PYTHON2_VERSION}/0030-mingw-add-libraries-for-_msi.patch
+		$P/${PYTHON2_VERSION}/0035-MSYS-add-MSYSVPATH-AC_ARG.patch
+		$P/${PYTHON2_VERSION}/0040-mingw-cygwinccompiler-use-CC-envvars-and-ld-from-print-prog-name.patch
+		$P/${PYTHON2_VERSION}/0045-cross-darwin.patch
+		$P/${PYTHON2_VERSION}/0050-mingw-sysconfig-like-posix.patch
+		$P/${PYTHON2_VERSION}/0055-mingw-pdcurses_ISPAD.patch
+		$P/${PYTHON2_VERSION}/0060-mingw-static-tcltk.patch
+		$P/${PYTHON2_VERSION}/0065-mingw-x86_64-size_t-format-specifier-pid_t.patch
+		$P/${PYTHON2_VERSION}/0070-python-disable-dbm.patch
+		$P/${PYTHON2_VERSION}/0075-add-python-config-sh.patch
+		$P/${PYTHON2_VERSION}/0080-mingw-nt-threads-vs-pthreads.patch
+		$P/${PYTHON2_VERSION}/0085-cross-dont-add-multiarch-paths-if.patch
+		$P/${PYTHON2_VERSION}/0090-mingw-reorder-bininstall-ln-symlink-creation.patch
+		$P/${PYTHON2_VERSION}/0095-mingw-use-backslashes-in-compileall-py.patch
+		$P/${PYTHON2_VERSION}/0100-mingw-distutils-MSYS-convert_path-fix-and-root-hack.patch
+		$P/${PYTHON2_VERSION}/0105-mingw-MSYS-no-usr-lib-or-usr-include.patch
+		$P/${PYTHON2_VERSION}/0110-mingw-_PyNode_SizeOf-decl-fix.patch
+		$P/${PYTHON2_VERSION}/0115-mingw-cross-includes-lower-case.patch
+		$P/${PYTHON2_VERSION}/0500-mingw-install-LDLIBRARY-to-LIBPL-dir.patch
+		$P/${PYTHON2_VERSION}/9999-re-configure-d.patch
 	)
 	
 	func_apply_patches \
@@ -85,7 +93,6 @@ src_patch() {
 		rm -rf Modules/zlib
 		autoconf > execute.log 2>&1
 		autoheader >> execute.log 2>&1
-		rm pyconfig.h.in~
 		rm -rf autom4te.cache
 		touch Include/graminit.h
 		touch Python/graminit.c

@@ -1,7 +1,7 @@
 diff -urN a/Include/pyport.h b/Include/pyport.h
---- a/Include/pyport.h	2012-06-24 21:07:38.061405267 +0100
-+++ b/Include/pyport.h	2012-06-24 21:07:38.294405980 +0100
-@@ -190,9 +190,11 @@
+--- a/Include/pyport.h	2013-04-22 02:19:37.126535222 +0100
++++ b/Include/pyport.h	2013-04-22 02:19:37.517538197 +0100
+@@ -203,9 +203,11 @@
  /* Smallest negative value of type Py_ssize_t. */
  #define PY_SSIZE_T_MIN (-PY_SSIZE_T_MAX-1)
  
@@ -13,7 +13,7 @@ diff -urN a/Include/pyport.h b/Include/pyport.h
  
  /* PY_FORMAT_SIZE_T is a platform-specific modifier for use in a printf
   * format to convert an argument with the width of a size_t or Py_ssize_t.
-@@ -224,6 +226,8 @@
+@@ -237,6 +239,8 @@
  #       define PY_FORMAT_SIZE_T "l"
  #   elif defined(MS_WINDOWS)
  #       define PY_FORMAT_SIZE_T "I"

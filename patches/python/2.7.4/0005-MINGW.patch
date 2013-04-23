@@ -1,50 +1,34 @@
-diff -urN a/configure.in b/configure.in
---- a/configure.in	2012-06-24 16:36:39.855815810 +0100
-+++ b/configure.in	2012-06-24 16:36:40.072817294 +0100
-@@ -84,7 +84,15 @@
- fi
- 
- AC_SUBST(VERSION)
-+case $host in
-+  *-*-mingw*)
-+  dnl To be compatible with MSVC build.
-+VERSION=`echo PYTHON_VERSION | sed -e 's|\.||g'`
-+  ;;
-+  *)
- VERSION=PYTHON_VERSION
-+  ;;
-+esac
- 
- AC_SUBST(SOVERSION)
- SOVERSION=1.0
-@@ -345,6 +353,26 @@
- dnl linux with 1.x(if someone still use it) and 2.x host kernels.
- dnl As example setup.py check for linux2(get from sys.platform) and will
- dnl install some host plaform specific files into subdirectory "plat-linux2".
-+dnl In addition $host_os may contain specific settings for some host systems
-+dnl as example mingwNN{YYYY} but the host winNN. So we may set MACHDEP
-+dnl to winNN in this case, i.e. different host systems from gnu autotools
-+dnl point of view but same for python.
-+if test -z "$MACHDEP"
-+then
-+	dnl set MACHDEP only on certain host systems
-+	case $host in
+diff -urN a/configure.ac b/configure.ac
+--- a/configure.ac	2013-04-06 15:02:41.000000000 +0100
++++ b/configure.ac	2013-04-22 02:19:27.206459697 +0100
+@@ -318,6 +318,9 @@
+ 	*-*-cygwin*)
+ 		ac_sys_system=Cygwin
+ 		;;
 +	*-*-mingw*)
-+	dnl we use only case based on "host triplet"
-+	ac_sys_system=ignore
-+	dnl FIXME: what is correct:
-+	dnl - PLATFORM is always "win32" (see define in PC/pyconfig.h )
-+	dnl - getplatform.o is build with -DPLATFORM='"$(MACHDEP)"'
-+	dnl - the platform specific files go in plat-$(MACHDEP)
-+	dnl - but an item in PYTHONPATH is "plat-win" !!! oops
-+	MACHDEP=win
-+	;;
-+	esac
-+fi
- if test -z "$MACHDEP"
- then
- 	ac_sys_system=`uname -s`
-@@ -494,6 +522,16 @@
++		ac_sys_system=MinGW
++		;;
+ 	*)
+ 		# for now, limit cross builds to known configurations
+ 		MACHDEP="unknown"
+@@ -345,6 +348,7 @@
+ 	darwin*) MACHDEP="darwin";;
+ 	atheos*) MACHDEP="atheos";;
+         irix646) MACHDEP="irix6";;
++	mingw*) MACHDEP="win32";;
+ 	'')	MACHDEP="unknown";;
+     esac
+ fi
+@@ -361,7 +365,7 @@
+ 			_host_cpu=$host_cpu
+ 		esac
+ 		;;
+-	*-*-cygwin*)
++	*-*-cygwin*|*-*-mingw*)
+ 		_host_cpu=
+ 		;;
+ 	*)
+@@ -489,6 +493,16 @@
  fi
  AC_MSG_RESULT($MACHDEP)
  
@@ -61,7 +45,7 @@ diff -urN a/configure.in b/configure.in
  # And add extra plat-mac for darwin
  AC_SUBST(EXTRAPLATDIR)
  AC_SUBST(EXTRAMACHDEPPATH)
-@@ -801,6 +839,10 @@
+@@ -825,6 +839,10 @@
    *)
      enable_shared="no";;
    esac
@@ -72,7 +56,7 @@ diff -urN a/configure.in b/configure.in
  fi
  AC_MSG_RESULT($enable_shared)
  
-@@ -902,6 +944,14 @@
+@@ -926,6 +944,14 @@
  	;;
  
    esac
@@ -87,7 +71,7 @@ diff -urN a/configure.in b/configure.in
  else # shared is disabled
    case $ac_sys_system in
      CYGWIN*)
-@@ -909,6 +959,10 @@
+@@ -933,6 +959,10 @@
            LDLIBRARY='libpython$(VERSION).dll.a'
            ;;
    esac
@@ -97,8 +81,8 @@ diff -urN a/configure.in b/configure.in
 +  esac
  fi
  
- AC_MSG_RESULT($LDLIBRARY)
-@@ -968,6 +1022,8 @@
+ if test "$cross_compiling" = yes; then
+@@ -1012,6 +1042,8 @@
  	esac
  fi
  
@@ -107,7 +91,7 @@ diff -urN a/configure.in b/configure.in
  # Check for --with-pydebug
  AC_MSG_CHECKING(for --with-pydebug)
  AC_ARG_WITH(pydebug, 
-@@ -982,6 +1038,29 @@
+@@ -1026,6 +1058,29 @@
  else AC_MSG_RESULT(no); Py_DEBUG='false'
  fi],
  [AC_MSG_RESULT(no)])
@@ -137,7 +121,7 @@ diff -urN a/configure.in b/configure.in
  
  # XXX Shouldn't the code above that fiddles with BASECFLAGS and OPT be
  # merged with this chunk of code?
-@@ -998,6 +1077,8 @@
+@@ -1042,6 +1097,8 @@
  
  # tweak OPT based on compiler and platform, only if the user didn't set
  # it on the command line
@@ -146,18 +130,7 @@ diff -urN a/configure.in b/configure.in
  AC_SUBST(OPT)
  if test "${OPT-unset}" = "unset"
  then
-@@ -1077,6 +1158,10 @@
-          alpha*)
-                 BASECFLAGS="$BASECFLAGS -mieee"
-                 ;;
-+         *-*-mingw*)
-+                #MSVC in-compatable storage layout for bitfields in structures (Roumen has -mms-bitfields)
-+                BASECFLAGS="$BASECFLAGS"
-+                ;;
-     esac
- 
-     case $ac_sys_system in
-@@ -1209,8 +1294,15 @@
+@@ -1253,8 +1310,15 @@
      ;;
  esac
  
@@ -174,7 +147,7 @@ diff -urN a/configure.in b/configure.in
  else
    OPT="-DNDEBUG $OPT"
  fi
-@@ -1397,6 +1489,20 @@
+@@ -1457,6 +1521,20 @@
  AC_MSG_RESULT($ac_cv_pthread)
  fi
  
@@ -195,7 +168,7 @@ diff -urN a/configure.in b/configure.in
  # If we have set a CC compiler flag for thread support then
  # check if it works for CXX, too.
  ac_cv_cxx_thread=no
-@@ -1417,6 +1523,9 @@
+@@ -1477,6 +1555,9 @@
  then 
    CXX="$CXX -pthread"
    ac_cv_cxx_thread=yes
@@ -205,7 +178,7 @@ diff -urN a/configure.in b/configure.in
  fi
  
  if test $ac_cv_cxx_thread = yes
-@@ -1458,7 +1567,7 @@
+@@ -1518,7 +1599,7 @@
  sys/termio.h sys/time.h \
  sys/times.h sys/types.h sys/un.h sys/utsname.h sys/wait.h pty.h libutil.h \
  sys/resource.h netpacket/packet.h sysexits.h bluetooth.h \
@@ -214,7 +187,7 @@ diff -urN a/configure.in b/configure.in
  AC_HEADER_DIRENT
  AC_HEADER_MAJOR
  
-@@ -1667,19 +1776,20 @@
+@@ -1747,19 +1828,20 @@
  elif test "$ac_cv_pthread" = "yes"
  then CC="$CC -pthread"
  fi
@@ -243,7 +216,7 @@ diff -urN a/configure.in b/configure.in
  CC="$ac_save_cc"
  
  AC_MSG_CHECKING(for --enable-toolbox-glue)
-@@ -1840,6 +1950,16 @@
+@@ -1920,6 +2002,16 @@
  	CYGWIN*)   SO=.dll;;
  	*)	   SO=.so;;
  	esac
@@ -260,7 +233,7 @@ diff -urN a/configure.in b/configure.in
  else
  	# this might also be a termcap variable, see #610332
          echo
-@@ -1996,6 +2116,12 @@
+@@ -2076,6 +2168,12 @@
  		LDCXXSHARED="g++ -shared";;
  	*)	LDSHARED="ld";;
  	esac
@@ -273,7 +246,7 @@ diff -urN a/configure.in b/configure.in
  fi
  AC_MSG_RESULT($LDSHARED)
  LDCXXSHARED=${LDCXXSHARED-$LDSHARED}
-@@ -2093,6 +2219,12 @@
+@@ -2173,6 +2271,12 @@
  		# when running test_compile.py.
  		LINKFORSHARED='-Wl,-E -N 2048K';;
  	esac
@@ -286,7 +259,7 @@ diff -urN a/configure.in b/configure.in
  fi
  AC_MSG_RESULT($LINKFORSHARED)
  
-@@ -2109,6 +2241,12 @@
+@@ -2189,6 +2293,12 @@
  	*)
  		CFLAGSFORSHARED='$(CCSHARED)'
  	esac
@@ -299,7 +272,7 @@ diff -urN a/configure.in b/configure.in
  fi
  AC_MSG_RESULT($CFLAGSFORSHARED)
  
-@@ -2141,9 +2279,18 @@
+@@ -2221,9 +2331,18 @@
  fi
  
  # check if we need libintl for locale functions
@@ -318,7 +291,7 @@ diff -urN a/configure.in b/configure.in
  
  # checks for system dependent C++ extensions support
  case "$ac_sys_system" in
-@@ -2325,6 +2472,13 @@
+@@ -2405,6 +2524,13 @@
      AC_DEFINE(WITH_THREAD)
      posix_threads=yes
      THREADOBJ="Python/thread.o"
@@ -332,7 +305,7 @@ diff -urN a/configure.in b/configure.in
  else
      if test ! -z "$with_threads" -a -d "$with_threads"
      then LDFLAGS="$LDFLAGS -L$with_threads"
-@@ -2488,6 +2642,18 @@
+@@ -2572,6 +2698,18 @@
  fi
  
  
@@ -351,7 +324,7 @@ diff -urN a/configure.in b/configure.in
  # Check for enable-ipv6
  AH_TEMPLATE(ENABLE_IPV6, [Define if --enable-ipv6 is specified])
  AC_MSG_CHECKING([if --enable-ipv6 is specified])
-@@ -2777,6 +2943,14 @@
+@@ -2851,6 +2989,14 @@
  	fi
  	;;
  	esac
@@ -366,7 +339,7 @@ diff -urN a/configure.in b/configure.in
  fi
  AC_MSG_RESULT($DYNLOADFILE)
  if test "$DYNLOADFILE" != "dynload_stub.o"
-@@ -2789,6 +2963,11 @@
+@@ -2863,6 +3009,11 @@
  
  AC_SUBST(MACHDEP_OBJS)
  AC_MSG_CHECKING(MACHDEP_OBJS)
@@ -378,7 +351,7 @@ diff -urN a/configure.in b/configure.in
  if test -z "$MACHDEP_OBJS"
  then
  	MACHDEP_OBJS=$extra_machdep_objs
-@@ -2818,6 +2997,17 @@
+@@ -2888,6 +3039,17 @@
   sysconf tcgetpgrp tcsetpgrp tempnam timegm times tmpfile tmpnam tmpnam_r \
   truncate uname unsetenv utimes waitpid wait3 wait4 wcscoll _getpty)
  
@@ -396,9 +369,9 @@ diff -urN a/configure.in b/configure.in
  # For some functions, having a definition is not sufficient, since
  # we want to take their address.
  AC_MSG_CHECKING(for chroot)
-@@ -3218,6 +3408,15 @@
- [ac_cv_buggy_getaddrinfo=yes],
- [ac_cv_buggy_getaddrinfo=yes]))
+@@ -3294,6 +3456,15 @@
+   ac_cv_buggy_getaddrinfo=yes
+ fi]))
  fi
 +case $host in
 +  *-*-mingw*)
@@ -412,7 +385,7 @@ diff -urN a/configure.in b/configure.in
  
  AC_MSG_RESULT($ac_cv_buggy_getaddrinfo)
  
-@@ -3273,19 +3472,33 @@
+@@ -3349,19 +3520,33 @@
  
  AC_MSG_CHECKING(for addrinfo)
  AC_CACHE_VAL(ac_cv_struct_addrinfo,
@@ -450,7 +423,7 @@ diff -urN a/configure.in b/configure.in
    [ac_cv_struct_sockaddr_storage=yes],
    [ac_cv_struct_sockaddr_storage=no]))
  AC_MSG_RESULT($ac_cv_struct_sockaddr_storage)
-@@ -3479,11 +3692,16 @@
+@@ -3555,11 +3740,16 @@
  
  # check for --with-libm=...
  AC_SUBST(LIBM)
@@ -467,7 +440,7 @@ diff -urN a/configure.in b/configure.in
  AC_MSG_CHECKING(for --with-libm=STRING)
  AC_ARG_WITH(libm,
              AS_HELP_STRING([--with-libm=STRING], [math library]),
-@@ -3517,6 +3735,13 @@
+@@ -3593,6 +3783,13 @@
  # **************************************************
  # * Check for various properties of floating point *
  # **************************************************
@@ -481,7 +454,7 @@ diff -urN a/configure.in b/configure.in
  
  AC_MSG_CHECKING(whether C doubles are little-endian IEEE 754 binary64)
  AC_CACHE_VAL(ac_cv_little_endian_double, [
-@@ -3600,6 +3825,8 @@
+@@ -3676,6 +3873,8 @@
  
  # This inline assembler syntax may also work for suncc and icc,
  # so we try it on all platforms.
@@ -490,7 +463,7 @@ diff -urN a/configure.in b/configure.in
  
  AC_MSG_CHECKING(whether we can use gcc inline assembler to get and set x87 control word)
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
-@@ -3647,6 +3874,11 @@
+@@ -3723,6 +3922,11 @@
  [ac_cv_x87_double_rounding=yes],
  [ac_cv_x87_double_rounding=no])
  CC="$ac_save_cc"
@@ -502,7 +475,7 @@ diff -urN a/configure.in b/configure.in
  AC_MSG_RESULT($ac_cv_x87_double_rounding)
  if test "$ac_cv_x87_double_rounding" = yes
  then
-@@ -3664,6 +3896,12 @@
+@@ -3740,6 +3944,12 @@
  # On FreeBSD 6.2, it appears that tanh(-0.) returns 0. instead of
  # -0. on some architectures.
  AC_MSG_CHECKING(whether tanh preserves the sign of zero)
@@ -515,7 +488,7 @@ diff -urN a/configure.in b/configure.in
  AC_CACHE_VAL(ac_cv_tanh_preserves_zero_sign, [
  AC_RUN_IFELSE([AC_LANG_SOURCE([[
  #include <math.h>
-@@ -3689,6 +3927,12 @@
+@@ -3765,6 +3975,12 @@
  
  AC_CHECK_FUNCS([acosh asinh atanh copysign erf erfc expm1 finite gamma])
  AC_CHECK_FUNCS([hypot lgamma log1p round tgamma])
@@ -528,7 +501,7 @@ diff -urN a/configure.in b/configure.in
  AC_CHECK_DECLS([isinf, isnan, isfinite], [], [], [[#include <math.h>]])
  
  LIBS=$LIBS_SAVE
-@@ -3698,6 +3942,13 @@
+@@ -3774,6 +3990,13 @@
  # the kernel module that provides POSIX semaphores
  # isn't loaded by default, so an attempt to call
  # sem_open results in a 'Signal 12' error.
@@ -542,7 +515,7 @@ diff -urN a/configure.in b/configure.in
  AC_MSG_CHECKING(whether POSIX semaphores are enabled)
  AC_CACHE_VAL(ac_cv_posix_semaphores_enabled,
  AC_RUN_IFELSE([AC_LANG_SOURCE([[
-@@ -3723,6 +3974,9 @@
+@@ -3799,6 +4022,9 @@
  [ac_cv_posix_semaphores_enabled=yes])
  )
  AC_MSG_RESULT($ac_cv_posix_semaphores_enabled)
@@ -552,9 +525,9 @@ diff -urN a/configure.in b/configure.in
  if test $ac_cv_posix_semaphores_enabled = no
  then
    AC_DEFINE(POSIX_SEMAPHORES_NOT_ENABLED, 1,
-@@ -3732,6 +3986,16 @@
+@@ -3807,6 +4033,16 @@
+ 
  # Multiprocessing check for broken sem_getvalue
- if test $ac_cv_func_sem_getvalue = yes; then
  AC_MSG_CHECKING(for broken sem_getvalue)
 +case $host in
 +  *-*-mingw*)
@@ -569,7 +542,7 @@ diff -urN a/configure.in b/configure.in
  AC_CACHE_VAL(ac_cv_broken_sem_getvalue,
  AC_RUN_IFELSE([AC_LANG_SOURCE([[
  #include <unistd.h>
-@@ -3818,6 +4082,9 @@
+@@ -3892,6 +4128,9 @@
  then
    # check whether wchar_t is signed or not
    AC_MSG_CHECKING(whether wchar_t is signed)
@@ -579,7 +552,7 @@ diff -urN a/configure.in b/configure.in
    AC_CACHE_VAL(ac_cv_wchar_t_signed, [
    AC_RUN_IFELSE([AC_LANG_SOURCE([[
    #include <wchar.h>
-@@ -4248,6 +4515,12 @@
+@@ -4323,6 +4562,12 @@
  )
  
  AC_MSG_NOTICE([checking for device files])
@@ -592,7 +565,7 @@ diff -urN a/configure.in b/configure.in
  
  dnl NOTE: Inform user how to proceed with files when cross compiling.
  if test "x$cross_compiling" = xyes; then
-@@ -4279,6 +4552,9 @@
+@@ -4351,6 +4596,9 @@
  
  if test "$have_long_long" = yes
  then
@@ -602,7 +575,7 @@ diff -urN a/configure.in b/configure.in
    AC_MSG_CHECKING(for %lld and %llu printf() format support)
    AC_CACHE_VAL(ac_cv_have_long_long_format,
    AC_RUN_IFELSE([AC_LANG_SOURCE([[[
-@@ -4331,6 +4607,9 @@
+@@ -4419,6 +4667,9 @@
  fi
  
  
@@ -612,7 +585,7 @@ diff -urN a/configure.in b/configure.in
  AC_CACHE_CHECK([for %zd printf() format support], ac_cv_have_size_t_format, [dnl
  AC_RUN_IFELSE([AC_LANG_SOURCE([[
  #include <stdio.h>
-@@ -4377,6 +4656,8 @@
+@@ -4465,6 +4716,8 @@
    [Define to printf format modifier for Py_ssize_t])
  fi
  
@@ -621,7 +594,7 @@ diff -urN a/configure.in b/configure.in
  AC_CHECK_TYPE(socklen_t,,
    AC_DEFINE(socklen_t,int,
              [Define to `int' if <sys/socket.h> does not define.]),[
-@@ -4401,8 +4682,39 @@
+@@ -4489,8 +4742,39 @@
    THREADHEADERS="$THREADHEADERS \$(srcdir)/$h"
  done
  
@@ -662,8 +635,8 @@ diff -urN a/configure.in b/configure.in
  for dir in $SRCDIRS; do
      if test ! -d $dir; then
 diff -urN a/Include/objimpl.h b/Include/objimpl.h
---- a/Include/objimpl.h	2012-04-10 00:07:29.000000000 +0100
-+++ b/Include/objimpl.h	2012-06-24 16:36:40.068817267 +0100
+--- a/Include/objimpl.h	2013-04-06 15:02:25.000000000 +0100
++++ b/Include/objimpl.h	2013-04-22 02:19:27.207459705 +0100
 @@ -256,6 +256,12 @@
          Py_ssize_t gc_refs;
      } gc;
@@ -678,8 +651,8 @@ diff -urN a/Include/objimpl.h b/Include/objimpl.h
  
  extern PyGC_Head *_PyGC_generation0;
 diff -urN a/Include/pymath.h b/Include/pymath.h
---- a/Include/pymath.h	2012-04-10 00:07:29.000000000 +0100
-+++ b/Include/pymath.h	2012-06-24 16:36:40.068817267 +0100
+--- a/Include/pymath.h	2013-04-06 15:02:25.000000000 +0100
++++ b/Include/pymath.h	2013-04-22 02:19:27.208459713 +0100
 @@ -109,6 +109,8 @@
   *    non-infinite value v sitting in an 80-bit x87 register such that
   *    v becomes infinite when spilled from the register to 64-bit memory.
@@ -690,9 +663,9 @@ diff -urN a/Include/pymath.h b/Include/pymath.h
  #ifndef Py_IS_INFINITY
  #  if defined HAVE_DECL_ISINF && HAVE_DECL_ISINF == 1
 diff -urN a/Include/pyport.h b/Include/pyport.h
---- a/Include/pyport.h	2012-04-10 00:07:29.000000000 +0100
-+++ b/Include/pyport.h	2012-06-24 16:36:40.069817274 +0100
-@@ -656,6 +656,137 @@
+--- a/Include/pyport.h	2013-04-06 15:02:25.000000000 +0100
++++ b/Include/pyport.h	2013-04-22 02:19:27.208459713 +0100
+@@ -693,6 +693,137 @@
  #endif /* 0 */
  
  
@@ -830,7 +803,7 @@ diff -urN a/Include/pyport.h b/Include/pyport.h
  /* On 4.4BSD-descendants, ctype functions serves the whole range of
   * wchar_t character set rather than single byte code points only.
   * This characteristic can break some operations of string object
-@@ -709,12 +840,12 @@
+@@ -746,12 +877,12 @@
  */
  
  /*
@@ -847,7 +820,7 @@ diff -urN a/Include/pyport.h b/Include/pyport.h
  #       define HAVE_DECLSPEC_DLL
  #endif
  
-@@ -737,9 +868,17 @@
+@@ -774,9 +905,17 @@
          /* Under Cygwin, auto-import functions to prevent compilation */
          /* failures similar to those described at the bottom of 4.1: */
          /* http://docs.python.org/extending/windows.html#a-cookbook-approach */
@@ -868,8 +841,8 @@ diff -urN a/Include/pyport.h b/Include/pyport.h
          /* module init functions outside the core must be exported */
  #                       if defined(__cplusplus)
 diff -urN a/Lib/ctypes/test/test_as_parameter.py b/Lib/ctypes/test/test_as_parameter.py
---- a/Lib/ctypes/test/test_as_parameter.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/ctypes/test/test_as_parameter.py	2012-06-24 16:36:40.066817253 +0100
+--- a/Lib/ctypes/test/test_as_parameter.py	2013-04-06 15:02:25.000000000 +0100
++++ b/Lib/ctypes/test/test_as_parameter.py	2013-04-22 02:19:27.209459720 +0100
 @@ -1,6 +1,7 @@
  import unittest
  from ctypes import *
@@ -890,8 +863,8 @@ diff -urN a/Lib/ctypes/test/test_as_parameter.py b/Lib/ctypes/test/test_as_param
          class S8I(Structure):
              _fields_ = [("a", c_int),
 diff -urN a/Lib/ctypes/test/test_functions.py b/Lib/ctypes/test/test_functions.py
---- a/Lib/ctypes/test/test_functions.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/ctypes/test/test_functions.py	2012-06-24 16:36:40.065817247 +0100
+--- a/Lib/ctypes/test/test_functions.py	2013-04-06 15:02:25.000000000 +0100
++++ b/Lib/ctypes/test/test_functions.py	2013-04-22 02:19:27.209459720 +0100
 @@ -359,6 +359,10 @@
              s2h = windll.s_ret_2h_func(S2H(99, 88))
              self.assertEqual((s2h.x, s2h.y), (99*2, 88*3))
@@ -904,8 +877,8 @@ diff -urN a/Lib/ctypes/test/test_functions.py b/Lib/ctypes/test/test_functions.p
          class S8I(Structure):
              _fields_ = [("a", c_int),
 diff -urN a/Lib/ctypes/util.py b/Lib/ctypes/util.py
---- a/Lib/ctypes/util.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/ctypes/util.py	2012-06-24 16:36:40.066817253 +0100
+--- a/Lib/ctypes/util.py	2013-04-06 15:02:25.000000000 +0100
++++ b/Lib/ctypes/util.py	2013-04-22 02:19:27.209459720 +0100
 @@ -7,6 +7,11 @@
  if os.name == "nt":
  
@@ -935,9 +908,9 @@ diff -urN a/Lib/ctypes/util.py b/Lib/ctypes/util.py
          version = _get_build_version()
          if version is None:
 diff -urN a/Lib/distutils/ccompiler.py b/Lib/distutils/ccompiler.py
---- a/Lib/distutils/ccompiler.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/distutils/ccompiler.py	2012-06-24 16:36:40.064817240 +0100
-@@ -916,6 +916,8 @@
+--- a/Lib/distutils/ccompiler.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/ccompiler.py	2013-04-22 02:19:27.209459720 +0100
+@@ -918,6 +918,8 @@
          osname = os.name
      if platform is None:
          platform = sys.platform
@@ -947,8 +920,8 @@ diff -urN a/Lib/distutils/ccompiler.py b/Lib/distutils/ccompiler.py
          if re.match(pattern, platform) is not None or \
             re.match(pattern, osname) is not None:
 diff -urN a/Lib/distutils/command/build_ext.py b/Lib/distutils/command/build_ext.py
---- a/Lib/distutils/command/build_ext.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/distutils/command/build_ext.py	2012-06-24 16:36:40.059817205 +0100
+--- a/Lib/distutils/command/build_ext.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/command/build_ext.py	2013-04-22 02:19:27.210459728 +0100
 @@ -19,7 +19,8 @@
  from distutils.util import get_platform
  from distutils import log
@@ -1015,8 +988,8 @@ diff -urN a/Lib/distutils/command/build_ext.py b/Lib/distutils/command/build_ext
              from distutils.msvccompiler import MSVCCompiler
              if not isinstance(self.compiler, MSVCCompiler):
 diff -urN a/Lib/distutils/cygwinccompiler.py b/Lib/distutils/cygwinccompiler.py
---- a/Lib/distutils/cygwinccompiler.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/distutils/cygwinccompiler.py	2012-06-24 16:36:40.062817226 +0100
+--- a/Lib/distutils/cygwinccompiler.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/cygwinccompiler.py	2013-04-22 02:19:27.210459728 +0100
 @@ -60,6 +60,18 @@
      """Include the appropriate MSVC runtime library if Python was built
      with MSVC 7.0 or later.
@@ -1100,9 +1073,9 @@ diff -urN a/Lib/distutils/cygwinccompiler.py b/Lib/distutils/cygwinccompiler.py
                  base = os.path.basename (base)
              if ext == '.res' or ext == '.rc':
 diff -urN a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
---- a/Lib/distutils/sysconfig.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/distutils/sysconfig.py	2012-06-24 16:48:40.044705953 +0100
-@@ -72,19 +72,21 @@
+--- a/Lib/distutils/sysconfig.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/sysconfig.py	2013-04-22 02:19:27.210459728 +0100
+@@ -77,19 +77,21 @@
      if prefix is None:
          prefix = plat_specific and EXEC_PREFIX or PREFIX
  
@@ -1134,39 +1107,26 @@ diff -urN a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
          return os.path.join(prefix, "include", "python" + get_python_version())
      elif os.name == "nt":
          return os.path.join(prefix, "include")
-@@ -146,14 +148,25 @@
- def customize_compiler(compiler):
-     """Do any platform-specific customization of a CCompiler instance.
+@@ -153,8 +155,18 @@
  
--    Mainly needed on Unix, so we can plug in the information that
--    varies across Unices and is stored in Python's Makefile.
--    """
-+     Mainly needed on Unix, so we can plug in the information that
-+     varies across Unices and is stored in Python's Makefile.
+     Mainly needed on Unix, so we can plug in the information that
+     varies across Unices and is stored in Python's Makefile.
 +
-+     NOTE (known limitation of python build/install system):
-+     In cross-build environment make macros like CC and LDSHARED
-+     contain cross-compiler/linker instead of host compiler/linker.
-+     """
-+
++    NOTE: (known limitation of python build/install system)
++    In cross-build environment make macros like CC and LDSHARED
++    contain cross-compiler/linker instead of host compiler/linker.
+     """
 +    posix_build = None
      if compiler.compiler_type == "unix":
 +       posix_build = True
 +    elif compiler.compiler_type == "mingw32":
-+        # GCC(mingw): if build system is posix
 +        if sys.version.find('GCC') >= 0:
 +            posix_build = True
 +    if posix_build == True:
-         (cc, cxx, opt, cflags, ccshared, ldshared, so_ext, ar, ar_flags) = \
--            get_config_vars('CC', 'CXX', 'OPT', 'CFLAGS',
--                            'CCSHARED', 'LDSHARED', 'SO', 'AR',
--                            'ARFLAGS')
-+             get_config_vars('CC', 'CXX', 'OPT', 'CFLAGS',
-+                             'CCSHARED', 'LDSHARED', 'SO', 'AR', 'ARFLAGS')
- 
-         newcc = None
-         if 'CC' in os.environ:
-@@ -227,7 +240,8 @@
+         if sys.platform == "darwin":
+             # Perform first-time customization of compiler-related
+             # config vars on OS X now that we know we need a compiler.
+@@ -218,7 +230,8 @@
  def get_config_h_filename():
      """Return full pathname of installed pyconfig.h file."""
      if python_build:
@@ -1176,7 +1136,7 @@ diff -urN a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
              inc_dir = os.path.join(project_base, "PC")
          else:
              inc_dir = project_base
-@@ -460,6 +474,11 @@
+@@ -451,6 +464,11 @@
  
  def _init_nt():
      """Initialize the module as appropriate for NT"""
@@ -1189,9 +1149,9 @@ diff -urN a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
      # set basic install directories
      g['LIBDEST'] = get_python_lib(plat_specific=0, standard_lib=1)
 diff -urN a/Lib/distutils/tests/test_bdist_msi.py b/Lib/distutils/tests/test_bdist_msi.py
---- a/Lib/distutils/tests/test_bdist_msi.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/distutils/tests/test_bdist_msi.py	2012-06-24 16:42:30.055201499 +0100
-@@ -11,6 +11,7 @@
+--- a/Lib/distutils/tests/test_bdist_msi.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/tests/test_bdist_msi.py	2013-04-22 02:19:27.211459735 +0100
+@@ -10,6 +10,7 @@
                         support.LoggingSilencer,
                         unittest.TestCase):
  
@@ -1200,8 +1160,8 @@ diff -urN a/Lib/distutils/tests/test_bdist_msi.py b/Lib/distutils/tests/test_bdi
          # minimal test XXX need more tests
          from distutils.command.bdist_msi import bdist_msi
 diff -urN a/Lib/distutils/tests/test_build_ext.py b/Lib/distutils/tests/test_build_ext.py
---- a/Lib/distutils/tests/test_build_ext.py	2012-04-10 00:07:29.000000000 +0100
-+++ b/Lib/distutils/tests/test_build_ext.py	2012-06-24 16:36:40.060817212 +0100
+--- a/Lib/distutils/tests/test_build_ext.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/tests/test_build_ext.py	2013-04-22 02:19:27.211459735 +0100
 @@ -60,6 +60,11 @@
              sys.stdout = StringIO()
          try:
@@ -1214,7 +1174,7 @@ diff -urN a/Lib/distutils/tests/test_build_ext.py b/Lib/distutils/tests/test_bui
              cmd.run()
          finally:
              sys.stdout = old_stdout
-@@ -280,6 +285,12 @@
+@@ -281,6 +286,12 @@
          # returns wrong result with --inplace
          other_tmp_dir = os.path.realpath(self.mkdtemp())
          old_wd = os.getcwd()
@@ -1228,8 +1188,8 @@ diff -urN a/Lib/distutils/tests/test_build_ext.py b/Lib/distutils/tests/test_bui
          try:
              cmd.inplace = 1
 diff -urN a/Lib/distutils/tests/test_config_cmd.py b/Lib/distutils/tests/test_config_cmd.py
---- a/Lib/distutils/tests/test_config_cmd.py	2012-04-10 00:07:30.000000000 +0100
-+++ b/Lib/distutils/tests/test_config_cmd.py	2012-06-24 16:36:40.061817219 +0100
+--- a/Lib/distutils/tests/test_config_cmd.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/tests/test_config_cmd.py	2013-04-22 02:19:27.211459735 +0100
 @@ -38,6 +38,7 @@
          self.assertEqual(len(self._logs), numlines+1)
  
@@ -1239,8 +1199,8 @@ diff -urN a/Lib/distutils/tests/test_config_cmd.py b/Lib/distutils/tests/test_co
              return
          pkg_dir, dist = self.create_dist()
 diff -urN a/Lib/distutils/tests/test_sysconfig.py b/Lib/distutils/tests/test_sysconfig.py
---- a/Lib/distutils/tests/test_sysconfig.py	2012-04-10 00:07:30.000000000 +0100
-+++ b/Lib/distutils/tests/test_sysconfig.py	2012-06-24 16:36:40.060817212 +0100
+--- a/Lib/distutils/tests/test_sysconfig.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/tests/test_sysconfig.py	2013-04-22 02:19:27.212459743 +0100
 @@ -43,9 +43,15 @@
          # This is not much of a test.  We make sure Python.h exists
          # in the directory returned by get_python_inc() but we don't know
@@ -1258,8 +1218,8 @@ diff -urN a/Lib/distutils/tests/test_sysconfig.py b/Lib/distutils/tests/test_sys
      def test_parse_makefile_base(self):
          self.makefile = test.test_support.TESTFN
 diff -urN a/Lib/distutils/tests/test_unixccompiler.py b/Lib/distutils/tests/test_unixccompiler.py
---- a/Lib/distutils/tests/test_unixccompiler.py	2012-04-10 00:07:30.000000000 +0100
-+++ b/Lib/distutils/tests/test_unixccompiler.py	2012-06-24 16:36:40.060817212 +0100
+--- a/Lib/distutils/tests/test_unixccompiler.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/tests/test_unixccompiler.py	2013-04-22 02:19:27.212459743 +0100
 @@ -120,7 +120,7 @@
          def gcv(v):
              return 'xxx'
@@ -1270,9 +1230,9 @@ diff -urN a/Lib/distutils/tests/test_unixccompiler.py b/Lib/distutils/tests/test
  
  def test_suite():
 diff -urN a/Lib/distutils/unixccompiler.py b/Lib/distutils/unixccompiler.py
---- a/Lib/distutils/unixccompiler.py	2012-04-10 00:07:30.000000000 +0100
-+++ b/Lib/distutils/unixccompiler.py	2012-06-24 16:36:40.061817219 +0100
-@@ -292,6 +292,8 @@
+--- a/Lib/distutils/unixccompiler.py	2013-04-06 15:02:26.000000000 +0100
++++ b/Lib/distutils/unixccompiler.py	2013-04-22 02:19:27.212459743 +0100
+@@ -234,6 +234,8 @@
              return ["+s", "-L" + dir]
          elif sys.platform[:7] == "irix646" or sys.platform[:6] == "osf1V5":
              return ["-rpath", dir]
@@ -1282,9 +1242,9 @@ diff -urN a/Lib/distutils/unixccompiler.py b/Lib/distutils/unixccompiler.py
              return "-Wl,-R" + dir
          else:
 diff -urN a/Lib/sysconfig.py b/Lib/sysconfig.py
---- a/Lib/sysconfig.py	2012-06-24 16:36:39.858815831 +0100
-+++ b/Lib/sysconfig.py	2012-06-24 16:36:40.064817240 +0100
-@@ -128,8 +128,13 @@
+--- a/Lib/sysconfig.py	2013-04-06 15:02:29.000000000 +0100
++++ b/Lib/sysconfig.py	2013-04-22 02:19:27.212459743 +0100
+@@ -130,8 +130,13 @@
  
  if _PYTHON_BUILD:
      for scheme in ('posix_prefix', 'posix_home'):
@@ -1300,7 +1260,7 @@ diff -urN a/Lib/sysconfig.py b/Lib/sysconfig.py
  
  def _subst_vars(s, local_vars):
      try:
-@@ -354,7 +359,8 @@
+@@ -356,7 +361,8 @@
  def get_config_h_filename():
      """Returns the path of pyconfig.h."""
      if _PYTHON_BUILD:
@@ -1310,7 +1270,7 @@ diff -urN a/Lib/sysconfig.py b/Lib/sysconfig.py
              inc_dir = os.path.join(_PROJECT_BASE, "PC")
          else:
              inc_dir = _PROJECT_BASE
-@@ -416,9 +422,19 @@
+@@ -418,9 +424,19 @@
          _CONFIG_VARS['platbase'] = _EXEC_PREFIX
          _CONFIG_VARS['projectbase'] = _PROJECT_BASE
  
@@ -1332,7 +1292,7 @@ diff -urN a/Lib/sysconfig.py b/Lib/sysconfig.py
              _init_posix(_CONFIG_VARS)
  
          # Setting 'userbase' is done below the call to the
-@@ -433,7 +449,7 @@
+@@ -435,7 +451,7 @@
          # Normally it is relative to the build directory.  However, during
          # testing, for example, we might be running a non-installed python
          # from a different directory.
@@ -1342,9 +1302,9 @@ diff -urN a/Lib/sysconfig.py b/Lib/sysconfig.py
              try:
                  cwd = os.getcwd()
 diff -urN a/Lib/test/regrtest.py b/Lib/test/regrtest.py
---- a/Lib/test/regrtest.py	2012-04-10 00:07:31.000000000 +0100
-+++ b/Lib/test/regrtest.py	2012-06-24 16:36:40.058817197 +0100
-@@ -388,7 +388,7 @@
+--- a/Lib/test/regrtest.py	2013-04-06 15:02:29.000000000 +0100
++++ b/Lib/test/regrtest.py	2013-04-22 02:19:27.213459751 +0100
+@@ -389,7 +389,7 @@
              found_garbage = []
  
      if single:
@@ -1353,7 +1313,7 @@ diff -urN a/Lib/test/regrtest.py b/Lib/test/regrtest.py
          try:
              fp = open(filename, 'r')
              next_test = fp.read().strip()
-@@ -1523,8 +1523,7 @@
+@@ -1542,8 +1542,7 @@
      # to keep the test files in a subfolder.  It eases the cleanup of leftover
      # files using command "make distclean".
      if sysconfig.is_python_build():
@@ -1364,8 +1324,8 @@ diff -urN a/Lib/test/regrtest.py b/Lib/test/regrtest.py
              os.mkdir(TEMPDIR)
  
 diff -urN a/Lib/test/test_curses.py b/Lib/test/test_curses.py
---- a/Lib/test/test_curses.py	2012-04-10 00:07:31.000000000 +0100
-+++ b/Lib/test/test_curses.py	2012-06-24 16:36:40.059817205 +0100
+--- a/Lib/test/test_curses.py	2013-04-06 15:02:30.000000000 +0100
++++ b/Lib/test/test_curses.py	2013-04-22 02:19:27.213459751 +0100
 @@ -167,11 +167,16 @@
      curses.delay_output(1)
      curses.echo() ; curses.echo(1)
@@ -1386,8 +1346,8 @@ diff -urN a/Lib/test/test_curses.py b/Lib/test/test_curses.py
      curses.halfdelay(1)
      curses.intrflush(1)
 diff -urN a/Lib/test/test_os.py b/Lib/test/test_os.py
---- a/Lib/test/test_os.py	2012-04-10 00:07:32.000000000 +0100
-+++ b/Lib/test/test_os.py	2012-06-24 16:36:40.058817197 +0100
+--- a/Lib/test/test_os.py	2013-04-06 15:02:31.000000000 +0100
++++ b/Lib/test/test_os.py	2013-04-22 02:19:27.213459751 +0100
 @@ -325,7 +325,11 @@
  
              def test_large_time(self):
@@ -1402,8 +1362,8 @@ diff -urN a/Lib/test/test_os.py b/Lib/test/test_os.py
  
          def test_1686475(self):
 diff -urN a/Lib/test/test_sundry.py b/Lib/test/test_sundry.py
---- a/Lib/test/test_sundry.py	2012-04-10 00:07:32.000000000 +0100
-+++ b/Lib/test/test_sundry.py	2012-06-24 16:36:40.059817205 +0100
+--- a/Lib/test/test_sundry.py	2013-04-06 15:02:32.000000000 +0100
++++ b/Lib/test/test_sundry.py	2013-04-22 02:19:27.214459758 +0100
 @@ -27,7 +27,11 @@
  
              import distutils.command.bdist_dumb
@@ -1418,9 +1378,9 @@ diff -urN a/Lib/test/test_sundry.py b/Lib/test/test_sundry.py
              import distutils.command.bdist_rpm
              import distutils.command.bdist_wininst
 diff -urN a/Makefile.pre.in b/Makefile.pre.in
---- a/Makefile.pre.in	2012-06-24 16:36:39.859815838 +0100
-+++ b/Makefile.pre.in	2012-06-24 16:36:40.070817281 +0100
-@@ -198,7 +198,7 @@
+--- a/Makefile.pre.in	2013-04-06 15:02:34.000000000 +0100
++++ b/Makefile.pre.in	2013-04-22 02:19:27.214459758 +0100
+@@ -207,7 +207,7 @@
  # Modules
  MODULE_OBJS=	\
  		Modules/config.o \
@@ -1429,7 +1389,7 @@ diff -urN a/Makefile.pre.in b/Makefile.pre.in
  		Modules/main.o \
  		Modules/gcmodule.o
  
-@@ -273,7 +273,7 @@
+@@ -304,7 +304,7 @@
  		Python/codecs.o \
  		Python/errors.o \
  		Python/frozen.o \
@@ -1438,25 +1398,7 @@ diff -urN a/Makefile.pre.in b/Makefile.pre.in
  		Python/future.o \
  		Python/getargs.o \
  		Python/getcompiler.o \
-@@ -410,10 +410,15 @@
- 
- 
- # Build the shared modules
-+# FIXME: in cross-compilation env. (mingw on linux) how to select correct
-+# compiler/linker ?
-+# The current py-code will created modules with .so suffix and environment
-+# variable setting SO=$(SO) don't help.
-+# Also it link modules with gcc instead mingw...
- sharedmods: $(BUILDPYTHON)
- 	@case $$MAKEFLAGS in \
--	*s*) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(RUNPYTHON) -E $(srcdir)/setup.py -q build;; \
--	*) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(RUNPYTHON) -E $(srcdir)/setup.py build;; \
-+	*s*) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(RUNPYTHON) -E $(srcdir)/setup.py build @PYMOD_BUILDOPT@;; \
-+	*) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(RUNPYTHON) -E $(srcdir)/setup.py build @PYMOD_BUILDOPT@;; \
- 	esac
- 
- # Build static library
-@@ -530,6 +535,7 @@
+@@ -568,6 +568,7 @@
  	      -DHGBRANCH="\"`LC_ALL=C $(HGBRANCH)`\"" \
  	      -o $@ $(srcdir)/Modules/getbuildinfo.c
  
@@ -1464,7 +1406,7 @@ diff -urN a/Makefile.pre.in b/Makefile.pre.in
  Modules/getpath.o: $(srcdir)/Modules/getpath.c Makefile
  	$(CC) -c $(PY_CFLAGS) -DPYTHONPATH='"$(PYTHONPATH)"' \
  		-DPREFIX='"$(prefix)"' \
-@@ -538,6 +544,10 @@
+@@ -576,6 +577,10 @@
  		-DVPATH='"$(VPATH)"' \
  		-o $@ $(srcdir)/Modules/getpath.c
  
@@ -1476,9 +1418,9 @@ diff -urN a/Makefile.pre.in b/Makefile.pre.in
  	$(MAINCC) -c $(PY_CFLAGS) -o $@ $(srcdir)/Modules/python.c
  
 diff -urN a/Modules/_ctypes/_ctypes.c b/Modules/_ctypes/_ctypes.c
---- a/Modules/_ctypes/_ctypes.c	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/_ctypes/_ctypes.c	2012-06-24 16:36:40.076817320 +0100
-@@ -3168,11 +3168,27 @@
+--- a/Modules/_ctypes/_ctypes.c	2013-04-06 15:02:35.000000000 +0100
++++ b/Modules/_ctypes/_ctypes.c	2013-04-22 02:19:27.215459766 +0100
+@@ -3166,11 +3166,27 @@
      mangled_name = alloca(strlen(name) + 1 + 1 + 1 + 3); /* \0 _ @ %d */
      if (!mangled_name)
          return NULL;
@@ -1508,7 +1450,7 @@ diff -urN a/Modules/_ctypes/_ctypes.c b/Modules/_ctypes/_ctypes.c
  #endif
 diff -urN a/Modules/_ctypes/libffi_msvc/win32.S b/Modules/_ctypes/libffi_msvc/win32.S
 --- a/Modules/_ctypes/libffi_msvc/win32.S	1970-01-01 01:00:00.000000000 +0100
-+++ b/Modules/_ctypes/libffi_msvc/win32.S	2012-06-24 16:36:40.076817320 +0100
++++ b/Modules/_ctypes/libffi_msvc/win32.S	2013-04-22 02:19:27.215459766 +0100
 @@ -0,0 +1,154 @@
 +/* -----------------------------------------------------------------------
 +   win32.S - Copyright (c) 1996, 1998, 2001, 2002  Red Hat, Inc.
@@ -1665,8 +1607,8 @@ diff -urN a/Modules/_ctypes/libffi_msvc/win32.S b/Modules/_ctypes/libffi_msvc/wi
 +
 +.ffi_call_x86_end:
 diff -urN a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
---- a/Modules/getaddrinfo.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/getaddrinfo.c	2012-06-24 16:36:40.075817314 +0100
+--- a/Modules/getaddrinfo.c	2013-04-06 15:02:37.000000000 +0100
++++ b/Modules/getaddrinfo.c	2013-04-22 02:19:27.215459766 +0100
 @@ -232,6 +232,9 @@
      return YES;
  }
@@ -1678,8 +1620,8 @@ diff -urN a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
  getaddrinfo(const char*hostname, const char*servname,
              const struct addrinfo *hints, struct addrinfo **res)
 diff -urN a/Modules/getnameinfo.c b/Modules/getnameinfo.c
---- a/Modules/getnameinfo.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/getnameinfo.c	2012-06-24 16:36:40.074817308 +0100
+--- a/Modules/getnameinfo.c	2013-04-06 15:02:37.000000000 +0100
++++ b/Modules/getnameinfo.c	2013-04-22 02:19:27.216459774 +0100
 @@ -48,6 +48,14 @@
  #include "addrinfo.h"
  #endif
@@ -1696,8 +1638,8 @@ diff -urN a/Modules/getnameinfo.c b/Modules/getnameinfo.c
  #define YES 1
  #define NO  0
 diff -urN a/Modules/_io/fileio.c b/Modules/_io/fileio.c
---- a/Modules/_io/fileio.c	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/_io/fileio.c	2012-06-24 16:36:40.073817301 +0100
+--- a/Modules/_io/fileio.c	2013-04-06 15:02:36.000000000 +0100
++++ b/Modules/_io/fileio.c	2013-04-22 02:19:27.216459774 +0100
 @@ -29,7 +29,9 @@
  
  #ifdef MS_WINDOWS
@@ -1708,21 +1650,9 @@ diff -urN a/Modules/_io/fileio.c b/Modules/_io/fileio.c
  #define WIN32_LEAN_AND_MEAN
  #include <windows.h>
  #endif
-diff -urN a/Modules/_io/_iomodule.h b/Modules/_io/_iomodule.h
---- a/Modules/_io/_iomodule.h	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/_io/_iomodule.h	2012-06-24 16:36:40.073817301 +0100
-@@ -72,7 +72,7 @@
-     PyObject *filename; /* Not used, but part of the IOError object */
-     Py_ssize_t written;
- } PyBlockingIOErrorObject;
--PyAPI_DATA(PyObject *) PyExc_BlockingIOError;
-+extern PyObject* PyExc_BlockingIOError;
- 
- /*
-  * Offset type for positioning.
 diff -urN a/Modules/_localemodule.c b/Modules/_localemodule.c
---- a/Modules/_localemodule.c	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/_localemodule.c	2012-06-24 16:36:40.081817356 +0100
+--- a/Modules/_localemodule.c	2013-04-06 15:02:36.000000000 +0100
++++ b/Modules/_localemodule.c	2013-04-22 02:19:27.216459774 +0100
 @@ -10,6 +10,13 @@
  ******************************************************************/
  
@@ -1738,8 +1668,8 @@ diff -urN a/Modules/_localemodule.c b/Modules/_localemodule.c
  #include <stdio.h>
  #include <locale.h>
 diff -urN a/Modules/_math.c b/Modules/_math.c
---- a/Modules/_math.c	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/_math.c	2012-06-24 16:36:40.081817356 +0100
+--- a/Modules/_math.c	2013-04-06 15:02:36.000000000 +0100
++++ b/Modules/_math.c	2013-04-22 02:19:27.217459781 +0100
 @@ -5,6 +5,29 @@
  #include <float.h>
  #include "_math.h"
@@ -1800,8 +1730,8 @@ diff -urN a/Modules/_math.c b/Modules/_math.c
  }
  
 diff -urN a/Modules/mathmodule.c b/Modules/mathmodule.c
---- a/Modules/mathmodule.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/mathmodule.c	2012-06-24 16:36:40.079817342 +0100
+--- a/Modules/mathmodule.c	2013-04-06 15:02:37.000000000 +0100
++++ b/Modules/mathmodule.c	2013-04-22 02:19:27.217459781 +0100
 @@ -60,6 +60,30 @@
  extern double copysign(double, double);
  #endif
@@ -1834,8 +1764,8 @@ diff -urN a/Modules/mathmodule.c b/Modules/mathmodule.c
     sin(pi*x), giving accurate results for all finite x (especially x
     integral or close to an integer).  This is here for use in the
 diff -urN a/Modules/_multiprocessing/multiprocessing.c b/Modules/_multiprocessing/multiprocessing.c
---- a/Modules/_multiprocessing/multiprocessing.c	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/_multiprocessing/multiprocessing.c	2012-06-24 16:36:40.081817356 +0100
+--- a/Modules/_multiprocessing/multiprocessing.c	2013-04-06 15:02:36.000000000 +0100
++++ b/Modules/_multiprocessing/multiprocessing.c	2013-04-22 02:19:27.217459781 +0100
 @@ -332,6 +332,12 @@
          Py_DECREF(temp); Py_DECREF(value); return; }              \
      Py_DECREF(value)
@@ -1861,9 +1791,9 @@ diff -urN a/Modules/_multiprocessing/multiprocessing.c b/Modules/_multiprocessin
          return;
  }
 diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
---- a/Modules/posixmodule.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/posixmodule.c	2012-06-24 16:36:40.078817335 +0100
-@@ -128,6 +128,16 @@
+--- a/Modules/posixmodule.c	2013-04-06 15:02:37.000000000 +0100
++++ b/Modules/posixmodule.c	2013-04-22 02:19:27.218459789 +0100
+@@ -131,6 +131,16 @@
  #define HAVE_CWAIT      1
  #define HAVE_FSYNC      1
  #define fsync _commit
@@ -1880,7 +1810,7 @@ diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
  #else
  #if defined(PYOS_OS2) && defined(PYCC_GCC) || defined(__VMS)
  /* Everything needed is defined in PC/os2emx/pyconfig.h or vms/pyconfig.h */
-@@ -256,7 +266,7 @@
+@@ -259,7 +269,7 @@
  #endif
  #endif
  
@@ -1889,7 +1819,7 @@ diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
  #ifdef HAVE_DIRECT_H
  #include <direct.h>
  #endif
-@@ -272,7 +282,7 @@
+@@ -275,7 +285,7 @@
  #include <shellapi.h>   /* for ShellExecute() */
  #define popen   _popen
  #define pclose  _pclose
@@ -1898,7 +1828,7 @@ diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
  
  #if defined(PYCC_VACPP) && defined(PYOS_OS2)
  #include <io.h>
-@@ -447,7 +457,7 @@
+@@ -575,7 +585,7 @@
  */
  #include <crt_externs.h>
  static char **environ;
@@ -1907,7 +1837,7 @@ diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
  extern char **environ;
  #endif /* !_MSC_VER */
  
-@@ -1382,6 +1392,13 @@
+@@ -1515,6 +1525,13 @@
  }
  
  #ifdef MS_WINDOWS
@@ -1921,7 +1851,7 @@ diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
  
  /* IsUNCRoot -- test whether the supplied path is of the form \\SERVER\SHARE\,
     where / can be used in place of \ and the trailing slash is optional.
-@@ -9251,7 +9268,7 @@
+@@ -9332,7 +9349,7 @@
  }
  
  
@@ -1931,8 +1861,8 @@ diff -urN a/Modules/posixmodule.c b/Modules/posixmodule.c
  #define MODNAME "nt"
  
 diff -urN a/Modules/readline.c b/Modules/readline.c
---- a/Modules/readline.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/readline.c	2012-06-24 16:36:40.079817342 +0100
+--- a/Modules/readline.c	2013-04-06 15:02:37.000000000 +0100
++++ b/Modules/readline.c	2013-04-22 02:19:27.219459796 +0100
 @@ -11,6 +11,11 @@
  #include <errno.h>
  #include <sys/time.h>
@@ -1967,9 +1897,9 @@ diff -urN a/Modules/readline.c b/Modules/readline.c
      setup_readline();
  }
 diff -urN a/Modules/selectmodule.c b/Modules/selectmodule.c
---- a/Modules/selectmodule.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/selectmodule.c	2012-06-24 16:39:30.641981474 +0100
-@@ -111,9 +111,10 @@
+--- a/Modules/selectmodule.c	2013-04-06 15:02:38.000000000 +0100
++++ b/Modules/selectmodule.c	2013-04-22 02:19:27.219459796 +0100
+@@ -108,9 +108,10 @@
          v = PyObject_AsFileDescriptor( o );
          if (v == -1) goto finally;
  
@@ -1982,7 +1912,7 @@ diff -urN a/Modules/selectmodule.c b/Modules/selectmodule.c
          if (!_PyIsSelectable_fd(v)) {
              PyErr_SetString(PyExc_ValueError,
                          "filedescriptor out of range in select()");
-@@ -121,7 +122,7 @@
+@@ -118,7 +119,7 @@
          }
          if (v > max)
              max = v;
@@ -1992,8 +1922,8 @@ diff -urN a/Modules/selectmodule.c b/Modules/selectmodule.c
  
          /* add object and its file descriptor to the list */
 diff -urN a/Modules/Setup.config.in b/Modules/Setup.config.in
---- a/Modules/Setup.config.in	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/Setup.config.in	2012-06-24 16:36:40.074817308 +0100
+--- a/Modules/Setup.config.in	2013-04-06 15:02:34.000000000 +0100
++++ b/Modules/Setup.config.in	2013-04-22 02:19:27.219459796 +0100
 @@ -3,11 +3,22 @@
  # The purpose of this file is to conditionally enable certain modules
  # based on configure-time options.
@@ -2018,8 +1948,8 @@ diff -urN a/Modules/Setup.config.in b/Modules/Setup.config.in
  # The rest of the modules previously listed in this file are built
  # by the setup.py script in Python 2.1 and later.
 diff -urN a/Modules/Setup.dist b/Modules/Setup.dist
---- a/Modules/Setup.dist	2012-04-10 00:07:33.000000000 +0100
-+++ b/Modules/Setup.dist	2012-06-24 16:36:40.074817308 +0100
+--- a/Modules/Setup.dist	2013-04-06 15:02:34.000000000 +0100
++++ b/Modules/Setup.dist	2013-04-22 02:19:27.220459804 +0100
 @@ -112,9 +112,10 @@
  # This only contains the minimal set of modules required to run the 
  # setup.py script in the root of the Python source tree.
@@ -2034,8 +1964,8 @@ diff -urN a/Modules/Setup.dist b/Modules/Setup.dist
  _sre _sre.c			# Fredrik Lundh's new regular expressions
  _codecs _codecsmodule.c		# access to the builtin codecs and codec registry
 diff -urN a/Modules/signalmodule.c b/Modules/signalmodule.c
---- a/Modules/signalmodule.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/signalmodule.c	2012-06-24 16:36:40.078817335 +0100
+--- a/Modules/signalmodule.c	2013-04-06 15:02:38.000000000 +0100
++++ b/Modules/signalmodule.c	2013-04-22 02:19:27.220459804 +0100
 @@ -7,7 +7,7 @@
  #include "intrcheck.h"
  
@@ -2046,8 +1976,8 @@ diff -urN a/Modules/signalmodule.c b/Modules/signalmodule.c
  #include <process.h>
  #endif
 diff -urN a/Modules/socketmodule.c b/Modules/socketmodule.c
---- a/Modules/socketmodule.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/socketmodule.c	2012-06-24 16:36:40.080817349 +0100
+--- a/Modules/socketmodule.c	2013-04-06 15:02:38.000000000 +0100
++++ b/Modules/socketmodule.c	2013-04-22 02:19:27.221459811 +0100
 @@ -91,6 +91,15 @@
  #endif
  
@@ -2062,9 +1992,9 @@ diff -urN a/Modules/socketmodule.c b/Modules/socketmodule.c
 +#endif
 +#endif /* ndef HAVE_GETPEERNAME */
  #include "structmember.h"
+ #include "timefuncs.h"
  
- #undef MAX
-@@ -312,6 +321,35 @@
+@@ -313,6 +322,35 @@
    /* Do not include addrinfo.h for MSVC7 or greater. 'addrinfo' and
     * EAI_* constants are defined in (the already included) ws2tcpip.h.
     */
@@ -2100,7 +2030,7 @@ diff -urN a/Modules/socketmodule.c b/Modules/socketmodule.c
  #else
  #  include "addrinfo.h"
  #endif
-@@ -349,6 +387,16 @@
+@@ -350,6 +388,16 @@
  #if !defined(HAVE_GETADDRINFO)
  /* avoid clashes with the C library definition of the symbol. */
  #define getaddrinfo fake_getaddrinfo
@@ -2117,7 +2047,7 @@ diff -urN a/Modules/socketmodule.c b/Modules/socketmodule.c
  #define gai_strerror fake_gai_strerror
  #define freeaddrinfo fake_freeaddrinfo
  #include "getaddrinfo.c"
-@@ -2912,7 +2960,31 @@
+@@ -2986,7 +3034,31 @@
  Shut down the reading side of the socket (flag == SHUT_RD), the writing side\n\
  of the socket (flag == SHUT_WR), or both ends (flag == SHUT_RDWR).");
  
@@ -2150,8 +2080,8 @@ diff -urN a/Modules/socketmodule.c b/Modules/socketmodule.c
  sock_ioctl(PySocketSockObject *s, PyObject *arg)
  {
 diff -urN a/Modules/socketmodule.h b/Modules/socketmodule.h
---- a/Modules/socketmodule.h	2012-04-10 00:07:34.000000000 +0100
-+++ b/Modules/socketmodule.h	2012-06-24 16:36:40.079817342 +0100
+--- a/Modules/socketmodule.h	2013-04-06 15:02:38.000000000 +0100
++++ b/Modules/socketmodule.h	2013-04-22 02:19:27.221459811 +0100
 @@ -13,6 +13,13 @@
  # endif
  
@@ -2167,8 +2097,8 @@ diff -urN a/Modules/socketmodule.h b/Modules/socketmodule.h
  # include <ws2tcpip.h>
  /* VC6 is shipped with old platform headers, and does not have MSTcpIP.h
 diff -urN a/Objects/fileobject.c b/Objects/fileobject.c
---- a/Objects/fileobject.c	2012-04-10 00:07:34.000000000 +0100
-+++ b/Objects/fileobject.c	2012-06-24 16:36:40.082817363 +0100
+--- a/Objects/fileobject.c	2013-04-06 15:02:38.000000000 +0100
++++ b/Objects/fileobject.c	2013-04-22 02:19:27.222459819 +0100
 @@ -9,9 +9,17 @@
  #endif /* HAVE_SYS_TYPES_H */
  
@@ -2188,8 +2118,8 @@ diff -urN a/Objects/fileobject.c b/Objects/fileobject.c
  #include <windows.h>
  #endif
 diff -urN a/PC/msvcrtmodule.c b/PC/msvcrtmodule.c
---- a/PC/msvcrtmodule.c	2012-04-10 00:07:35.000000000 +0100
-+++ b/PC/msvcrtmodule.c	2012-06-24 16:36:40.057817190 +0100
+--- a/PC/msvcrtmodule.c	2013-04-06 15:02:39.000000000 +0100
++++ b/PC/msvcrtmodule.c	2013-04-22 02:19:27.222459819 +0100
 @@ -22,6 +22,31 @@
  #include <conio.h>
  #include <sys/locking.h>
@@ -2231,8 +2161,8 @@ diff -urN a/PC/msvcrtmodule.c b/PC/msvcrtmodule.c
          return PyErr_SetFromErrno(PyExc_IOError);
      Py_INCREF(Py_None);
 diff -urN a/PC/_winreg.c b/PC/_winreg.c
---- a/PC/_winreg.c	2012-04-10 00:07:35.000000000 +0100
-+++ b/PC/_winreg.c	2012-06-24 16:36:40.057817190 +0100
+--- a/PC/_winreg.c	2013-04-06 15:02:39.000000000 +0100
++++ b/PC/_winreg.c	2013-04-22 02:19:27.222459819 +0100
 @@ -17,6 +17,18 @@
  #include "malloc.h" /* for alloca */
  #include "windows.h"
@@ -2252,7 +2182,7 @@ diff -urN a/PC/_winreg.c b/PC/_winreg.c
  static BOOL PyHKEY_AsHKEY(PyObject *ob, HKEY *pRes, BOOL bNoneOK);
  static PyObject *PyHKEY_FromHKEY(HKEY h);
  static BOOL PyHKEY_Close(PyObject *obHandle);
-@@ -1087,6 +1099,15 @@
+@@ -1088,6 +1100,15 @@
  static PyObject *
  PyDeleteKeyEx(PyObject *self, PyObject *args)
  {
@@ -2268,7 +2198,7 @@ diff -urN a/PC/_winreg.c b/PC/_winreg.c
      HKEY hKey;
      PyObject *obKey;
      HMODULE hMod;
-@@ -1122,6 +1143,7 @@
+@@ -1123,6 +1144,7 @@
          return PyErr_SetFromWindowsErrWithFunction(rc, "RegDeleteKeyEx");
      Py_INCREF(Py_None);
      return Py_None;
@@ -2277,8 +2207,8 @@ diff -urN a/PC/_winreg.c b/PC/_winreg.c
  
  static PyObject *
 diff -urN a/pyconfig.h.in b/pyconfig.h.in
---- a/pyconfig.h.in	2012-06-24 16:36:39.859815838 +0100
-+++ b/pyconfig.h.in	2012-06-24 16:36:40.073817301 +0100
+--- a/pyconfig.h.in	2013-04-06 15:02:41.000000000 +0100
++++ b/pyconfig.h.in	2013-04-22 02:19:27.223459827 +0100
 @@ -49,7 +49,7 @@
  /* Define to 1 if you have the `acosh' function. */
  #undef HAVE_ACOSH
@@ -2288,7 +2218,7 @@ diff -urN a/pyconfig.h.in b/pyconfig.h.in
  #undef HAVE_ADDRINFO
  
  /* Define to 1 if you have the `alarm' function. */
-@@ -888,6 +888,9 @@
+@@ -900,6 +900,9 @@
  /* Define to 1 if you have the `wcscoll' function. */
  #undef HAVE_WCSCOLL
  
@@ -2298,7 +2228,7 @@ diff -urN a/pyconfig.h.in b/pyconfig.h.in
  /* Define if tzset() actually switches the local timezone in a meaningful way.
     */
  #undef HAVE_WORKING_TZSET
-@@ -915,6 +918,9 @@
+@@ -927,6 +930,9 @@
  /* Define if mvwdelch in curses.h is an expression. */
  #undef MVWDELCH_IS_EXPRESSION
  
@@ -2309,8 +2239,8 @@ diff -urN a/pyconfig.h.in b/pyconfig.h.in
  #undef PACKAGE_BUGREPORT
  
 diff -urN a/Python/dynload_win.c b/Python/dynload_win.c
---- a/Python/dynload_win.c	2012-04-10 00:07:35.000000000 +0100
-+++ b/Python/dynload_win.c	2012-06-24 16:36:40.066817253 +0100
+--- a/Python/dynload_win.c	2013-04-06 15:02:40.000000000 +0100
++++ b/Python/dynload_win.c	2013-04-22 02:19:27.223459827 +0100
 @@ -11,9 +11,11 @@
  #include "importdl.h"
  #include <windows.h>
@@ -2355,7 +2285,7 @@ diff -urN a/Python/dynload_win.c b/Python/dynload_win.c
          /* restore old error mode settings */
 diff -urN a/Python/fileblocks.c b/Python/fileblocks.c
 --- a/Python/fileblocks.c	1970-01-01 01:00:00.000000000 +0100
-+++ b/Python/fileblocks.c	2012-06-24 16:36:40.067817260 +0100
++++ b/Python/fileblocks.c	2013-04-22 02:19:27.223459827 +0100
 @@ -0,0 +1,17 @@
 +/*
 +-- Macro: AC_STRUCT_ST_BLOCKS
@@ -2375,8 +2305,8 @@ diff -urN a/Python/fileblocks.c b/Python/fileblocks.c
 +typedef int textutils_fileblocks_unused;
 +#endif
 diff -urN a/Python/thread.c b/Python/thread.c
---- a/Python/thread.c	2012-04-10 00:07:35.000000000 +0100
-+++ b/Python/thread.c	2012-06-24 16:36:40.067817260 +0100
+--- a/Python/thread.c	2013-04-06 15:02:40.000000000 +0100
++++ b/Python/thread.c	2013-04-22 02:19:27.223459827 +0100
 @@ -7,6 +7,16 @@
  
  #include "Python.h"
@@ -2395,29 +2325,9 @@ diff -urN a/Python/thread.c b/Python/thread.c
  #ifndef _POSIX_THREADS
  /* This means pthreads are not implemented in libc headers, hence the macro
 diff -urN a/setup.py b/setup.py
---- a/setup.py	2012-06-24 16:36:39.861815851 +0100
-+++ b/setup.py	2012-06-24 16:36:40.071817288 +0100
-@@ -24,7 +24,8 @@
-     host_platform = os.environ.get('HOST_OS')
-     if host_platform is None:
-         host_platform = sys.platform
--    for platform in ['cygwin', 'beos', 'darwin', 'atheos', 'osf1']:
-+    # NOTE: for mingw* host we cannot return 'win32' (see below)
-+    for platform in ['cygwin', 'mingw', 'beos', 'darwin', 'atheos', 'osf1']:
-         if host_platform.startswith(platform):
-             return platform
-     return host_platform
-@@ -33,8 +34,7 @@
- cross_compiling = (not os.environ.get('HOST_OS') is None)
- 
- 
--# Were we compiled --with-pydebug or with #define Py_DEBUG?
--COMPILED_WITH_PYDEBUG = hasattr(sys, 'gettotalrefcount')
-+COMPILED_WITH_PYDEBUG = ('--with-pydebug' in sysconfig.get_config_var("CONFIG_ARGS"))
- 
- # This global variable is used to hold the list of modules to be disabled.
- disabled_module_list = []
-@@ -181,7 +181,7 @@
+--- a/setup.py	2013-04-06 15:02:41.000000000 +0100
++++ b/setup.py	2013-04-22 02:19:27.224459834 +0100
+@@ -179,7 +179,7 @@
          # with Modules/ and adding Python's include directory to the path.
          (srcdir,) = sysconfig.get_config_vars('srcdir')
          if not srcdir:
@@ -2426,7 +2336,7 @@ diff -urN a/setup.py b/setup.py
              raise ValueError("No source directory; cannot proceed.")
          srcdir = os.path.abspath(srcdir)
          moddirlist = [os.path.join(srcdir, 'Modules')]
-@@ -247,8 +247,38 @@
+@@ -246,8 +246,38 @@
          if compiler is not None:
              (ccshared,cflags) = sysconfig.get_config_vars('CCSHARED','CFLAGS')
              args['compiler_so'] = compiler + ' ' + ccshared + ' ' + cflags
@@ -2440,7 +2350,7 @@ diff -urN a/setup.py b/setup.py
 +
          self.compiler.set_executables(**args)
  
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            # FIXME: best way to pass just build python library to the modules
 +            self.compiler.library_dirs.insert(0, '.')
 +            data = open('pyconfig.h').read()
@@ -2450,7 +2360,7 @@ diff -urN a/setup.py b/setup.py
 +            else:
 +                self.compiler.libraries.append("python" + str(sysconfig.get_config_var('VERSION')))
 +
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            # NOTE: See comment for SHLIBS in configure.in .
 +            # Although it look obsolete since setup.py add module
 +            # required libraries we will pass list too.
@@ -2465,7 +2375,7 @@ diff -urN a/setup.py b/setup.py
          build_ext.build_extensions(self)
  
          longest = max([len(e.name) for e in self.extensions])
-@@ -432,6 +462,8 @@
+@@ -481,6 +511,8 @@
              # (PYTHONFRAMEWORK is set) to avoid # linking problems when
              # building a framework with different architectures than
              # the one that is currently installed (issue #7473)
@@ -2474,7 +2384,7 @@ diff -urN a/setup.py b/setup.py
              add_dir_to_list(self.compiler.library_dirs,
                              sysconfig.get_config_var("LIBDIR"))
              add_dir_to_list(self.compiler.include_dirs,
-@@ -479,6 +511,7 @@
+@@ -536,6 +568,7 @@
              #   NOTE: using shlex.split would technically be more correct, but
              # also gives a bootstrap problem. Let's hope nobody uses directories
              # with whitespace in the name to store libraries.
@@ -2482,7 +2392,7 @@ diff -urN a/setup.py b/setup.py
              cflags, ldflags = sysconfig.get_config_vars(
                      'CFLAGS', 'LDFLAGS')
              for item in cflags.split():
-@@ -491,7 +524,7 @@
+@@ -548,7 +581,7 @@
  
          # Check for MacOS X, which doesn't need libm.a at all
          math_libs = ['m']
@@ -2491,7 +2401,7 @@ diff -urN a/setup.py b/setup.py
              math_libs = []
  
          # XXX Omitted modules: gl, pure, dl, SGI-specific modules
-@@ -535,14 +568,20 @@
+@@ -592,14 +625,20 @@
          # heapq
          exts.append( Extension("_heapq", ["_heapqmodule.c"]) )
          # operator.add() and similar goodies
@@ -2515,7 +2425,7 @@ diff -urN a/setup.py b/setup.py
          # _json speedups
          exts.append( Extension("_json", ["_json.c"]) )
          # Python C API test module
-@@ -568,7 +607,10 @@
+@@ -626,7 +665,10 @@
              locale_extra_link_args = []
  
  
@@ -2527,7 +2437,7 @@ diff -urN a/setup.py b/setup.py
                                 libraries=locale_libs,
                                 extra_link_args=locale_extra_link_args) )
  
-@@ -577,24 +619,35 @@
+@@ -635,24 +677,35 @@
          # supported...)
  
          # fcntl(2) and ioctl(2)
@@ -2569,7 +2479,7 @@ diff -urN a/setup.py b/setup.py
  
          # select(2); not on ancient System V
 -        exts.append( Extension('select', ['selectmodule.c']) )
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            select_libs = ['ws2_32']
 +        else:
 +            select_libs = []
@@ -2578,7 +2488,7 @@ diff -urN a/setup.py b/setup.py
  
          # Fred Drake's interface to the Python parser
          exts.append( Extension('parser', ['parsermodule.c']) )
-@@ -610,8 +663,11 @@
+@@ -668,8 +721,11 @@
              missing.append('mmap')
  
          # Lance Ellinghaus's syslog module
@@ -2592,43 +2502,34 @@ diff -urN a/setup.py b/setup.py
  
          # George Neville-Neil's timing module:
          # Deprecated in PEP 4 http://www.python.org/peps/pep-0004.html
-@@ -730,18 +786,25 @@
-             missing.append('readline')
- 
-         # crypt module.
--
--        if self.compiler.find_library_file(lib_dirs, 'crypt'):
--            libs = ['crypt']
-+        if host_platform not in ['mingw', 'win32']:
-+            if self.compiler.find_library_file(lib_dirs, 'crypt'):
-+                libs = ['crypt']
-+            else:
-+                libs = []
-+            exts.append( Extension('crypt', ['cryptmodule.c'], libraries=libs) )
+@@ -771,15 +827,19 @@
+             libs = ['crypt']
          else:
--            libs = []
+             libs = []
 -        exts.append( Extension('crypt', ['cryptmodule.c'], libraries=libs) )
-+            missing.append('crypt')
++        if libs != [] or host_platform not in ['mingw', 'win32']:
++            exts.append( Extension('crypt', ['cryptmodule.c'], libraries=libs) )
  
          # CSV files
          exts.append( Extension('_csv', ['_csv.c']) )
  
          # socket(2)
-+        if host_platform in ['mingw', 'win32']:
-+            socket_libs = ['ws2_32']
-+        else:
-+            socket_libs = []
-         exts.append( Extension('_socket', ['socketmodule.c'],
-+                               libraries=socket_libs,
-                                depends = ['socketmodule.h']) )
++        _socket_libs = math_libs
++        if host_platform == 'win32':
++            _socket_libs.append('ws2_32')
+         exts.append( Extension('_socket', ['socketmodule.c', 'timemodule.c'],
+                                depends=['socketmodule.h'],
+-                               libraries=math_libs) )
++                               libraries=_socket_libs) )
          # Detect SSL support for the socket module (via _ssl)
          search_for_ssl_incs_in = [
-@@ -763,10 +826,13 @@
+                               '/usr/local/ssl/include',
+@@ -800,10 +860,13 @@
  
          if (ssl_incs is not None and
              ssl_libs is not None):
 +            _ssl_libs = ['ssl', 'crypto']
-+            if host_platform in ['mingw', 'win32']:
++            if host_platform in ('mingw', 'win32'):
 +                _ssl_libs.append('ws2_32')
              exts.append( Extension('_ssl', ['_ssl.c'],
                                     include_dirs = ssl_incs,
@@ -2638,7 +2539,7 @@ diff -urN a/setup.py b/setup.py
                                     depends = ['socketmodule.h']), )
          else:
              missing.append('_ssl')
-@@ -802,14 +868,17 @@
+@@ -839,14 +902,17 @@
              if have_usable_openssl:
                  # The _hashlib module wraps optimized implementations
                  # of hash functions from the OpenSSL library.
@@ -2657,12 +2558,12 @@ diff -urN a/setup.py b/setup.py
          if COMPILED_WITH_PYDEBUG or not have_usable_openssl:
              # The _sha module implements the SHA1 hash algorithm.
              exts.append( Extension('_sha', ['shamodule.c']) )
-@@ -845,6 +914,29 @@
-         min_db_ver = (4, 1)
+@@ -882,6 +948,29 @@
+         min_db_ver = (4, 3)
          db_setup_debug = False   # verbose debug prints from this script?
  
 +        # Modules with some Windows dependencies:
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            srcdir = sysconfig.get_config_var('srcdir')
 +            pc_srcdir = os.path.abspath(os.path.join(srcdir, 'PC'))
 +
@@ -2687,7 +2588,7 @@ diff -urN a/setup.py b/setup.py
          def allow_db_ver(db_ver):
              """Returns a boolean if the given BerkeleyDB version is acceptable.
  
-@@ -1115,6 +1207,7 @@
+@@ -1161,6 +1250,7 @@
                  '_sqlite/util.c', ]
  
              sqlite_defines = []
@@ -2695,7 +2596,7 @@ diff -urN a/setup.py b/setup.py
              if host_platform != "win32":
                  sqlite_defines.append(('MODULE_NAME', '"sqlite3"'))
              else:
-@@ -1253,7 +1346,8 @@
+@@ -1303,7 +1393,8 @@
                  missing.append('dbm')
  
          # Anthony Baxter's gdbm module.  GNU dbm(3) will require -lgdbm:
@@ -2705,7 +2606,7 @@ diff -urN a/setup.py b/setup.py
              self.compiler.find_library_file(lib_dirs, 'gdbm')):
              exts.append( Extension('gdbm', ['gdbmmodule.c'],
                                     libraries = ['gdbm'] ) )
-@@ -1261,7 +1355,7 @@
+@@ -1311,7 +1402,7 @@
              missing.append('gdbm')
  
          # Unix-only modules
@@ -2714,7 +2615,7 @@ diff -urN a/setup.py b/setup.py
              # Steen Lumholt's termios module
              exts.append( Extension('termios', ['termios.c']) )
              # Jeremy Hylton's rlimit interface
-@@ -1451,7 +1545,7 @@
+@@ -1517,7 +1608,7 @@
          if sys.maxint == 0x7fffffff:
              # This requires sizeof(int) == sizeof(long) == sizeof(char*)
              dl_inc = find_file('dlfcn.h', [], inc_dirs)
@@ -2723,16 +2624,16 @@ diff -urN a/setup.py b/setup.py
                  exts.append( Extension('dl', ['dlmodule.c']) )
              else:
                  missing.append('dl')
-@@ -1462,7 +1556,7 @@
+@@ -1528,7 +1619,7 @@
          self.detect_ctypes(inc_dirs, lib_dirs)
  
          # Richard Oudkerk's multiprocessing module
--        if host_platform == 'win32':
-+        if host_platform in ['mingw', 'win32']:
+-        if host_platform == 'win32':             # Windows
++        if host_platform == 'win32':  # Windows
              macros = dict()
              libraries = ['ws2_32']
  
-@@ -1490,9 +1584,11 @@
+@@ -1556,9 +1647,11 @@
  
          else:                                   # Linux and other unices
              macros = dict()
@@ -2742,11 +2643,11 @@ diff -urN a/setup.py b/setup.py
 +            libraries = []
  
 -        if host_platform == 'win32':
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
              multiprocessing_srcs = [ '_multiprocessing/multiprocessing.c',
                                       '_multiprocessing/semaphore.c',
                                       '_multiprocessing/pipe_connection.c',
-@@ -1509,7 +1605,9 @@
+@@ -1575,7 +1668,9 @@
                  multiprocessing_srcs.append('_multiprocessing/semaphore.c')
  
          if sysconfig.get_config_var('WITH_THREAD'):
@@ -2756,7 +2657,7 @@ diff -urN a/setup.py b/setup.py
                                      define_macros=macros.items(),
                                      include_dirs=["Modules/_multiprocessing"]))
          else:
-@@ -1550,6 +1648,7 @@
+@@ -1616,6 +1711,7 @@
          if host_platform == 'darwin' and ("--disable-toolbox-glue" not in
                  sysconfig.get_config_var("CONFIG_ARGS")):
  
@@ -2764,17 +2665,17 @@ diff -urN a/setup.py b/setup.py
              if int(os.uname()[2].split('.')[0]) >= 8:
                  # We're on Mac OS X 10.4 or later, the compiler should
                  # support '-Wno-deprecated-declarations'. This will
-@@ -1795,6 +1894,9 @@
+@@ -1861,6 +1957,9 @@
          if host_platform == 'sunos5':
              include_dirs.append('/usr/openwin/include')
              added_lib_dirs.append('/usr/openwin/lib')
-+        elif host_platform in ['mingw', 'win32']:
++        elif host_platform == 'win32':
 +            # mingw&win32 don't use X11 headers and libraries
 +            pass
          elif os.path.exists('/usr/X11R6/include'):
              include_dirs.append('/usr/X11R6/include')
              added_lib_dirs.append('/usr/X11R6/lib64')
-@@ -1830,8 +1932,8 @@
+@@ -1896,8 +1995,8 @@
          if host_platform in ['aix3', 'aix4']:
              libs.append('ld')
  
@@ -2785,11 +2686,11 @@ diff -urN a/setup.py b/setup.py
              libs.append('X11')
  
          ext = Extension('_tkinter', ['_tkinter.c', 'tkappinit.c'],
-@@ -1882,6 +1984,38 @@
+@@ -1948,6 +2047,38 @@
          return True
  
      def configure_ctypes(self, ext):
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            # win32 platform use own sources and includes
 +            # from Modules/_ctypes/libffi_msvc/
 +            srcdir = sysconfig.get_config_var('srcdir')
@@ -2824,11 +2725,11 @@ diff -urN a/setup.py b/setup.py
          if not self.use_system_libffi:
              if host_platform == 'darwin':
                  return self.configure_ctypes_darwin(ext)
-@@ -1934,6 +2068,11 @@
+@@ -1998,6 +2129,11 @@
                                 fficonfig['ffi_sources'])
              ext.include_dirs.extend(include_dirs)
              ext.extra_compile_args.extend(extra_compile_args)
-+            if host_platform in ['mingw', 'win32']:
++            if host_platform == 'win32':
 +                ext.libraries.extend(['ole32', 'oleaut32', 'uuid'])
 +                #AdditionalOptions="/EXPORT:DllGetClassObject,PRIVATE /EXPORT:DllCanUnloadNow,PRIVATE"
 +                ext.export_symbols.extend(['DllGetClassObject PRIVATE',
@@ -2836,11 +2737,11 @@ diff -urN a/setup.py b/setup.py
          return True
  
      def detect_ctypes(self, inc_dirs, lib_dirs):
-@@ -1977,7 +2116,12 @@
+@@ -2041,7 +2177,12 @@
                          libraries=[],
                          sources=sources,
                          depends=depends)
-+        if host_platform in ['mingw', 'win32']:
++        if host_platform == 'win32':
 +            ctypes_test_libs = ['oleaut32']
 +        else:
 +            ctypes_test_libs = []
