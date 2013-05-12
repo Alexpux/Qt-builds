@@ -77,6 +77,9 @@ src_patch() {
 		$P/${PYTHON2_VERSION}/0110-mingw-_PyNode_SizeOf-decl-fix.patch
 		$P/${PYTHON2_VERSION}/0115-mingw-cross-includes-lower-case.patch
 		$P/${PYTHON2_VERSION}/0500-mingw-install-LDLIBRARY-to-LIBPL-dir.patch
+		$P/${PYTHON2_VERSION}/0505-add-build-sysroot-config-option.patch
+		$P/${PYTHON2_VERSION}/0510-cross-PYTHON_FOR_BUILD-gteq-274-and-fullpath-it.patch
+		$P/${PYTHON2_VERSION}/0515-mingw-add-GetModuleFileName-path-to-PATH.patch
 		$P/${PYTHON2_VERSION}/9999-re-configure-d.patch
 	)
 	
