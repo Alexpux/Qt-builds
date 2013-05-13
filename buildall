@@ -61,9 +61,6 @@ PROG_DIR=${TOP_DIR}/progs
 SCENARIOS=${TOP_DIR}/scenarios
 TOOLCHAINS_DIR=${TOP_DIR}/toolchains
 ROOT_DIR=${TOP_DIR}/work
-SRC_DIR=${ROOT_DIR}/src
-MARKERS_DIR=${ROOT_DIR}/markers
-UNPACK_DIR=${ROOT_DIR}/unpack
 
 # Use system installed toolchains
 USER_DEFINED_TOOLCHAINS=no
@@ -136,8 +133,6 @@ RUN_ARGS="$@"
 
 	exit 0
 }
-
-mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 
 export INSTALL=/bin/install
 
@@ -225,7 +220,13 @@ while [[ $# > 0 ]]; do
 		;;
 	esac
 	shift
-done		
+done
+
+SRC_DIR=${ROOT_DIR}/src
+MARKERS_DIR=${ROOT_DIR}/markers
+UNPACK_DIR=${ROOT_DIR}/unpack
+
+mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 
 [[ ${#BUILD_ARCHITECTURES[@]} > 2 || ${#BUILD_ARCHITECTURES[@]} == 0 || \
 	${BUILD_ARCHITECTURES[0]} == ${BUILD_ARCHITECTURES[1]} ]] && {
