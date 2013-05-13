@@ -56,7 +56,7 @@ SUBMODULES=(qtactiveqt
 			qttools
 			qttranslations
 			qtwebkit
-			qtwebkit-examples-and-demos
+			qtwebkit-examples
 			qtxmlpatterns
 )
 
