@@ -117,6 +117,7 @@ src_configure() {
 	
 	local _conf_flags=(
 		--prefix=${MINGW_PYTHON2_PREFIX}
+		--build=${HOST}
 		--host=${HOST}
 		--enable-shared
 		--disable-ipv6
