@@ -50,25 +50,60 @@ src_unpack() {
 }
 
 src_patch() {
-	echo "--> Patch empty"
+	local _patches=(
+		$P/postgresql-9.2.4-plperl-mingw.patch
+		$P/postgresql-9.2.4-plpython-mingw.patch
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 }
 
 src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
-		${LNKDEPS}
+		--with-openssl
+		--with-libxml
+		--with-libxslt
+		--with-perl
+		--with-python
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure $P_V $P_V "$_allconf"
+	
+	pushd $BUILD_DIR/$P_V > /dev/null
+		if [ ! -f defs.marker ]
+		then
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/blibecpg_compatdll.def src/interfaces/ecpg/compatlib/blibecpg_compatdll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/libecpg_compatddll.def src/interfaces/ecpg/compatlib/libecpg_compatddll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/libecpg_compatdll.def src/interfaces/ecpg/compatlib/libecpg_compatdll.def
+			
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/ecpglib/blibecpgdll.def src/interfaces/ecpg/ecpglib/blibecpgdll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/ecpglib/libecpgddll.def src/interfaces/ecpg/ecpglib/libecpgddll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/ecpglib/libecpgdll.def src/interfaces/ecpg/ecpglib/libecpgdll.def
+			
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/pgtypeslib/blibpgtypesdll.def src/interfaces/ecpg/pgtypeslib/blibpgtypesdll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/pgtypeslib/libpgtypesddll.def src/interfaces/ecpg/pgtypeslib/libpgtypesddll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/pgtypeslib/libpgtypesdll.def src/interfaces/ecpg/pgtypeslib/libpgtypesdll.def
+			
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/libpq/blibpqdll.def src/interfaces/libpq/blibpqdll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/libpq/libpqddll.def src/interfaces/libpq/libpqddll.def
+			cp -rf $UNPACK_DIR/$P_V/src/interfaces/libpq/libpqdll.def src/interfaces/libpq/libpqdll.def
+			
+			touch defs.marker
+		fi
+	popd > /dev/null
 }
 
 pkg_build() {
 	local _make_flags=(
-		${MAKE_OPTS}
+		PYTHON_DIR=$MINGW_PYTHON2_PREFIX
+		all
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
@@ -91,4 +126,12 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
+
+	pushd $BUILD_DIR/$P_V > /dev/null
+		if [ ! -f postinstall.marker ]
+		then
+			cp -f $PREFIX/lib/*.dll > $PREFIX/bin/
+			touch postinstall.marker
+		fi
+	popd > /dev/null	
 }

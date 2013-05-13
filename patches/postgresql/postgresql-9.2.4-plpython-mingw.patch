@@ -1,0 +1,16 @@
+--- postgresql-9.2.4/src/pl/plpython/Makefile.orig	2013-05-13 14:21:16 +0300
++++ postgresql-9.2.4/src/pl/plpython/Makefile	2013-05-13 14:39:28 +0300
+@@ -64,11 +64,8 @@
+ ifeq ($(PORTNAME), win32)
+ pytverstr=$(subst .,,${python_version})
+ OBJS += libpython${pytverstr}.a
+-libpython${pytverstr}.a: python${pytverstr}.def
+-	dlltool --dllname python${pytverstr}.dll --def python${pytverstr}.def --output-lib  libpython${pytverstr}.a
+-WD=$(subst \,/,$(WINDIR))
+-python${pytverstr}.def: $(WD)/system32/python${pytverstr}.dll
+-	pexports $(WD)/system32/python${pytverstr}.dll > python${pytverstr}.def
++libpython${pytverstr}.a:
++	cp -f $(PYTHON_DIR)/lib/python${python_version}/config/libpython${python_version}.dll.a libpython${pytverstr}.a
+ endif
+ 
+ 
