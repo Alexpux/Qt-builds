@@ -130,7 +130,7 @@ pkg_install() {
 	pushd $BUILD_DIR/$P_V > /dev/null
 		if [ ! -f postinstall.marker ]
 		then
-			cp -f $PREFIX/lib/*.dll > $PREFIX/bin/
+			cp -f $PREFIX/lib/*.dll $PREFIX/bin/
 			touch postinstall.marker
 		fi
 	popd > /dev/null	
