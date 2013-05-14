@@ -38,7 +38,7 @@
 P=qt-creator
 P_V=${P}-${QT_CREATOR_VERSION}-src
 SRC_FILE="${P_V}.tar.gz"
-URL=http://releases.qt-project.org/qtcreator/${QT_CREATOR_VERSION}/${SRC_FILE}
+URL=http://download.qt-project.org/official_releases/qtcreator/2.7/${QT_CREATOR_VERSION}/${SRC_FILE}
 DEPENDS=(qt)
 
 src_download() {
@@ -51,8 +51,6 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/qtcreator-2.7.0-fix-check-for-declarative.diff
-		$P/qtcreator-2.7.0-fix-check-qt-modules.diff
 		$P/qtcreator-2.7.0-maybe_quote.patch
 	)
 	
