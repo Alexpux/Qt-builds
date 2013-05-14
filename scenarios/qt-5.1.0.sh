@@ -36,9 +36,9 @@
 # **************************************************************************
 
 P=qt
-P_V=qt-everywhere-opensource-src-${QT_VERSION}-alpha
+P_V=qt-everywhere-opensource-src-${QT_VERSION}-beta1
 SRC_FILE="${P_V}.tar.xz"
-URL=http://download.qt-project.org/development_releases/qt/5.1/${QT_VERSION}-alpha/single/$SRC_FILE
+URL=http://download.qt-project.org/development_releases/qt/5.1/${QT_VERSION}-beta1/single/$SRC_FILE
 #URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
@@ -82,7 +82,6 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
-		$P/5.0.x/qt-5.0.1-fix-gcc-OOM-error.patch
 	)
 	
 	func_apply_patches \
