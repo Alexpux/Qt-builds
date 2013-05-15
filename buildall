@@ -41,8 +41,6 @@ QT_BUILDS_VERSION="Qt-builds-0.5.0"
 BUG_URL=https://github.com/Alexpux/Qt-builds
 
 ORIGINAL_PATH=$PATH
-LOGVIEWER="c:/progra~2/notepad++/notepad++.exe"
-SHOW_LOG_ON_ERROR=yes
 
 pushd $SYSTEMROOT > /dev/null
 WIN_SYS=`pwd`
@@ -71,13 +69,17 @@ ROOT_DIR=${TOP_DIR}/work
 # Use system installed toolchains
 USER_DEFINED_TOOLCHAINS=no
 
-# DirectX SDK installation path
+# DirectX SDK installation and logviewer paths
 [[ $IS_64BIT_HOST == yes ]] && {
 	DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
+	LOGVIEWER="c:/progra~2/notepad++/notepad++.exe"
 } || {
 	DXSDK_DIR="C:/Program Files/Microsoft DirectX SDK (June 2010)/"
+	LOGVIEWER="c:/progra~1/notepad++/notepad++.exe"
 }
 [[ -d "$DXSDK_DIR" ]] || echo "WARNING: You need installed DirectX SDK for building Qt5..."
+[[ -f "$LOGVIEWER" ]] || LOGVIEWER="/c/Windows/system32/notepad.exe"
+SHOW_LOG_ON_ERROR=yes
 
 # MinGW toolchain links
 URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev1.7z
