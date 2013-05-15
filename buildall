@@ -82,8 +82,8 @@ USER_DEFINED_TOOLCHAINS=no
 SHOW_LOG_ON_ERROR=yes
 
 # MinGW toolchain links
-URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev1.7z
-URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-posix/seh/x64-4.8.0-release-posix-seh-rev1.7z
+URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev2.7z
+URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-posix/seh/x64-4.8.0-release-posix-seh-rev2.7z
 
 # MinGW-builds contain prebuilded python in opt subdirectory.
 # Does we use mingw-builds python or build python yourself.
