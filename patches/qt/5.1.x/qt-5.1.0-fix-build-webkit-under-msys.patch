@@ -1,0 +1,11 @@
+﻿--- a/qtwebkit/Tools/qmake/mkspecs/features/functions.prf.orig	2013-05-15 18:59:03 +0400
++++ b/qtwebkit/Tools/qmake/mkspecs/features/functions.prf	2013-05-15 18:59:08 +0400
+@@ -204,7 +204,7 @@
+ }
+ 
+ defineTest(programExistsInPath) {
+-    win_cmd_shell: program = $${1}.exe
++    win32: program = $${1}.exe
+     else: program = $$1
+ 
+     PATH = "$$(PATH)"
