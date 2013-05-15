@@ -52,6 +52,12 @@ WINDOWS_PART_PATH=$WIN_SYS/system32:$WIN_SYS
 MSYS_PART_PATH=.:/usr/local/bin:/bin
 export PATH=$MSYS_PART_PATH:$WINDOWS_PART_PATH
 
+[[ $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
+	IS_64BIT_HOST=yes
+} || {
+	IS_64BIT_HOST=no
+}
+
 # directories
 TOP_DIR=`pwd`
 PREFIX_TOP=/c/QtSDK
@@ -66,8 +72,12 @@ ROOT_DIR=${TOP_DIR}/work
 USER_DEFINED_TOOLCHAINS=no
 
 # DirectX SDK installation path
-DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
-echo "WARNING: You need installed DirectX SDK for building Qt5..."
+[[ $IS_64BIT_HOST == yes ]] && {
+	DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
+} || {
+	DXSDK_DIR="C:/Program Files/Microsoft DirectX SDK (June 2010)/"
+}
+[[ -d "$DXSDK_DIR" ]] || echo "WARNING: You need installed DirectX SDK for building Qt5..."
 
 # MinGW toolchain links
 URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev1.7z
@@ -231,12 +241,6 @@ mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 [[ ${#BUILD_ARCHITECTURES[@]} > 2 || ${#BUILD_ARCHITECTURES[@]} == 0 || \
 	${BUILD_ARCHITECTURES[0]} == ${BUILD_ARCHITECTURES[1]} ]] && {
 	die "error in build architectures(${BUILD_ARCHITECTURES[@]}). terminate."
-}
-
-[[ $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
-	IS_64BIT_HOST=yes
-} || {
-	IS_64BIT_HOST=no
 }
 
 [[ $IS_64BIT_HOST == no && ${BUILD_ARCHITECTURES[@]} =~ x64 ]] && {
