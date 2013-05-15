@@ -114,7 +114,6 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
-		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
 	)
 	
 	func_apply_patches \
