@@ -51,12 +51,16 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/perf-test.patch
 	)
-	
-	func_apply_patches \
-		$P_V \
-		_patches[@]
+
+	if [ ${#_patches[@]} == 0 ]
+	then
+		echo "--> Empty patch"
+	else
+		func_apply_patches \
+			$P_V \
+			_patches[@]
+	fi
 }
 
 src_configure() {
