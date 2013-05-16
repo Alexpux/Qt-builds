@@ -50,6 +50,12 @@ src_unpack() {
 }
 
 src_patch() {
+	local _patches=(
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 
 	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
 	then

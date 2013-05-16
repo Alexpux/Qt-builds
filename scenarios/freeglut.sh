@@ -50,7 +50,12 @@ src_unpack() {
 }
 
 src_patch() {
-	echo "--> Patch empty"
+	local _patches=(
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 }
 
 src_configure() {

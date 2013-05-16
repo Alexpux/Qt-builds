@@ -53,14 +53,9 @@ src_patch() {
 	local _patches=(
 	)
 
-	if [ ${#_patches[@]} == 0 ]
-	then
-		echo "--> Empty patch"
-	else
-		func_apply_patches \
-			$P_V \
-			_patches[@]
-	fi
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 }
 
 src_configure() {

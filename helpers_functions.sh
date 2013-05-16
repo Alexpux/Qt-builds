@@ -266,7 +266,10 @@ function func_apply_patches {
 	local _result=0
 	local _index=0
 	local -a _list=( "${!2}" )
-	[[ ${#_list[@]} == 0 ]] && return 0
+	[[ ${#_list[@]} == 0 ]] && {
+		echo "--> No patches for $1"
+		return 0
+	}
 
 	((_index=${#_list[@]}-1))
 	[[ -f $_src_dir/$1/_patch-$_index.marker ]] && {
