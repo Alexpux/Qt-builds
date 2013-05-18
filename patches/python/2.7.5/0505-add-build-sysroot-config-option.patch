@@ -1,6 +1,6 @@
 diff -urN a/configure.ac b/configure.ac
---- a/configure.ac	2013-05-02 00:44:51.560550949 +0100
-+++ b/configure.ac	2013-05-02 00:44:51.953554195 +0100
+--- a/configure.ac	2013-05-17 23:57:44.899539487 +0100
++++ b/configure.ac	2013-05-17 23:57:45.260543545 +0100
 @@ -558,6 +558,17 @@
  CONFIGURE_MACOSX_DEPLOYMENT_TARGET=
  EXPORT_MACOSX_DEPLOYMENT_TARGET='#'
@@ -20,8 +20,8 @@ diff -urN a/configure.ac b/configure.ac
  
  # compiler flags are generated in two sets, BASECFLAGS and OPT.  OPT is just
 diff -urN a/setup.py b/setup.py
---- a/setup.py	2013-05-02 00:44:51.546550833 +0100
-+++ b/setup.py	2013-05-02 00:44:51.956554220 +0100
+--- a/setup.py	2013-05-17 23:57:44.885539329 +0100
++++ b/setup.py	2013-05-17 23:57:45.260543545 +0100
 @@ -33,6 +33,16 @@
  # Were we compiled --with-pydebug or with #define Py_DEBUG?
  COMPILED_WITH_PYDEBUG = ('--with-pydebug' in sysconfig.get_config_var("CONFIG_ARGS"))
@@ -71,21 +71,17 @@ diff -urN a/setup.py b/setup.py
          finally:
              os.unlink(tmpfile)
  
-@@ -468,9 +480,10 @@
+@@ -467,8 +479,7 @@
+             os.unlink(tmpfile)
  
      def detect_modules(self):
-         if not cross_compiling:
+-        if not cross_compiling:
 -            # Ensure that /usr/local is always used
--            add_dir_to_list(self.compiler.library_dirs, '/usr/local/lib')
--            add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
-+            # Don't use /usr/local if specified a build sysroot.
-+            if not with_build_sysroot_specified:
-+                add_dir_to_list(self.compiler.library_dirs, '/usr/local/lib')
-+                add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
-             self.add_multiarch_paths()
- 
-         # Add paths specified in the environment variables LDFLAGS and
-@@ -530,7 +543,9 @@
++        if not cross_compiling and not with_build_sysroot_specified:
+             add_dir_to_list(self.compiler.library_dirs, '/usr/local/lib')
+             add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
+         self.add_gcc_paths()
+@@ -532,7 +543,9 @@
          # be assumed that no additional -I,-L directives are needed.
          inc_dirs = self.compiler.include_dirs[:]
          lib_dirs = self.compiler.library_dirs[:]
@@ -96,7 +92,7 @@ diff -urN a/setup.py b/setup.py
              if not (sys.version.find('GCC') and host_platform in ['mingw', 'win32']):
                  for d in (
                      '/usr/include',
-@@ -816,11 +831,11 @@
+@@ -818,11 +831,11 @@
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(lib_dirs +
@@ -110,7 +106,7 @@ diff -urN a/setup.py b/setup.py
                                     extra_link_args=readline_extra_link_args,
                                     libraries=readline_libs) )
          else:
-@@ -847,20 +862,20 @@
+@@ -849,20 +862,20 @@
                                 libraries=_socket_libs) )
          # Detect SSL support for the socket module (via _ssl)
          search_for_ssl_incs_in = [

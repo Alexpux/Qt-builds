@@ -1,6 +1,6 @@
 diff -urN a/Modules/getpath.c b/Modules/getpath.c
---- a/Modules/getpath.c	Thu May  2 19:43:47 2013
-+++ b/Modules/getpath.c	Thu May  2 20:01:46 2013
+--- a/Modules/getpath.c	2013-05-17 23:57:46.258554750 +0100
++++ b/Modules/getpath.c	2013-05-17 23:57:46.683559513 +0100
 @@ -131,9 +131,9 @@
  
  static char prefix[MAXPATHLEN+1];
@@ -13,7 +13,7 @@ diff -urN a/Modules/getpath.c b/Modules/getpath.c
  extern HANDLE PyWin_DLLhModule;
  #endif
  static char *module_search_path = NULL;
-@@ -711,6 +711,29 @@
+@@ -726,6 +726,29 @@
      }
      else
          strncpy(exec_prefix, EXEC_PREFIX, MAXPATHLEN);

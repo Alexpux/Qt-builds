@@ -1,6 +1,6 @@
 diff -urN a/configure b/configure
---- a/configure	2013-05-02 00:44:54.000571104 +0100
-+++ b/configure	2013-05-02 00:44:54.979579191 +0100
+--- a/configure	2013-05-12 04:32:54.000000000 +0100
++++ b/configure	2013-05-17 23:59:32.797628254 +0100
 @@ -1,12 +1,14 @@
  #! /bin/sh
  # From configure.ac Revision.
@@ -379,7 +379,21 @@ diff -urN a/configure b/configure
  	        break
  	    fi
              interp=
-@@ -3168,12 +3157,19 @@
+@@ -2865,7 +2854,12 @@
+ 	fi
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: $interp" >&5
+ $as_echo "$interp" >&6; }
+-	PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(abs_builddir) _PYTHON_HOST_PLATFORM=$(_PYTHON_HOST_PLATFORM) PYTHONPATH=$(shell test -f pybuilddir.txt && echo $(abs_builddir)/`cat pybuilddir.txt`:)$(srcdir)/Lib:$(srcdir)/Lib/plat-$(MACHDEP) '$interp
++	# For reference see: http://bugs.python.org/msg180577
++	# interp's DESTSHARED must appear before that contained in pybuilddir.txt as otherwise, when compiling during make install,
++	# the build Python will attempt to load shared modules from the host Python, which will fail due to them being of the wrong
++	# architecture (e.g. x86_64 vs x86 or arm). It would probably be better if _sysconfigdata.py was placed elsewhere,
++	# i.e. in a folder that does not also contain incompatible shared modules.
++	PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(abs_builddir) _PYTHON_HOST_PLATFORM=$(_PYTHON_HOST_PLATFORM) PYTHONPATH='$($interp -c "import sysconfig; print sysconfig.get_config_var(\"DESTSHARED\")")':$(shell test -f pybuilddir.txt && echo $(abs_builddir)/`cat pybuilddir.txt`:)$(srcdir)/Lib:$(srcdir)/Lib/plat-$(MACHDEP) '$interp
+     fi
+ elif test "$cross_compiling" = maybe; then
+     as_fn_error $? "Cross compiling required --host=HOST-TUPLE and --build=ARCH" "$LINENO" 5
+@@ -3168,12 +3162,19 @@
         # `define_xopen_source' in the case statement below. For the
         # current supported cross builds, this macro is not adjusted.
  	case "$host" in
@@ -399,7 +413,7 @@ diff -urN a/configure b/configure
  	*)
  		# for now, limit cross builds to known configurations
  		MACHDEP="unknown"
-@@ -3201,6 +3197,7 @@
+@@ -3201,6 +3202,7 @@
  	darwin*) MACHDEP="darwin";;
  	atheos*) MACHDEP="atheos";;
          irix646) MACHDEP="irix6";;
@@ -407,7 +421,7 @@ diff -urN a/configure b/configure
  	'')	MACHDEP="unknown";;
      esac
  fi
-@@ -3217,7 +3214,10 @@
+@@ -3217,7 +3219,10 @@
  			_host_cpu=$host_cpu
  		esac
  		;;
@@ -419,7 +433,7 @@ diff -urN a/configure b/configure
  		_host_cpu=
  		;;
  	*)
-@@ -3353,6 +3353,40 @@
+@@ -3353,6 +3358,40 @@
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MACHDEP" >&5
  $as_echo "$MACHDEP" >&6; }
  
@@ -460,7 +474,7 @@ diff -urN a/configure b/configure
  # And add extra plat-mac for darwin
  
  
-@@ -3382,6 +3416,22 @@
+@@ -3382,6 +3421,22 @@
  CONFIGURE_MACOSX_DEPLOYMENT_TARGET=
  EXPORT_MACOSX_DEPLOYMENT_TARGET='#'
  
@@ -483,7 +497,7 @@ diff -urN a/configure b/configure
  # checks for alternative programs
  
  # compiler flags are generated in two sets, BASECFLAGS and OPT.  OPT is just
-@@ -3504,7 +3554,7 @@
+@@ -3504,7 +3559,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -492,7 +506,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_CC="${ac_tool_prefix}gcc"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -3544,7 +3594,7 @@
+@@ -3544,7 +3599,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -501,7 +515,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_ac_ct_CC="gcc"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -3597,7 +3647,7 @@
+@@ -3597,7 +3652,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -510,7 +524,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_CC="${ac_tool_prefix}cc"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -3638,7 +3688,7 @@
+@@ -3638,7 +3693,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -519,7 +533,7 @@ diff -urN a/configure b/configure
      if test "$as_dir/$ac_word$ac_exec_ext" = "/usr/ucb/cc"; then
         ac_prog_rejected=yes
         continue
-@@ -3696,7 +3746,7 @@
+@@ -3696,7 +3751,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -528,7 +542,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_CC="$ac_tool_prefix$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -3740,7 +3790,7 @@
+@@ -3740,7 +3795,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -537,7 +551,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_ac_ct_CC="$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4186,7 +4236,8 @@
+@@ -4186,7 +4241,8 @@
  /* end confdefs.h.  */
  #include <stdarg.h>
  #include <stdio.h>
@@ -547,7 +561,7 @@ diff -urN a/configure b/configure
  /* Most of the following tests are stolen from RCS 5.7's src/conf.sh.  */
  struct buf { int x; };
  FILE * (*rcsopen) (struct buf *, struct stat *, int);
-@@ -4330,7 +4381,7 @@
+@@ -4330,7 +4386,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -556,7 +570,7 @@ diff -urN a/configure b/configure
      ac_cv_path_CXX="$as_dir/$ac_word$ac_exec_ext"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4373,7 +4424,7 @@
+@@ -4373,7 +4429,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -565,7 +579,7 @@ diff -urN a/configure b/configure
      ac_cv_path_ac_pt_CXX="$as_dir/$ac_word$ac_exec_ext"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4428,7 +4479,7 @@
+@@ -4428,7 +4484,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -574,7 +588,7 @@ diff -urN a/configure b/configure
      ac_cv_path_CXX="$as_dir/$ac_word$ac_exec_ext"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4471,7 +4522,7 @@
+@@ -4471,7 +4527,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -583,7 +597,7 @@ diff -urN a/configure b/configure
      ac_cv_path_ac_pt_CXX="$as_dir/$ac_word$ac_exec_ext"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4534,7 +4585,7 @@
+@@ -4534,7 +4590,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -592,7 +606,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_CXX="$ac_tool_prefix$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4578,7 +4629,7 @@
+@@ -4578,7 +4634,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -601,7 +615,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_ac_ct_CXX="$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -4794,7 +4845,7 @@
+@@ -4794,7 +4850,7 @@
      for ac_prog in grep ggrep; do
      for ac_exec_ext in '' $ac_executable_extensions; do
        ac_path_GREP="$as_dir/$ac_prog$ac_exec_ext"
@@ -610,7 +624,7 @@ diff -urN a/configure b/configure
  # Check for GNU ac_path_GREP and select it if it is found.
    # Check for GNU $ac_path_GREP
  case `"$ac_path_GREP" --version 2>&1` in
-@@ -4860,7 +4911,7 @@
+@@ -4860,7 +4916,7 @@
      for ac_prog in egrep; do
      for ac_exec_ext in '' $ac_executable_extensions; do
        ac_path_EGREP="$as_dir/$ac_prog$ac_exec_ext"
@@ -619,7 +633,7 @@ diff -urN a/configure b/configure
  # Check for GNU ac_path_EGREP and select it if it is found.
    # Check for GNU $ac_path_EGREP
  case `"$ac_path_EGREP" --version 2>&1` in
-@@ -5067,8 +5118,8 @@
+@@ -5067,8 +5123,8 @@
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  
@@ -630,7 +644,7 @@ diff -urN a/configure b/configure
  int
  main ()
  {
-@@ -5268,6 +5319,10 @@
+@@ -5268,6 +5324,10 @@
    *)
      enable_shared="no";;
    esac
@@ -641,7 +655,7 @@ diff -urN a/configure b/configure
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_shared" >&5
  $as_echo "$enable_shared" >&6; }
-@@ -5325,6 +5380,7 @@
+@@ -5325,6 +5385,7 @@
  
  # Other platforms follow
  if test $enable_shared = "yes"; then
@@ -649,7 +663,7 @@ diff -urN a/configure b/configure
  
  $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
  
-@@ -5386,15 +5442,27 @@
+@@ -5386,15 +5447,27 @@
  	;;
  
    esac
@@ -677,7 +691,7 @@ diff -urN a/configure b/configure
  if test "$cross_compiling" = yes; then
  	RUNSHARED=
  fi
-@@ -5419,7 +5487,7 @@
+@@ -5419,7 +5492,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -686,7 +700,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_RANLIB="${ac_tool_prefix}ranlib"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -5459,7 +5527,7 @@
+@@ -5459,7 +5532,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -695,7 +709,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_ac_ct_RANLIB="ranlib"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -5514,7 +5582,7 @@
+@@ -5514,7 +5587,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -704,7 +718,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_AR="$ac_tool_prefix$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -5558,7 +5626,7 @@
+@@ -5558,7 +5631,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -713,7 +727,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_ac_ct_AR="$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -5620,7 +5688,7 @@
+@@ -5620,7 +5693,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -722,7 +736,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_SVNVERSION="found"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -5682,7 +5750,7 @@
+@@ -5682,7 +5755,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -731,7 +745,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_HAS_HG="found"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -5760,7 +5828,7 @@
+@@ -5760,7 +5833,7 @@
      # by default.
      for ac_prog in ginstall scoinst install; do
        for ac_exec_ext in '' $ac_executable_extensions; do
@@ -740,7 +754,7 @@ diff -urN a/configure b/configure
  	  if test $ac_prog = install &&
  	    grep dspmsg "$as_dir/$ac_prog$ac_exec_ext" >/dev/null 2>&1; then
  	    # AIX install.  It has an incompatible calling convention.
-@@ -5829,7 +5897,7 @@
+@@ -5829,7 +5902,7 @@
    test -z "$as_dir" && as_dir=.
      for ac_prog in mkdir gmkdir; do
  	 for ac_exec_ext in '' $ac_executable_extensions; do
@@ -749,7 +763,7 @@ diff -urN a/configure b/configure
  	   case `"$as_dir/$ac_prog$ac_exec_ext" --version 2>&1` in #(
  	     'mkdir (GNU coreutils) '* | \
  	     'mkdir (coreutils) '* | \
-@@ -5893,6 +5961,27 @@
+@@ -5893,6 +5966,27 @@
  $as_echo "no" >&6; }
  fi
  
@@ -777,7 +791,7 @@ diff -urN a/configure b/configure
  
  # XXX Shouldn't the code above that fiddles with BASECFLAGS and OPT be
  # merged with this chunk of code?
-@@ -5909,6 +5998,8 @@
+@@ -5909,6 +6003,8 @@
  
  # tweak OPT based on compiler and platform, only if the user didn't set
  # it on the command line
@@ -786,7 +800,7 @@ diff -urN a/configure b/configure
  
  if test "${OPT-unset}" = "unset"
  then
-@@ -5960,6 +6051,16 @@
+@@ -5960,6 +6056,16 @@
  UNIVERSAL_ARCH_FLAGS=
  
  
@@ -803,7 +817,7 @@ diff -urN a/configure b/configure
  # tweak BASECFLAGS based on compiler and platform
  case $GCC in
  yes)
-@@ -6037,7 +6138,7 @@
+@@ -6037,7 +6143,7 @@
  	    # Calculate the right deployment target for this build.
  	    #
  	    cur_target=`sw_vers -productVersion | sed 's/\(10\.[0-9]*\).*/\1/'`
@@ -812,7 +826,7 @@ diff -urN a/configure b/configure
  		    cur_target=10.3
  		    if test ${enable_universalsdk}; then
  			    if test "${UNIVERSAL_ARCHS}" = "all"; then
-@@ -6057,7 +6158,7 @@
+@@ -6057,7 +6163,7 @@
  				    cur_target='10.5'
  			    fi
  		    else
@@ -821,7 +835,7 @@ diff -urN a/configure b/configure
  				    # On Intel macs default to a deployment
  				    # target of 10.4, that's the first OSX
  				    # release with Intel support.
-@@ -6142,7 +6243,9 @@
+@@ -6142,7 +6248,9 @@
  esac
  
  if test "$Py_DEBUG" = 'true'; then
@@ -832,7 +846,7 @@ diff -urN a/configure b/configure
  else
    OPT="-DNDEBUG $OPT"
  fi
-@@ -6285,6 +6388,37 @@
+@@ -6285,6 +6393,37 @@
    CFLAGS=$save_CFLAGS
  fi
  
@@ -870,7 +884,7 @@ diff -urN a/configure b/configure
  # On some compilers, pthreads are available without further options
  # (e.g. MacOS X). On some of these systems, the compiler will not
  # complain if unaccepted options are passed (e.g. gcc on Mac OS X).
-@@ -6430,106 +6564,457 @@
+@@ -6430,106 +6569,457 @@
    conftest.$ac_objext conftest.beam conftest.$ac_ext
  fi
  
@@ -1403,7 +1417,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ANSI C header files" >&5
  $as_echo_n "checking for ANSI C header files... " >&6; }
  if ${ac_cv_header_stdc+:} false; then :
-@@ -6642,18 +7127,7 @@
+@@ -6642,18 +7132,7 @@
  
  fi
  
@@ -1423,7 +1437,7 @@ diff -urN a/configure b/configure
  do :
    as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
  ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-@@ -6874,6 +7348,7 @@
+@@ -6874,6 +7353,7 @@
    fi
  fi
  
@@ -1431,7 +1445,7 @@ diff -urN a/configure b/configure
  
  # On Solaris, term.h requires curses.h
  for ac_header in term.h
-@@ -7887,29 +8362,6 @@
+@@ -7887,29 +8367,6 @@
  elif test "$ac_cv_pthread" = "yes"
  then CC="$CC -pthread"
  fi
@@ -1461,7 +1475,7 @@ diff -urN a/configure b/configure
    # The cast to long int works around a bug in the HP C Compiler
  # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
  # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-@@ -7948,7 +8400,6 @@
+@@ -7948,7 +8405,6 @@
  _ACEOF
  
  
@@ -1469,7 +1483,7 @@ diff -urN a/configure b/configure
  CC="$ac_save_cc"
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for --enable-toolbox-glue" >&5
-@@ -8004,7 +8455,7 @@
+@@ -8004,7 +8460,7 @@
      if test "${enable_universalsdk}"; then
  	    :
      else
@@ -1478,7 +1492,7 @@ diff -urN a/configure b/configure
      fi
      LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
      LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
-@@ -8044,7 +8495,7 @@
+@@ -8044,7 +8500,7 @@
  
  
      if test "${ac_osx_32bit}" = "yes"; then
@@ -1487,7 +1501,7 @@ diff -urN a/configure b/configure
      	i386)
      		MACOSX_DEFAULT_ARCH="i386"
      		;;
-@@ -8056,7 +8507,7 @@
+@@ -8056,7 +8512,7 @@
      		;;
      	esac
      else
@@ -1496,7 +1510,7 @@ diff -urN a/configure b/configure
      	i386)
      		MACOSX_DEFAULT_ARCH="x86_64"
      		;;
-@@ -8099,8 +8550,8 @@
+@@ -8099,8 +8555,8 @@
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dyld" >&5
  $as_echo_n "checking for dyld... " >&6; }
@@ -1507,7 +1521,7 @@ diff -urN a/configure b/configure
  
  $as_echo "#define WITH_DYLD 1" >>confdefs.h
  
-@@ -8136,6 +8587,16 @@
+@@ -8136,6 +8592,16 @@
  	CYGWIN*)   SO=.dll;;
  	*)	   SO=.so;;
  	esac
@@ -1524,7 +1538,7 @@ diff -urN a/configure b/configure
  else
  	# this might also be a termcap variable, see #610332
          echo
-@@ -8222,7 +8683,7 @@
+@@ -8222,7 +8688,7 @@
  		# Use -undefined dynamic_lookup whenever possible (10.3 and later).
  		# This allows an extension to be used in any Python
  
@@ -1533,7 +1547,7 @@ diff -urN a/configure b/configure
  		then
  			if test "${enable_universalsdk}"; then
  				LDFLAGS="${UNIVERSAL_ARCH_FLAGS} -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
-@@ -8298,6 +8759,12 @@
+@@ -8298,6 +8764,12 @@
  		LDCXXSHARED="g++ -shared";;
  	*)	LDSHARED="ld";;
  	esac
@@ -1546,7 +1560,7 @@ diff -urN a/configure b/configure
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LDSHARED" >&5
  $as_echo "$LDSHARED" >&6; }
-@@ -8399,6 +8866,12 @@
+@@ -8399,6 +8871,12 @@
  		# when running test_compile.py.
  		LINKFORSHARED='-Wl,-E -N 2048K';;
  	esac
@@ -1559,7 +1573,7 @@ diff -urN a/configure b/configure
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LINKFORSHARED" >&5
  $as_echo "$LINKFORSHARED" >&6; }
-@@ -8417,6 +8890,12 @@
+@@ -8417,6 +8895,12 @@
  	*)
  		CFLAGSFORSHARED='$(CCSHARED)'
  	esac
@@ -1572,7 +1586,7 @@ diff -urN a/configure b/configure
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CFLAGSFORSHARED" >&5
  $as_echo "$CFLAGSFORSHARED" >&6; }
-@@ -8534,7 +9013,8 @@
+@@ -8534,7 +9018,8 @@
  
  # only check for sem_init if thread support is requested
  if test "$with_threads" = "yes" -o -z "$with_threads"; then
@@ -1582,7 +1596,7 @@ diff -urN a/configure b/configure
  $as_echo_n "checking for library containing sem_init... " >&6; }
  if ${ac_cv_search_sem_init+:} false; then :
    $as_echo_n "(cached) " >&6
-@@ -8590,11 +9070,16 @@
+@@ -8590,11 +9075,16 @@
  
  fi
   # 'Real Time' functions on Solaris
@@ -1601,7 +1615,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for textdomain in -lintl" >&5
  $as_echo_n "checking for textdomain in -lintl... " >&6; }
  if ${ac_cv_lib_intl_textdomain+:} false; then :
-@@ -8637,6 +9122,8 @@
+@@ -8637,6 +9127,8 @@
  
  fi
  
@@ -1610,7 +1624,7 @@ diff -urN a/configure b/configure
  
  # checks for system dependent C++ extensions support
  case "$ac_sys_system" in
-@@ -8837,7 +9324,7 @@
+@@ -8837,7 +9329,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -1619,7 +1633,7 @@ diff -urN a/configure b/configure
      ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -8880,7 +9367,7 @@
+@@ -8880,7 +9372,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -1628,7 +1642,7 @@ diff -urN a/configure b/configure
      ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -8944,15 +9431,40 @@
+@@ -8944,15 +9436,40 @@
  fi
  
  
@@ -1673,7 +1687,7 @@ diff -urN a/configure b/configure
  
  # Check for --with-dbmliborder
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for --with-dbmliborder" >&5
-@@ -9098,6 +9610,15 @@
+@@ -9098,6 +9615,15 @@
  
      posix_threads=yes
      THREADOBJ="Python/thread.o"
@@ -1689,7 +1703,7 @@ diff -urN a/configure b/configure
  else
      if test ! -z "$with_threads" -a -d "$with_threads"
      then LDFLAGS="$LDFLAGS -L$with_threads"
-@@ -9633,6 +10154,18 @@
+@@ -9633,6 +10159,18 @@
  fi
  
  
@@ -1708,7 +1722,7 @@ diff -urN a/configure b/configure
  # Check for enable-ipv6
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if --enable-ipv6 is specified" >&5
-@@ -10076,6 +10609,14 @@
+@@ -10076,6 +10614,14 @@
  	fi
  	;;
  	esac
@@ -1723,7 +1737,7 @@ diff -urN a/configure b/configure
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DYNLOADFILE" >&5
  $as_echo "$DYNLOADFILE" >&6; }
-@@ -10091,6 +10632,11 @@
+@@ -10091,6 +10637,11 @@
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking MACHDEP_OBJS" >&5
  $as_echo_n "checking MACHDEP_OBJS... " >&6; }
@@ -1735,7 +1749,7 @@ diff -urN a/configure b/configure
  if test -z "$MACHDEP_OBJS"
  then
  	MACHDEP_OBJS=$extra_machdep_objs
-@@ -10128,6 +10674,7 @@
+@@ -10128,6 +10679,7 @@
  done
  
  
@@ -1743,7 +1757,7 @@ diff -urN a/configure b/configure
  # For some functions, having a definition is not sufficient, since
  # we want to take their address.
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for chroot" >&5
-@@ -10530,7 +11077,7 @@
+@@ -10530,7 +11082,7 @@
    IFS=$as_save_IFS
    test -z "$as_dir" && as_dir=.
      for ac_exec_ext in '' $ac_executable_extensions; do
@@ -1752,7 +1766,7 @@ diff -urN a/configure b/configure
      ac_cv_prog_TRUE="$ac_prog"
      $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
      break 2
-@@ -11466,6 +12013,15 @@
+@@ -11466,6 +12018,15 @@
  fi
  
  fi
@@ -1768,7 +1782,7 @@ diff -urN a/configure b/configure
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_buggy_getaddrinfo" >&5
  $as_echo "$ac_cv_buggy_getaddrinfo" >&6; }
-@@ -11776,7 +12332,12 @@
+@@ -11776,7 +12337,12 @@
  else
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
@@ -1782,7 +1796,7 @@ diff -urN a/configure b/configure
  int
  main ()
  {
-@@ -11809,8 +12370,15 @@
+@@ -11809,8 +12375,15 @@
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  
@@ -1800,7 +1814,7 @@ diff -urN a/configure b/configure
  int
  main ()
  {
-@@ -11849,8 +12417,7 @@
+@@ -11849,8 +12422,7 @@
  main ()
  {
  static int test_array [1 - 2 * !(((char) -1) < 0)];
@@ -1810,7 +1824,7 @@ diff -urN a/configure b/configure
  
    ;
    return 0;
-@@ -11881,11 +12448,11 @@
+@@ -11881,11 +12453,11 @@
  int
  main ()
  {
@@ -1825,7 +1839,7 @@ diff -urN a/configure b/configure
    /* SunOS 4.1.1 cc rejects this.  */
    char const *const *pcpcc;
    char **ppc;
-@@ -11902,9 +12469,8 @@
+@@ -11902,9 +12474,8 @@
    ++pcpcc;
    ppc = (char**) pcpcc;
    pcpcc = (char const *const *) ppc;
@@ -1837,7 +1851,7 @@ diff -urN a/configure b/configure
      char const *s = 0 ? (char *) 0 : (char const *) 0;
  
      *t++ = 0;
-@@ -11920,10 +12486,10 @@
+@@ -11920,10 +12491,10 @@
      iptr p = 0;
      ++p;
    }
@@ -1851,7 +1865,7 @@ diff -urN a/configure b/configure
    }
    { /* ULTRIX-32 V3.1 (Rev 9) vcc rejects this */
      const int foo = 10;
-@@ -12396,6 +12962,9 @@
+@@ -12396,6 +12967,9 @@
  BeOS) ;;
  *) LIBM=-lm
  esac
@@ -1861,7 +1875,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for --with-libm=STRING" >&5
  $as_echo_n "checking for --with-libm=STRING... " >&6; }
  
-@@ -12445,6 +13014,13 @@
+@@ -12445,6 +13019,13 @@
  # **************************************************
  # * Check for various properties of floating point *
  # **************************************************
@@ -1875,7 +1889,7 @@ diff -urN a/configure b/configure
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C doubles are little-endian IEEE 754 binary64" >&5
  $as_echo_n "checking whether C doubles are little-endian IEEE 754 binary64... " >&6; }
-@@ -12585,6 +13161,8 @@
+@@ -12585,6 +13166,8 @@
  
  # This inline assembler syntax may also work for suncc and icc,
  # so we try it on all platforms.
@@ -1884,7 +1898,7 @@ diff -urN a/configure b/configure
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we can use gcc inline assembler to get and set x87 control word" >&5
  $as_echo_n "checking whether we can use gcc inline assembler to get and set x87 control word... " >&6; }
-@@ -12664,6 +13242,11 @@
+@@ -12664,6 +13247,11 @@
  fi
  
  CC="$ac_save_cc"
@@ -1896,7 +1910,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_x87_double_rounding" >&5
  $as_echo "$ac_cv_x87_double_rounding" >&6; }
  if test "$ac_cv_x87_double_rounding" = yes
-@@ -12684,6 +13267,12 @@
+@@ -12684,6 +13272,12 @@
  # -0. on some architectures.
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether tanh preserves the sign of zero" >&5
  $as_echo_n "checking whether tanh preserves the sign of zero... " >&6; }
@@ -1909,7 +1923,7 @@ diff -urN a/configure b/configure
  if ${ac_cv_tanh_preserves_zero_sign+:} false; then :
    $as_echo_n "(cached) " >&6
  else
-@@ -12792,6 +13381,13 @@
+@@ -12792,6 +13386,13 @@
  # the kernel module that provides POSIX semaphores
  # isn't loaded by default, so an attempt to call
  # sem_open results in a 'Signal 12' error.
@@ -1923,7 +1937,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether POSIX semaphores are enabled" >&5
  $as_echo_n "checking whether POSIX semaphores are enabled... " >&6; }
  if ${ac_cv_posix_semaphores_enabled+:} false; then :
-@@ -12835,6 +13431,9 @@
+@@ -12835,6 +13436,9 @@
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_posix_semaphores_enabled" >&5
  $as_echo "$ac_cv_posix_semaphores_enabled" >&6; }
@@ -1933,7 +1947,7 @@ diff -urN a/configure b/configure
  if test $ac_cv_posix_semaphores_enabled = no
  then
  
-@@ -12845,6 +13444,16 @@
+@@ -12845,6 +13449,16 @@
  # Multiprocessing check for broken sem_getvalue
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for broken sem_getvalue" >&5
  $as_echo_n "checking for broken sem_getvalue... " >&6; }
@@ -1950,7 +1964,7 @@ diff -urN a/configure b/configure
  if ${ac_cv_broken_sem_getvalue+:} false; then :
    $as_echo_n "(cached) " >&6
  else
-@@ -13017,6 +13626,9 @@
+@@ -13017,6 +13631,9 @@
    # check whether wchar_t is signed or not
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether wchar_t is signed" >&5
  $as_echo_n "checking whether wchar_t is signed... " >&6; }
@@ -1960,7 +1974,7 @@ diff -urN a/configure b/configure
    if ${ac_cv_wchar_t_signed+:} false; then :
    $as_echo_n "(cached) " >&6
  else
-@@ -13352,6 +13964,46 @@
+@@ -13352,6 +13969,46 @@
   esac
  
  
@@ -2007,7 +2021,7 @@ diff -urN a/configure b/configure
  # Check whether right shifting a negative integer extends the sign bit
  # or fills with zeros (like the Cray J90, according to Tim Peters).
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether right shift extends the sign bit" >&5
-@@ -14229,6 +14881,12 @@
+@@ -14229,6 +14886,12 @@
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for device files" >&5
  $as_echo "$as_me: checking for device files" >&6;}
@@ -2020,7 +2034,7 @@ diff -urN a/configure b/configure
  
  if test "x$cross_compiling" = xyes; then
    if test "${ac_cv_file__dev_ptmx+set}" != set; then
-@@ -14298,6 +14956,9 @@
+@@ -14298,6 +14961,9 @@
  
  if test "$have_long_long" = yes
  then
@@ -2030,7 +2044,7 @@ diff -urN a/configure b/configure
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for %lld and %llu printf() format support" >&5
  $as_echo_n "checking for %lld and %llu printf() format support... " >&6; }
    if ${ac_cv_have_long_long_format+:} false; then :
-@@ -14398,6 +15059,9 @@
+@@ -14398,6 +15064,9 @@
  fi
  
  
@@ -2040,7 +2054,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for %zd printf() format support" >&5
  $as_echo_n "checking for %zd printf() format support... " >&6; }
  if ${ac_cv_have_size_t_format+:} false; then :
-@@ -14497,8 +15161,37 @@
+@@ -14497,8 +15166,37 @@
    THREADHEADERS="$THREADHEADERS \$(srcdir)/$h"
  done
  
@@ -2078,7 +2092,7 @@ diff -urN a/configure b/configure
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for build directories" >&5
  $as_echo_n "checking for build directories... " >&6; }
  for dir in $SRCDIRS; do
-@@ -14510,7 +15203,7 @@
+@@ -14510,7 +15208,7 @@
  $as_echo "done" >&6; }
  
  # generate output files
@@ -2087,7 +2101,7 @@ diff -urN a/configure b/configure
  
  ac_config_files="$ac_config_files Modules/ld_so_aix"
  
-@@ -14922,16 +15615,16 @@
+@@ -14922,16 +15620,16 @@
      # ... but there are two gotchas:
      # 1) On MSYS, both `ln -s file dir' and `ln file dir' fail.
      # 2) DJGPP < 2.04 has no symlinks; `ln -s' creates a wrapper executable.
@@ -2108,7 +2122,7 @@ diff -urN a/configure b/configure
  fi
  rm -f conf$$ conf$$.exe conf$$.dir/conf$$.file conf$$.file
  rmdir conf$$.dir 2>/dev/null
-@@ -14991,16 +15684,28 @@
+@@ -14991,16 +15689,28 @@
    as_mkdir_p=false
  fi
  
@@ -2147,7 +2161,7 @@ diff -urN a/configure b/configure
  
  # Sed expression to map a string onto a valid CPP name.
  as_tr_cpp="eval sed 'y%*$as_cr_letters%P$as_cr_LETTERS%;s%[^_$as_cr_alnum]%_%g'"
-@@ -15022,7 +15727,7 @@
+@@ -15022,7 +15732,7 @@
  # values after options handling.
  ac_log="
  This file was extended by python $as_me 2.7, which was
@@ -2156,7 +2170,7 @@ diff -urN a/configure b/configure
  
    CONFIG_FILES    = $CONFIG_FILES
    CONFIG_HEADERS  = $CONFIG_HEADERS
-@@ -15084,10 +15789,10 @@
+@@ -15084,10 +15794,10 @@
  ac_cs_config="`$as_echo "$ac_configure_args" | sed 's/^ //; s/[\\""\`\$]/\\\\&/g'`"
  ac_cs_version="\\
  python config.status 2.7
@@ -2169,7 +2183,7 @@ diff -urN a/configure b/configure
  This config.status script is free software; the Free Software Foundation
  gives unlimited permission to copy, distribute and modify it."
  
-@@ -15177,7 +15882,7 @@
+@@ -15177,7 +15887,7 @@
  _ACEOF
  cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
  if \$ac_cs_recheck; then
@@ -2178,7 +2192,7 @@ diff -urN a/configure b/configure
    shift
    \$as_echo "running CONFIG_SHELL=$SHELL \$*" >&6
    CONFIG_SHELL='$SHELL'
-@@ -15215,6 +15920,7 @@
+@@ -15215,6 +15925,7 @@
      "Makefile.pre") CONFIG_FILES="$CONFIG_FILES Makefile.pre" ;;
      "Modules/Setup.config") CONFIG_FILES="$CONFIG_FILES Modules/Setup.config" ;;
      "Misc/python.pc") CONFIG_FILES="$CONFIG_FILES Misc/python.pc" ;;
@@ -2187,8 +2201,8 @@ diff -urN a/configure b/configure
  
    *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
 diff -urN a/pyconfig.h.in b/pyconfig.h.in
---- a/pyconfig.h.in	2013-05-02 00:44:54.021571277 +0100
-+++ b/pyconfig.h.in	2013-05-02 00:44:55.290581759 +0100
+--- a/pyconfig.h.in	2013-05-17 23:59:31.279614252 +0100
++++ b/pyconfig.h.in	2013-05-17 23:59:33.109631129 +0100
 @@ -981,6 +981,9 @@
  /* Define if you want to have a Unicode type. */
  #undef Py_USING_UNICODE
