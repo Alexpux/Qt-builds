@@ -81,6 +81,7 @@ src_patch() {
 		$P/${PYTHON2_VERSION}/0510-cross-PYTHON_FOR_BUILD-gteq-274-and-fullpath-it.patch
 		$P/${PYTHON2_VERSION}/0515-mingw-add-GetModuleFileName-path-to-PATH.patch
 		$P/${PYTHON2_VERSION}/0520-Add-interp-Python-DESTSHARED-to-PYTHONPATH-b4-pybuilddir-txt-dir.patch
+		$P/${PYTHON2_VERSION}/0525-msys-monkeypatch-os-system-via-sh-exe.patch
 		$P/${PYTHON2_VERSION}/9999-re-configure-d.patch
 	)
 	
