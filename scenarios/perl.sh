@@ -27,7 +27,7 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/perl-mingw.patch
+		$P/perl-5.18.0-add-missing-mingw-libs.patch
 		$P/perl-variables.patch
 	)
 	
