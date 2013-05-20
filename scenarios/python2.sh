@@ -78,7 +78,7 @@ src_patch() {
 		$P/${PYTHON2_VERSION}/0115-mingw-cross-includes-lower-case.patch
 		$P/${PYTHON2_VERSION}/0500-mingw-install-LDLIBRARY-to-LIBPL-dir.patch
 		$P/${PYTHON2_VERSION}/0505-add-build-sysroot-config-option.patch
-		$P/${PYTHON2_VERSION}/0510-cross-PYTHON_FOR_BUILD-gteq-274-and-fullpath-it.patch
+		$P/${PYTHON2_VERSION}/0510-cross-PYTHON_FOR_BUILD-gteq-275-and-fullpath-it.patch
 		$P/${PYTHON2_VERSION}/0515-mingw-add-GetModuleFileName-path-to-PATH.patch
 		$P/${PYTHON2_VERSION}/0520-Add-interp-Python-DESTSHARED-to-PYTHONPATH-b4-pybuilddir-txt-dir.patch
 		$P/${PYTHON2_VERSION}/0525-msys-monkeypatch-os-system-via-sh-exe.patch
