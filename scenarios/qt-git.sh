@@ -112,7 +112,6 @@ src_patch() {
 	local _patches=(
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
-		$P/5.1.x/qt-5.1.0-fix-build-webkit-under-msys.patch
 		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
 	)
 	
