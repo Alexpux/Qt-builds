@@ -52,18 +52,22 @@ PACKAGES=(
 				 libxml2 \
 				 libxslt" \
 	)
-	openssl
+	$( [[ $STATIC_DEPS == no ]] \
+		&& echo "openssl" \
+	)
 	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
 		&& echo "libffi python2" \
 	)
 	yaml
 	ruby
 	dmake
-	perl 
+	perl
 	# gettext
-	freetype
-	fontconfig
-	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
+	$( [[ $STATIC_DEPS == no ]] \
+		&& echo "freetype \
+				 fontconfig" \
+	)
+	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "nasm \
 				libjpeg-turbo \
 				libpng \
@@ -78,14 +82,13 @@ PACKAGES=(
 	)
 	qt-$QT_VERSION
 	qtbinpatcher
-	qbs
+	$( [[ $STATIC_DEPS == no ]] \
+		&& echo "qbs" \
+	)
 	$( [[ $BUILD_QTCREATOR == yes ]] \
 		&& echo "qt-creator" \
 	)
-	$( [[ $BUILD_QUICKCONTROLS == yes ]] \
-		&& echo "quickcontrols" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes ]] \
+	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "poppler-data \
 				poppler" \
 	)
