@@ -62,7 +62,9 @@ src_configure() {
 	local _conf_flags=(
 		--prefix=${MINGW_RUBY_PREFIX_W}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		$( [[ $STATIC_DEPS == no ]] \
+				&& echo "--enable-shared" \
+		)
 		--disable-rpath
 		--with-out-ext=openssl
 		CFLAGS="\"${HOST_CFLAGS} -finline-functions\""
