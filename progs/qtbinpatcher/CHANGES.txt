@@ -1,2 +1,8 @@
-2013-02-01
+2013-05-21. Version 1.1.0.
+    Fixed a bug when running qmake in the case of special characters in the path.
+    Fixed a bug with old Qt path detection if file qt.conf is exists.
+    List of files for patching updated according to Qt Installer Framework 1.3.0.
+    Patcher can now be placed in the same directory as qmake.
+
+2013-02-01. Version 1.0.0.
     First program version.

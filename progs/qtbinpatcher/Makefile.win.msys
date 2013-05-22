@@ -9,7 +9,7 @@ release : all
 all : $(DESTDIR) $(DESTDIR)\$(TARGET)
 
 $(DESTDIR) :
-	-@if not exist $(DESTDIR) mkdir $(DESTDIR)
+	test -d $(DESTDIR) || mkdir $(DESTDIR)
 
 $(DESTDIR)/QtBinPatcher.o : QtBinPatcher.cpp
 	$(CC) -c $(CFLAGS) -o $@ $<

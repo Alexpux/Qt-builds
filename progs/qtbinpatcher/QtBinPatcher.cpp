@@ -26,7 +26,7 @@
 #elif defined(__linux) || defined(__linux__)
     #define OS_LINUX
 #else
-    #error "Not supported OS."
+    #error "Unsupported OS."
 #endif
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <process.h>
 #if defined(OS_WINDOWS)
     #include <io.h>
 #elif defined(OS_LINUX)
@@ -69,6 +70,15 @@ const char* const OPT_VERBOSE  = "--verbose";
 const char* const OPT_QT_DIR   = "--qt-dir";
 const char* const OPT_NOBACKUP = "--nobackup";
 const char* const OPT_FORCE    = "--force";
+
+//------------------------------------------------------------------------------
+
+const char* const QMAKE_NAME = "qmake"
+#ifdef OS_WINDOWS
+                               ".exe"
+#endif
+                               ;
+const char* const BACKUP_SUFFIX = ".bak";
 
 //------------------------------------------------------------------------------
 
@@ -123,7 +133,7 @@ bool CaseInsensitiveComp(const char c1, const char c2)
 #endif
 
 //------------------------------------------------------------------------------
-// String comparision. For windows comparision case-insensitive.
+// String comparision. For OS Windows comparision is case-insensitive.
 
 bool streq(const string& s1, const string& s2)
 {
@@ -138,6 +148,7 @@ bool streq(const string& s1, const string& s2)
 }
 
 //------------------------------------------------------------------------------
+// Getting size of opened file.
 
 long get_file_size(FILE* File)
 {
@@ -152,6 +163,7 @@ long get_file_size(FILE* File)
 }
 
 //------------------------------------------------------------------------------
+// Truncation file to empty (zero size).
 
 bool zero_file(FILE* File)
 {
@@ -174,7 +186,7 @@ void help()
         "Options:\n"
         "  --help       Show this help and exit.\n"
         "  --verbose    Print extended runtime information.\n"
-        "  --qt-dir=dir Directory, where Qt is now located. If not specified,\n"
+        "  --qt-dir=dir Directory, where Qt or qmake is now located. If not specified,\n"
         "               the current directory is taken.\n"
         "  --nobackup   Don't create backup for files that'll be patch.\n"
         "  --force      Force patching (without old path actuality checking).\n"
@@ -239,6 +251,31 @@ bool parse_cmdline_args(int argc,
 }
 
 //------------------------------------------------------------------------------
+// Return true if file with name FileName is exists and false otherwise.
+
+bool is_file_exists(const char* const FileName)
+{
+#if defined(OS_WINDOWS)
+    _finddata_t FindData;
+    intptr_t FindHandle = _findfirst(FileName, &FindData);
+    if (FindHandle != -1) {
+        _findclose(FindHandle);
+        return true;
+    }
+#elif defined(OS_LINUX)
+    glob_t GlobData;
+    if (glob(FileName, 0, NULL, &GlobData) == 0) {
+        globfree(&GlobData);
+        return true;
+    }
+#else
+    #error "Unsupported OS."
+#endif
+    return false;
+}
+
+
+//------------------------------------------------------------------------------
 /* Generate path to new Qt directory.
    Returned value don't have direcrory separators at the end
    and all separators in path is native. */
@@ -272,6 +309,13 @@ string get_new_qt_path(const strmap* pCmdlineOpts)
         --i;
     }
 
+    if (is_file_exists((Result + native_separator() + QMAKE_NAME).c_str())) {
+        // One level up.
+        string::size_type pos = Result.find_last_of(native_separator());
+        if (pos != string::npos && pos < Result.length() - 1)
+            Result.resize(pos);
+    }
+
     if (Verbose)
         printf("Path to new Qt directory: %s\n\n", Result.c_str());
 
@@ -286,11 +330,7 @@ bool get_qmake_output(const string& QtPath,
                       int BufferSize)
 {
     bool Result = false;
-    string QMakeStart = QtPath + "/bin/qmake";
-#ifdef OS_WINDOWS
-    QMakeStart += ".exe";
-#endif
-    QMakeStart += " -query";
+    string QMakeStart = "\"\"" + QtPath + "/bin/" + QMAKE_NAME + "\" -query\"";
 
     if (Verbose)
         printf("qmake command line: %s\n\n", QMakeStart.c_str());
@@ -314,7 +354,13 @@ bool get_qmake_output(const string& QtPath,
                     ) {
                 int ExecCode = system(QMakeStart.c_str());
                 if (ExecCode == 0) {
-                    if (dup2(old_stdout, fileno(stdout)) != 0) {
+                    if (dup2(old_stdout, fileno(stdout))
+#ifdef OS_WINDOWS
+                    != 0
+#else
+                    == -1
+#endif
+                    ) {
                         fprintf(stderr, "Error restore stdout handle!\n\n");
                     }
 
@@ -440,6 +486,7 @@ void get_bin_patch_values(strmap& QmakeValues,
         { "QT_INSTALL_DOCS",         "qt_docspath=", "doc"          },
         { "QT_INSTALL_HEADERS",      "qt_hdrspath=", "include"      },
         { "QT_INSTALL_LIBS",         "qt_libspath=", "lib"          },
+        { "QT_INSTALL_LIBEXECS",     "qt_lbexpath=", "libexec"      },
         { "QT_INSTALL_BINS",         "qt_binspath=", "bin"          },
         { "QT_INSTALL_PLUGINS",      "qt_plugpath=", "plugins"      },
         { "QT_INSTALL_IMPORTS",      "qt_impspath=", "imports"      },
@@ -526,7 +573,7 @@ bool backup_file(const string& FileName)
     if (Verbose)
         printf("Backing up file %s...", FileName.c_str());
 
-    string BackupFileName = FileName + ".bak";
+    string BackupFileName = FileName + BACKUP_SUFFIX;
     bool Result = copy_file(FileName.c_str(), BackupFileName.c_str());
 
     if (Verbose)
@@ -560,7 +607,7 @@ bool restore_file(const string& FileName)
         printf("Restoring from backup file %s...", FileName.c_str());
 
     remove(FileName.c_str());
-    bool Result = rename((FileName+".bak").c_str(), FileName.c_str()) == 0;
+    bool Result = rename((FileName + BACKUP_SUFFIX).c_str(), FileName.c_str()) == 0;
 
     if (Verbose)
         printf(Result ? " OK\n" : " Failed\n");
@@ -584,7 +631,6 @@ bool restore_files(const strlist& FilesList)
 
     return Result;
 }
-
 
 //------------------------------------------------------------------------------
 /* Find files satisfied to mask Mask in directory Dir.
@@ -614,6 +660,8 @@ void find_files(const string Dir,
         }
         globfree(&GlobData);
     }
+#else
+    #error "Unsupported OS."
 #endif
 }
 
@@ -668,7 +716,7 @@ void get_txt_files_for_patch(const string& NewQtPath,
 
     // Files for patching in Qt4.
     static const TElement Elements4[] = {
-        { "/lib/",             "*.prl"             , false },
+        { "/lib/",             "*.prl",              false },
         { "/demos/shared/",    "libdemo_shared.prl", false },
 #ifdef OS_WINDOWS
         { "/mkspecs/default/", "qmake.conf",         false },
@@ -746,11 +794,13 @@ void get_bin_files_for_patch(const string& NewQtPath,
 #ifdef OS_WINDOWS
         { "/bin/", "qmake.exe"    },
         { "/bin/", "lrelease.exe" },
-        { "/bin/", "Qt5Core*.dll"  },
-        { "/lib/", "Qt5Core*.dll"  }
+        { "/lib/", "qdoc.exe"     },
+        { "/bin/", "Qt5Core*.dll" },
+        { "/lib/", "Qt5Core*.dll" }
 #elif defined(OS_LINUX)
         { "/bin/", "qmake"        },
         { "/bin/", "lrelease"     },
+        { "/lib/", "qdoc"         },
         { "/lib/", "libQtCore.so" }
 #endif
     };
@@ -793,7 +843,7 @@ bool patch_text_file(const char* FileName,
             Buf.resize(get_file_size(File));
             if (fread(Buf.data(), Buf.size(), 1, File) == 1) {
                 for (strmap::const_iterator I = PatchValues.begin(); I != PatchValues.end(); ++I) {
-                    int Delta = 0;
+                    string::size_type Delta = 0;
                     vector<char>::iterator Found;
                     while ((Found = search(Buf.begin() + Delta, Buf.end(),
                                            I->first.begin(), I->first.end()
@@ -888,10 +938,54 @@ bool patch_bin_files(const strlist& Files,
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+// Backup file qt.conf if exists.
+
+bool backup_qtconf(const string& QtDir)
+{
+    string Name = QtDir + "/bin/qt.conf";
+    if (!is_file_exists(Name.c_str()))
+        return true;
+    printf("Renaming file qt.conf... ");
+    bool Result = rename(Name.c_str(), (Name + BACKUP_SUFFIX).c_str()) == 0;
+    printf(Result ? "OK\n" : "Failed!\n");
+    return Result;
+}
+
+//------------------------------------------------------------------------------
+// Restore file qt.conf if exists.
+
+bool restore_qtconf(const string& QtDir)
+{
+    string Name = QtDir + "/bin/qt.conf";
+    string BackupName = Name + BACKUP_SUFFIX;
+    if (!is_file_exists(BackupName.c_str()))
+        return true;
+    printf("Restoring file qt.conf... ");
+    bool Result = rename(BackupName.c_str(), Name.c_str()) == 0;
+    printf(Result ? "OK\n" : "Failed!\n");
+    return Result;
+}
+
+//------------------------------------------------------------------------------
+// Remove file qt.conf if exists.
+
+bool remove_qtconf(const string& QtDir)
+{
+    string Name = QtDir + "/bin/qt.conf";
+    if (!is_file_exists(Name.c_str()))
+        return true;
+    printf("Removing file qt.conf... ");
+    bool Result = remove(Name.c_str()) == 0;
+    printf(Result ? "OK\n" : "Failed!\n");
+    return Result;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int main(int argc, char* argv[])
 {
-    printf("QtBinaryPatcher v1.0.0. Tool for patching paths in Qt binaries.\n"
+    printf("QtBinaryPatcher v1.1.0. Tool for patching paths in Qt binaries.\n"
            "(C) Yuri Krugloff, 2013. http://www.tver-soft.org\n\n");
 
     strmap CmdlineOpts;
@@ -903,6 +997,7 @@ int main(int argc, char* argv[])
         help();
         return 0;
     }
+    bool Backup = CmdlineOpts.count(OPT_NOBACKUP) == 0;
 
     string NewQtPath = get_new_qt_path(&CmdlineOpts);
     if (NewQtPath.empty()) {
@@ -911,12 +1006,21 @@ int main(int argc, char* argv[])
     }
     if (NewQtPath.length() > QT_PATH_MAX_LEN) {
         fprintf(stderr, "Path to new Qt directory too long!\n"
-                        "Path must be shorter as %i symbols.", QT_PATH_MAX_LEN);
+                        "Path must be not longer as %i symbols.", QT_PATH_MAX_LEN);
         return -1;
     }
 
     char PipeBuffer[65536];
-    if (!get_qmake_output(NewQtPath, PipeBuffer, sizeof(PipeBuffer))) {
+    if (!backup_qtconf(NewQtPath)) {
+        fprintf(stderr, "Error renaming file qt.conf.");
+        return -1;
+    }
+    bool b = get_qmake_output(NewQtPath, PipeBuffer, sizeof(PipeBuffer));
+    if (!restore_qtconf(NewQtPath)) {
+        fprintf(stderr, "Error restoring file qt.conf.");
+        return -1;
+    }
+    if (!b) {
         fprintf(stderr, "Error getting qmake output!\n");
         return -1;
     }
@@ -925,6 +1029,7 @@ int main(int argc, char* argv[])
     strmap QMakeValues;
     if (!parse_qmake_output(PipeBuffer, &QMakeValues)) {
         fprintf(stderr, "Error parsing qmake output!\n");
+        return -1;
     }
 
 
@@ -953,6 +1058,10 @@ int main(int argc, char* argv[])
     if (streq(OldQtPath, NewQtPath)) {
         if (CmdlineOpts.count(OPT_FORCE) == 0) {
             printf("The new and the old pathes to Qt directory are the same. Patching not needed.\n");
+            if (!remove_qtconf(NewQtPath)) {
+                fprintf(stderr, "Error removing file qt.conf.");
+                return -1;
+            }
             return 0;
         }
         else {
@@ -968,7 +1077,6 @@ int main(int argc, char* argv[])
     strlist BinFilesList;
     get_txt_files_for_patch(NewQtPath, QtVersion, &TxtFilesList);
     get_bin_files_for_patch(NewQtPath, QtVersion, &BinFilesList);
-    bool Backup = CmdlineOpts.count(OPT_NOBACKUP) == 0;
     strlist AllFilesList;
     if (Backup) {
         AllFilesList = BinFilesList;
@@ -978,19 +1086,32 @@ int main(int argc, char* argv[])
             fprintf(stderr, "Error create backup copy of files!");
             return -1;
         }
+        if (!backup_qtconf(NewQtPath)) {
+            fprintf(stderr, "Error create backup copy of file qt.conf.");
+            return -1;
+        }
+    }
+    else {
+        if (!remove_qtconf(NewQtPath)) {
+            fprintf(stderr, "Error removing file qt.conf.");
+        }
     }
     get_text_patch_values(OldQtPath, NewQtPath, &PatchValues);
     if (!patch_text_files(TxtFilesList, PatchValues)) {
-        if (Backup)
+        if (Backup) {
             restore_files(AllFilesList);
+            restore_qtconf(NewQtPath);
+        }
         return -1;
     }
 
     PatchValues.clear();
     get_bin_patch_values(QMakeValues, NewQtPath, &PatchValues);
     if (!patch_bin_files(BinFilesList, PatchValues)) {
-        if (Backup)
+        if (Backup) {
             restore_files(AllFilesList);
+            restore_qtconf(NewQtPath);
+        }
         return -1;
     }
 
