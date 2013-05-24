@@ -52,9 +52,7 @@ PACKAGES=(
 				 libxml2 \
 				 libxslt" \
 	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "openssl" \
-	)
+	openssl
 	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
 		&& echo "libffi python2" \
 	)
