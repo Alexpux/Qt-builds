@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,66 +35,78 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	zlib
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+P=installer-framework
+P_V=$P
+SRC_FILE=
+URL=git://gitorious.org/${P}/${P}.git
+
+DEPENDS=(qt)
+
+src_download() {
+	if [ -d $SRC_DIR/$P_V ]
+	then
+		pushd $SRC_DIR/$P_V > /dev/null
+			git clean -f > /dev/null
+		popd > /dev/null
+	fi
+	func_download $P_V "git" $URL
+}
+
+src_unpack() {
+	echo "--> Empty unpack"
+}
+
+src_patch() {
+	local _patches=(
 	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "openssl" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@] \
+		$SRC_DIR
+}
+
+src_configure() {
+	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
+
+	if [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/configure.marker ]
+	then
+		echo "--> configured"
+	else
+		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
+		echo -n "--> configure..."
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/$P_V ) 
+		${QTDIR}/bin/qmake.exe $_rel_path/installerfw.pro CONFIG+=release \
+			> ${LOG_DIR}/${P_V}-${QT_VERSION}-configure.log 2>&1 || die "QMAKE failed"
+		echo " done"
+		touch configure.marker
+		popd > /dev/null
+	fi
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
 	)
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
-		&& echo "libffi python2" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		INSTALL_ROOT=${QTDIR}
+		install
 	)
-	yaml
-	ruby
-	dmake
-	perl
-	# gettext
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "freetype \
-				 fontconfig" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "nasm \
-				libjpeg-turbo \
-				libpng \
-				jbigkit \
-				freeglut \
-				tiff \
-				libidn \
-				libssh2 \
-				curl \
-				libarchive \
-				cmake" \
-	)
-	qt-$QT_VERSION
-	qtbinpatcher
- 	$( [[ $STATIC_DEPS == yes ]] \
-		&& echo "installer-framework" \
-	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "qbs" \
-	)
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "poppler-data \
-				poppler" \
-	)
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
