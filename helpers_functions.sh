@@ -57,26 +57,48 @@ get_filename_extension() {
 # install toolchains
 toolchains_prepare() {
 
-	pushd $TOOLCHAINS_DIR > /dev/null
-	if [ -f toolchains.marker ]
-	then
-		echo "-> Toolchains prepared"
-	else
-		echo "-> Prepare toolchains..."
+	local _file_mingw32=$(basename $URL_MINGW32)
+	local _ext_mingw32=$(get_filename_extension $_file_mingw32)
 
-		local _file_mingw32=$(basename $URL_MINGW32)
-		local _ext_mingw32=$(get_filename_extension $_file_mingw32)
+	local _file_mingw64=$(basename $URL_MINGW64)
+	local _ext_mingw64=$(get_filename_extension $_file_mingw64)
+
+	pushd $TOOLCHAINS_DIR > /dev/null
+
+	if ! [ -f $TOOLCHAINS_DIR/${_file_mingw32%.$_ext_mingw32}-unpack.marker ]
+	then
+		echo "-> Prepare 32-bit toolchain..."
+		if [ -d $TOOLCHAINS_DIR/mingw32 ]
+		then
+			echo -n "--> Remove previous toolchain..."
+			rm -rf $TOOLCHAINS_DIR/mingw32
+			echo " done"
+		fi
+
 		func_download ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $URL_MINGW32
 		func_uncompress ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $TOOLCHAINS_DIR
-		
-		local _file_mingw64=$(basename $URL_MINGW64)
-		local _ext_mingw64=$(get_filename_extension $_file_mingw64)
+		echo "--> Preparing 32-bit toolchain done"
+	else
+		echo "-> 32-bit toolchain prepared"
+	fi
+
+	if ! [ -f $TOOLCHAINS_DIR/${_file_mingw64%.$_ext_mingw64}-unpack.marker ]
+	then
+		echo "-> Prepare 64-bit toolchain..."
+		if [ -d $TOOLCHAINS_DIR/mingw64 ]
+		then
+			echo -n "--> Remove previous toolchain..."
+			rm -rf $TOOLCHAINS_DIR/mingw64
+			echo " done"
+		fi
+
 		func_download ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $URL_MINGW64
 		func_uncompress ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $TOOLCHAINS_DIR
-		
-		echo "--> Preparing done"
+		echo "--> Preparing 64-bit toolchain done"
+	else
+		echo "-> 64-bit toolchain prepared"
 	fi
-	touch toolchains.marker
+
 	popd > /dev/null
 }
 
