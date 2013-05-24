@@ -66,12 +66,12 @@ toolchains_prepare() {
 
 		local _file_mingw32=$(basename $URL_MINGW32)
 		local _ext_mingw32=$(get_filename_extension $_file_mingw32)
-		func_download mingw32 ".$_ext_mingw32" $URL_MINGW32
+		func_download ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $URL_MINGW32
 		func_uncompress ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $TOOLCHAINS_DIR
 		
 		local _file_mingw64=$(basename $URL_MINGW64)
 		local _ext_mingw64=$(get_filename_extension $_file_mingw64)
-		func_download mingw64 ".$_ext_mingw64" $URL_MINGW64
+		func_download ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $URL_MINGW64
 		func_uncompress ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $TOOLCHAINS_DIR
 		
 		echo "--> Preparing done"

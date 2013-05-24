@@ -63,11 +63,7 @@ PATCH_DIR=${TOP_DIR}/patches
 PACKAGE_DIR=${TOP_DIR}/packages
 PROG_DIR=${TOP_DIR}/progs
 SCENARIOS=${TOP_DIR}/scenarios
-TOOLCHAINS_DIR=${TOP_DIR}/toolchains
 ROOT_DIR=${TOP_DIR}/work
-
-# Use system installed toolchains
-USER_DEFINED_TOOLCHAINS=no
 
 # DirectX SDK installation and logviewer paths
 [[ $IS_64BIT_HOST == yes ]] && {
@@ -82,8 +78,22 @@ USER_DEFINED_TOOLCHAINS=no
 SHOW_LOG_ON_ERROR=yes
 
 # MinGW toolchain links
-URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev2.7z
-URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-posix/seh/x64-4.8.0-release-posix-seh-rev2.7z
+# threads=posix
+URL_MINGW32_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev2.7z
+URL_MINGW64_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-posix/seh/x64-4.8.0-release-posix-seh-rev2.7z
+TOOLCHAINS_DIR_POSIX=${TOP_DIR}/toolchains_posix
+# threads=win32
+URL_MINGW32_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-win32/dwarf/x32-4.8.0-release-win32-dwarf-rev2.7z
+URL_MINGW64_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-win32/seh/x64-4.8.0-release-win32-seh-rev2.7z
+TOOLCHAINS_DIR_WIN32=${TOP_DIR}/toolchains_win32
+
+# By default use posix toolchains
+TOOLCHAINS_DIR=${TOOLCHAINS_DIR_POSIX}
+URL_MINGW32=${URL_MINGW32_POSIX}
+URL_MINGW64=${URL_MINGW64_POSIX}
+
+# Use system installed toolchains
+USER_DEFINED_TOOLCHAINS=no
 
 # MinGW-builds contain prebuilded python in opt subdirectory.
 # Does we use mingw-builds python or build python yourself.
@@ -215,6 +225,13 @@ while [[ $# > 0 ]]; do
 			STATIC_DEPS=yes
 			STATIC_SUFFIX="-s"
 			STATIC_LD="-static-libstdc++ -static-libgcc"
+			# For static building prefer to use toolchains with threads=win32
+			# to avoid dependency from libwinpthread-1.dll
+			[[ $USER_DEFINED_TOOLCHAINS == no ]] && {
+				TOOLCHAINS_DIR=${TOOLCHAINS_DIR_WIN32}
+			}
+			URL_MINGW32=${URL_MINGW32_WIN32}
+			URL_MINGW64=${URL_MINGW64_WIN32}
 		;;
 		--extra-stuff) BUILD_EXTRA_STUFF=yes ;;
 		x32)
