@@ -79,12 +79,12 @@ SHOW_LOG_ON_ERROR=yes
 
 # MinGW toolchain links
 # threads=posix
-URL_MINGW32_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev2.7z
-URL_MINGW64_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-posix/seh/x64-4.8.0-release-posix-seh-rev2.7z
+URL_MINGW32_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/32-bit/threads-posix/dwarf/x32-4.8.1-release-posix-dwarf-rev0.7z
+URL_MINGW64_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/64-bit/threads-posix/seh/x64-4.8.1-release-posix-seh-rev0.7z
 TOOLCHAINS_DIR_POSIX=${TOP_DIR}/toolchains_posix
 # threads=win32
-URL_MINGW32_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-win32/dwarf/x32-4.8.0-release-win32-dwarf-rev2.7z
-URL_MINGW64_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-win32/seh/x64-4.8.0-release-win32-seh-rev2.7z
+URL_MINGW32_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/32-bit/threads-win32/dwarf/x32-4.8.1-release-win32-dwarf-rev0.7z
+URL_MINGW64_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/64-bit/threads-win32/seh/x64-4.8.1-release-win32-seh-rev0.7z
 TOOLCHAINS_DIR_WIN32=${TOP_DIR}/toolchains_win32
 
 # By default use posix toolchains
