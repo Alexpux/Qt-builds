@@ -61,7 +61,9 @@ src_patch() {
 src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		${LNKDEPS}
 		--enable-xpdf-headers
 		--disable-gtk-test

@@ -61,7 +61,9 @@ src_patch() {
 src_configure() {
 	local _conf_flags=(
 		--prefix=${MINGW_RUBY_PREFIX_W}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		$( [[ $STATIC_DEPS == no ]] \
 				&& echo "--enable-shared" \
 		)
