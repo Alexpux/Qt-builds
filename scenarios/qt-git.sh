@@ -71,13 +71,17 @@ change_paths() {
 	}
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
+	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
+	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$SRC_DIR/$P_V/gnuwin32/bin:$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$SRC_DIR/$P_V/gnuwin32/bin:$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
 }
 
 restore_paths() {
 	unset INCLUDE
 	unset LIB
+	unset CPATH
+	unset LIBRARY_PATH
 	export PATH=$OLD_PATH
 	unset OLD_PATH
 }
@@ -188,7 +192,7 @@ src_configure() {
 			-fontconfig
 			-openssl
 			-no-dbus
-			$_opengl
+			-opengl
 			-platform win32-g++
 			-nomake tests
 			-nomake examples
