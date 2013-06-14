@@ -52,7 +52,7 @@ WINDOWS_PART_PATH=$WIN_SYS/system32:$WIN_SYS
 MSYS_PART_PATH=.:/usr/local/bin:/bin
 export PATH=$MSYS_PART_PATH:$WINDOWS_PART_PATH
 
-[[ $(env | grep PROCESSOR_ARCHITECTURE) =~ AMD64 ]] && {
+[[ $(env | grep PROCESSOR_ARCHITECTURE) =~ AMD64 || $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
 	IS_64BIT_HOST=yes
 } || {
 	IS_64BIT_HOST=no
@@ -344,8 +344,8 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 	HOST_CFLAGS="$OPTIM -pipe -O2"
 	HOST_CXXFLAGS="${HOST_CFLAGS}"
-	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
-	HOST_LDFLAGS="$STATIC_LD -pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
+	HOST_CPPFLAGS="-I${PREFIX}/include" #-I$PYTHONHOME/include
+	HOST_LDFLAGS="$STATIC_LD -pipe -s -L${PREFIX}/lib" #-L$PYTHONHOME/lib/python2.7/config
 	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QTDIR}/lib/pkgconfig"
 
 	pushd ${QTDIR} > /dev/null

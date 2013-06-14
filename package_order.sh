@@ -58,8 +58,8 @@ PACKAGES=(
 	)
 	yaml
 	ruby
-	dmake
-	perl
+	#dmake
+	#perl
 	# gettext
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "freetype \
