@@ -293,7 +293,7 @@ function func_apply_patches {
 		return 0
 	}
 
-	((_index=${#_list[@]}-1))
+	_index=$((${#_list[@]}-1))
 	[[ -f $_src_dir/$1/_patch-$_index.marker ]] && {
 		echo "---> patched"
 		return 0
@@ -318,7 +318,7 @@ function func_apply_patches {
 				break
 			}
 		}
-		((_index++))
+		_index=$(($_index+1))
 	done
 
 	[[ $_result == 0 ]] && {
