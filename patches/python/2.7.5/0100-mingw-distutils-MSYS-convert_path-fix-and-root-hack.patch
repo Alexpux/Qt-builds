@@ -23,7 +23,7 @@ diff -urN a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
 +    return 0
 +
 +def has_msys():
-+    _msysdll = "msys-1.0.dll"
++    _msysdll = "msys-2.0.dll"
 +    for _path in os.environ["PATH"].split(os.pathsep):
 +        currpath = os.path.join(_path, _msysdll)
 +        if os.path.isfile(currpath) and os.access(currpath, os.F_OK):
