@@ -59,6 +59,7 @@ src_patch() {
 }
 
 src_configure() {
+	export ac_cv_func_utime_null=yes
 	local _conf_flags=(
 		--prefix=${MINGW_PERL_PREFIX}
 		--build=${HOST}
