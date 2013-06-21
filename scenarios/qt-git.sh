@@ -201,7 +201,7 @@ src_configure() {
 		)
 		local _allconf="${_conf_flags[@]}"
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $SRC_DIR/${P_V} )
-		/bin/perl $_rel_path/configure -v \
+		perl $_rel_path/configure -v \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	

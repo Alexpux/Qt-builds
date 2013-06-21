@@ -98,18 +98,17 @@ pkg_build() {
 }
 
 pkg_install() {
+	export INSTALL_ROOT=${QTDIR}
+	local _install_flags=(
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V}-${QT_VERSION} \
+		"mingw32-make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
 
-	if ! [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/install.marker ]
-	then
-		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
-		echo -n "--> Installing..."
-		mkdir -p $QTDIR/{bin,lib,plugins,share}
-		cp -rf bin/* $QTDIR/bin/ || die "Copy bin folder failed"
-		cp -rf lib/* $QTDIR/lib/ || die "Copy lib folder failed"
-		cp -rf plugins/* $QTDIR/plugins/ || die "Copy plugins folder failed"
-		cp -rf share/* $QTDIR/share/ || die "Copy plugins folder failed"
-		touch install.marker
-		echo " done"
-		popd > /dev/null
-	fi
+	unset INSTALL_ROOT
 }

@@ -90,8 +90,8 @@ pkg_build() {
 }
 
 pkg_install() {
+	export INSTALL_ROOT=${QTDIR}
 	local _install_flags=(
-		INSTALL_ROOT=${QTDIR}
 		install
 	)
 	local _allinstall="${_install_flags[@]}"
@@ -103,6 +103,7 @@ pkg_install() {
 		"installed"
 
 	# install_docs
+	unset INSTALL_ROOT
 }
 
 install_docs() {
