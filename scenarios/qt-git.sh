@@ -194,7 +194,7 @@ src_configure() {
 			-fontconfig
 			-openssl
 			-no-dbus
-			-opengl
+			$_opengl
 			-platform win32-g++
 			-nomake tests
 			-nomake examples
