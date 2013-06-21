@@ -118,8 +118,8 @@ pkg_build() {
 		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
-		"building..." \
-		"built"
+		"building depends..." \
+		"built-depends"
 	
 	_make_flags=(
 		ZLIB_INCLUDE=-"I${PREFIX}/include"
@@ -130,8 +130,7 @@ pkg_build() {
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
-		"built" \
-		"1"
+		"built"
 }
 
 pkg_install() {
