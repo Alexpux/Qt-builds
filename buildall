@@ -99,8 +99,14 @@ URL_MINGW64=${URL_MINGW64_POSIX}
 USER_DEFINED_TOOLCHAINS=no
 
 # MinGW-builds contain prebuilded python in opt subdirectory.
-# Does we use mingw-builds python or build python yourself.
-USE_MINGWBUILDS_PYTHON=yes
+# Does we use msys-python, mingw-builds python or build python yourself.
+USE_PYTHON=msys
+
+# Build and use Ruby
+BUILD_RUBY=no
+
+# Build and use Perl
+BUILD_PERL=yes
 
 # Build Qt-Creator
 BUILD_QTCREATOR=yes
@@ -147,7 +153,10 @@ RUN_ARGS="$@"
 	echo "                              Default Qt version is $QT_VERSION"
 	echo "    --qt-git-branch=<branch> - Specify what Qt git branch to clone when building Qt from git"
 	echo "                               Default branch is - $QT_GIT_BRANCH"
-	echo "    --build-python          - specifies to the script to build Python"
+	echo "    --build-python          - specifies to the script to build Python and use it when building Qt"
+	echo "    --toolchain-python      - specifies to the script to use Python from mingw-builds toolchain"
+	echo "    --build-ruby            - specifies to the script to build Ruby and use it when building Qt"
+	echo "                              By default using MSYS2 Ruby"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --quickcontrols         - build QtQuickControls"
 	echo "    --static-qt             - build Qt to static libraries"
@@ -212,7 +221,9 @@ while [[ $# > 0 ]]; do
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--qt-git-branch=*) QT_GIT_BRANCH=${1/--qt-git-branch=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
-		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
+		--build-python) USE_PYTHON=self ;;
+		--toolchain-python) USE_PYTHON=toolchain ;;
+		--build-ruby) BUILD_RUBY=yes ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
 		--quickcontrols)
 			[[ $STATIC_DEPS == no ]] && {
@@ -323,24 +334,35 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	pushd ${PREFIX} > /dev/null
 	export PREFIX_WIN=`pwd -W`
 	popd > /dev/null
+	
+	MINGW_PART_PATH=$PREFIX/bin:$QTDIR/bin:$MINGWHOME/bin
 
-	MINGW_PERL_PREFIX=$PREFIX/perl
-	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
-
-	[[ $USE_MINGWBUILDS_PYTHON == no ]] && {
+	if [ $USE_PYTHON == self ]
+	then
 		MINGW_PYTHON2_PREFIX=$PREFIX/python2
 		MINGW_PYTHON2_PREFIX_W=$PREFIX_WIN/python2
-	} || {
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
+	elif [ $USE_PYTHON == toolchain ]
 		MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
 		MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
 		export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
-	}
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
+	fi
 
-	MINGW_RUBY_PREFIX=$PREFIX/ruby
-	MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
+	if [ $BUILD_RUBY == yes ]
+	then
+		MINGW_RUBY_PREFIX=$PREFIX/ruby
+		MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_RUBY_PREFIX/bin
+	fi
 
-	MINGW_PART_PATH=$PREFIX/bin:$QTDIR/bin:$MINGWHOME/bin
-	#:$MINGW_PERL_PREFIX/bin:$MINGW_PYTHON2_PREFIX/bin:$MINGW_RUBY_PREFIX/bin
+	if [ $BUILD_PERL == yes ]
+	then
+		MINGW_PERL_PREFIX=$PREFIX/perl
+		MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin
+	fi
+
 	export PATH=$MINGW_PART_PATH:$PATH
 
 	HOST_CFLAGS="$OPTIM -pipe -O2"

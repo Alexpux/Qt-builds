@@ -53,13 +53,17 @@ PACKAGES=(
 				 libxslt" \
 	)
 	openssl
-	$( [[ $USE_MINGWBUILDS_PYTHON == no ]] \
+	$( [[ $USE_PYTHON == self ]] \
 		&& echo "libffi python2" \
 	)
 	yaml
-	ruby
-	#dmake
-	#perl
+ 	$( [[ $BUILD_RUBY == yes ]] \
+		&& echo "ruby" \
+	)
+ 	$( [[ $BUILD_PERL == yes ]] \
+		&& echo "dmake \
+				 perl" \
+	)
 	# gettext
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "freetype \
