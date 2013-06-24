@@ -36,7 +36,7 @@
 # **************************************************************************
 
 P=qt
-P_V=$P-$QT_GIT_BRANCH
+P_V=$QT_GIT_BRANCH-$P
 SRC_FILE=
 MAINMODULE=qt5
 URL_QT5=git://gitorious.org/qt/$MAINMODULE.git
