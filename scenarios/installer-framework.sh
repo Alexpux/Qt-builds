@@ -67,17 +67,17 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
+	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
 
-	if [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/configure.marker ]
+	if [ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]
 	then
 		echo "--> configured"
 	else
-		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
+		pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
 		echo -n "--> configure..."
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $SRC_DIR/$P_V ) 
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $SRC_DIR/$P_V ) 
 		${QTDIR}/bin/qmake.exe $_rel_path/installerfw.pro CONFIG+=release \
-			> ${LOG_DIR}/${P_V}-${QT_VERSION}-configure.log 2>&1 || die "QMAKE failed"
+			> ${LOG_DIR}/${P_V}-${QTVER}-configure.log 2>&1 || die "QMAKE failed"
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
@@ -90,7 +90,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QT_VERSION} \
+		${P_V}-${QTVER} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -104,7 +104,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QT_VERSION} \
+		${P_V}-${QTVER} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
