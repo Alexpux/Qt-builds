@@ -38,7 +38,10 @@
 P=qt-creator
 P_V=${P}-${QT_CREATOR_VERSION}-src
 SRC_FILE="${P_V}.tar.gz"
-URL=http://download.qt-project.org/official_releases/qtcreator/2.7/${QT_CREATOR_VERSION}/${SRC_FILE}
+# Release versions
+#URL=http://download.qt-project.org/official_releases/qtcreator/2.7/${QT_CREATOR_VERSION}/${SRC_FILE}
+# Beta versions
+URL=http://download.qt-project.org/development_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
 DEPENDS=(qt)
 
 src_download() {
