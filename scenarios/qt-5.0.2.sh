@@ -170,7 +170,7 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		perl configure \
+		configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
