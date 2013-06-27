@@ -111,9 +111,6 @@ BUILD_PERL=yes
 # Build Qt-Creator
 BUILD_QTCREATOR=yes
 
-# Build QDesktopComponents
-BUILD_QUICKCONTROLS=no
-
 # Build some extra libraries
 BUILD_EXTRA_STUFF=no
 
@@ -158,7 +155,6 @@ RUN_ARGS="$@"
 	echo "    --build-ruby            - specifies to the script to build Ruby and use it when building Qt"
 	echo "                              By default using MSYS2 Ruby"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
-	echo "    --quickcontrols         - build QtQuickControls"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
 	echo "    --version               - print the version of the Qt-builds scripts"
@@ -225,11 +221,6 @@ while [[ $# > 0 ]]; do
 		--toolchain-python) USE_PYTHON=toolchain ;;
 		--build-ruby) BUILD_RUBY=yes ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
-		--quickcontrols)
-			[[ $STATIC_DEPS == no ]] && {
-				BUILD_QUICKCONTROLS=yes
-			}
-		;;
 		--static-qt)
 			export lt_cv_deplibs_check_method='pass_all'
 			LNKDEPS=$STATIC_LINK_FLAGS
