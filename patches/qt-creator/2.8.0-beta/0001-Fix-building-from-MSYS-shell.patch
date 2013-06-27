@@ -1,0 +1,29 @@
+From 45a54b2a5155c29c71515aa293ee9f9390ae2494 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Thu, 27 Jun 2013 20:58:09 +0100
+Subject: [PATCH] Fix building from MSYS shell
+
+In debugger.pro, take path that checks and sets
+QMAKE_CHK_EXISTS_GLUE if QMAKE_SH isn't empty.
+
+Change-Id: I7c37acc5867c1ac3ab6da33db3eb2479c1d4213c
+---
+ src/plugins/debugger/debugger.pro | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/plugins/debugger/debugger.pro b/src/plugins/debugger/debugger.pro
+index e703b88..952586b 100644
+--- a/src/plugins/debugger/debugger.pro
++++ b/src/plugins/debugger/debugger.pro
+@@ -157,7 +157,7 @@ equals(TEST, 1):!isEmpty(copydata) {
+     else: OUTPUT_DIR = $$IDE_BUILD_TREE/$$TEST_DIR
+     testfile.target = $$OUTPUT_DIR/$$basename(INPUT_FILE)
+     testfile.depends = $$INPUT_FILE
+-    win32 {
++    win32:isEmpty(QMAKE_SH) {
+         INPUT_FILE ~= s,/,\\\\,g
+         OUTPUT_DIR ~= s,/,\\\\,g
+     } else {
+-- 
+1.8.3.1
+
