@@ -295,6 +295,16 @@ x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 	die "Host toolchains is not installed. Terminate!"
 }
 
+if [ $USE_PYTHON=msys ]
+then 
+    command -v "python" > /dev/null 2>&1 || { USE_PYTHON=self; }
+fi
+
+if [ $BUILD_RUBY=no ]
+then 
+    command -v "ruby" > /dev/null 2>&1 || { BUILD_RUBY=yes; }
+fi
+	
 source versions.sh
 source package_order.sh
 
