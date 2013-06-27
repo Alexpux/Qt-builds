@@ -19,14 +19,18 @@ OR:
 4. Get the scripts into '<msys root>/home/<user>/Qt-builds':
   "cd && git clone git://github.com/Alexpux/Qt-builds.git"
 
-5. In the MSYS file structure delete the '/MinGW' directory.
+5. Set git eol handling:
+  "git config --global core.eol lf"
+  "git config --global --unset core.autocrlf"
 
-6. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
+6. In the MSYS file structure delete the '/MinGW' directory.
 
-7. Go into the Qt-builds root directory.
+7. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
+
+8. Go into the Qt-builds root directory.
   "cd && cd Qt-builds"
 
-8. Build script has next parameters:
+9. Build script has next parameters:
   The '--buildroot=<path>' option specifies to the script to use '<path>' as build directory.
     By default used <SCRIPTS_DIR>/work.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
@@ -46,7 +50,7 @@ OR:
   The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 
-9. Run:
+10. Run:
   "./buildall x32" - for building 32-bit Qt
   "./buildall x64" - for building 64-bit Qt
   "./buildall x32 x64" - for building both 32 and 64 bits Qt
