@@ -38,7 +38,7 @@
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.gz"
-URL=http://releases.qt-project.org/qt4/source/$SRC_FILE
+URL=http://download.qt-project.org/official_releases/qt/4.8/4.8.5/$SRC_FILE
 DEPENDS=()
 
 change_paths() {
