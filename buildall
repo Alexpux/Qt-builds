@@ -159,7 +159,7 @@ RUN_ARGS="$@"
 	echo "    --extra-stuff           - build extra libraries"
 	echo "    --version               - print the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
-	echo "    4.8.4, 5.0.0, 5.0.1, 5.0.2, 5.1.0, git"
+	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, git"
 
 	exit 0
 }
