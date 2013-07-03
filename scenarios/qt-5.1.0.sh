@@ -36,10 +36,9 @@
 # **************************************************************************
 
 P=qt
-P_V=qt-everywhere-opensource-src-${QT_VERSION}-beta1
+P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.xz"
-URL=http://download.qt-project.org/development_releases/qt/5.1/${QT_VERSION}-beta1/single/$SRC_FILE
-#URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
+URL=http://download.qt-project.org/official_releases/qt/5.1/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
@@ -85,6 +84,9 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
 		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
+		$P/5.1.x/qt-5.1.x-fix-configure-tests.patch
+		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
+		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 	)
 	
 	func_apply_patches \
