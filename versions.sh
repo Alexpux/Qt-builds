@@ -73,4 +73,4 @@ export SQLITE_VERSION="3071601" #3.7.16.1
 export TIFF_VERSION="4.0.3"
 export XZ_TOOLS_VERSION="5.0.4"
 export YAML_VERSION="0.1.4"
-export ZLIB_VERSION="1.2.7"
+export ZLIB_VERSION="1.2.8"
