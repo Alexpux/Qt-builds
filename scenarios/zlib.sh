@@ -37,16 +37,16 @@
 
 P=zlib
 P_V=${P}-${ZLIB_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+SRC_FILE="${P_V}.tar.xz"
 URL=http://zlib.net/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V ".tar.xz" $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2" $BUILD_DIR
+	func_uncompress $P_V ".tar.xz" $BUILD_DIR
 }
 
 src_patch() {
