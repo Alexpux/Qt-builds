@@ -51,7 +51,7 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/libpng-1.5.14-apng.patch
+		$P/${P_V}-apng.patch
 	)
 	
 	func_apply_patches \

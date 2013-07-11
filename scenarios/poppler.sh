@@ -51,9 +51,8 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/perf-test.patch
 	)
-	
+
 	func_apply_patches \
 		$P_V \
 		_patches[@]
@@ -62,7 +61,9 @@ src_patch() {
 src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		${LNKDEPS}
 		--enable-xpdf-headers
 		--disable-gtk-test

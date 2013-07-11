@@ -38,7 +38,10 @@
 P=qt-creator
 P_V=${P}-${QT_CREATOR_VERSION}-src
 SRC_FILE="${P_V}.tar.gz"
-URL=http://releases.qt-project.org/qtcreator/${QT_CREATOR_VERSION}/${SRC_FILE}
+# Release versions
+URL=http://download.qt-project.org/official_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
+# Beta versions
+#URL=http://download.qt-project.org/development_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
 DEPENDS=(qt)
 
 src_download() {
@@ -51,26 +54,24 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/qtcreator-2.7.0-fix-check-for-declarative.diff
-		$P/qtcreator-2.7.0-fix-check-qt-modules.diff
-		$P/qtcreator-2.7.0-maybe_quote.patch
+		${P}/qt-creator-2.8.0-beta-Fix-building-from-MSYS-shell.patch
 	)
-	
+
 	func_apply_patches \
 		$P_V \
 		_patches[@]
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/${P_V}-${QT_VERSION}
+	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
 
-	if [ -f $BUILD_DIR/${P_V}-${QT_VERSION}/configure.marker ]
+	if [ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]
 	then
 		echo "--> configured"
 	else
-		pushd $BUILD_DIR/${P_V}-${QT_VERSION} > /dev/null
+		pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
 		echo -n "--> configure..."
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QT_VERSION} $UNPACK_DIR/$P_V ) 
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $UNPACK_DIR/$P_V ) 
 		${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
 		echo " done"
@@ -85,7 +86,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QT_VERSION} \
+		${P_V}-${QTVER} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -93,19 +94,20 @@ pkg_build() {
 }
 
 pkg_install() {
+	export INSTALL_ROOT=${QTDIR}
 	local _install_flags=(
-		INSTALL_ROOT=${QTDIR}
 		install
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QT_VERSION} \
+		${P_V}-${QTVER} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
 
 	# install_docs
+	unset INSTALL_ROOT
 }
 
 install_docs() {
@@ -116,7 +118,7 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QT_VERSION} \
+		${P_V}-${QTVER} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
@@ -128,7 +130,7 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QT_VERSION} \
+		${P_V}-${QTVER} \
 		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \

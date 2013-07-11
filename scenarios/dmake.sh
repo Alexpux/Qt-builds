@@ -61,7 +61,9 @@ src_patch() {
 src_configure() {
 	local _conf_flags=(
 		--prefix=${MINGW_PERL_PREFIX}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""

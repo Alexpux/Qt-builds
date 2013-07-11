@@ -51,13 +51,18 @@ change_paths() {
 	}
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
+	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
+	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	# $BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:
 }
 
 restore_paths() {
 	unset INCLUDE
 	unset LIB
+	unset CPATH
+	unset LIBRARY_PATH
 	export PATH=$OLD_PATH
 	unset OLD_PATH
 }
@@ -82,7 +87,6 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
 		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
-		$P/5.0.x/qt-5.0.1-qmake-static.patch
 		$P/5.0.x/qt-5.0.1-fix-angle-static-build.patch
 	)
 	
@@ -166,7 +170,7 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		$PREFIX/perl/bin/perl configure \
+		./configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	

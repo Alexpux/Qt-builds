@@ -77,7 +77,6 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/4.8.x/qt-4.6-demo-plugandpaint.patch
-		$P/4.8.x/qt-4.8.0-dont-perform-ipc-checks-for-win32.patch
 		$P/4.8.x/qt-4.8.0-fix-include-windows-h.patch
 		$P/4.8.x/qt-4.8.0-fix-javascript-jit-on-mingw-x86_64.patch
 		$P/4.8.x/qt-4.8.0-fix-mysql-driver-build.patch
@@ -88,7 +87,6 @@ src_patch() {
 		$P/4.8.x/qt-4.8.3-assistant-4.8.2+gcc-4.7.patch
 		$P/4.8.x/qt-4.8.3-qmake-cmd-mkdir-slash-direction.patch
 		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch
-		$P/4.8.x/qt-4.8.4-qmake-static.patch
 		$P/4.8.x/qt-4.8.4-fix-sse-suppport-build-regression.patch
 	)
 	
@@ -169,7 +167,7 @@ src_configure() {
 			)
 		)
 		local _allconf="${_conf_flags[@]}"
-		configure.exe \
+		./configure.exe \
 			$_allconf > ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 
 		restore_paths

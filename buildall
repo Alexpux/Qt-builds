@@ -35,12 +35,15 @@
 
 # **************************************************************************
 
+export TERM=cygwin
+export MSYSTEM=MINGW32
+export LC_ALL=en_US.UTF-8
+export SHELL=
+
 QT_BUILDS_VERSION="Qt-builds-0.5.0"
 BUG_URL=https://github.com/Alexpux/Qt-builds
 
 ORIGINAL_PATH=$PATH
-LOGVIEWER="c:/progra~2/notepad++/notepad++.exe"
-SHOW_LOG_ON_ERROR=yes
 
 pushd $SYSTEMROOT > /dev/null
 WIN_SYS=`pwd`
@@ -50,6 +53,12 @@ WINDOWS_PART_PATH=$WIN_SYS/system32:$WIN_SYS
 MSYS_PART_PATH=.:/usr/local/bin:/bin
 export PATH=$MSYS_PART_PATH:$WINDOWS_PART_PATH
 
+[[ $(env | grep PROCESSOR_ARCHITECTURE) =~ AMD64 || $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
+	IS_64BIT_HOST=yes
+} || {
+	IS_64BIT_HOST=no
+}
+
 # directories
 TOP_DIR=`pwd`
 PREFIX_TOP=/c/QtSDK
@@ -57,32 +66,50 @@ PATCH_DIR=${TOP_DIR}/patches
 PACKAGE_DIR=${TOP_DIR}/packages
 PROG_DIR=${TOP_DIR}/progs
 SCENARIOS=${TOP_DIR}/scenarios
-TOOLCHAINS_DIR=${TOP_DIR}/toolchains
 ROOT_DIR=${TOP_DIR}/work
-SRC_DIR=${ROOT_DIR}/src
-MARKERS_DIR=${ROOT_DIR}/markers
-UNPACK_DIR=${ROOT_DIR}/unpack
+
+# DirectX SDK installation and logviewer paths
+[[ $IS_64BIT_HOST == yes ]] && {
+	DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
+	LOGVIEWER="c:/progra~2/notepad++/notepad++.exe"
+} || {
+	DXSDK_DIR="C:/Program Files/Microsoft DirectX SDK (June 2010)/"
+	LOGVIEWER="c:/progra~1/notepad++/notepad++.exe"
+}
+[[ -d "$DXSDK_DIR" ]] || echo "WARNING: You need installed DirectX SDK for building Qt5..."
+[[ -f "$LOGVIEWER" ]] || LOGVIEWER="/c/Windows/system32/notepad.exe"
+SHOW_LOG_ON_ERROR=yes
+
+# MinGW toolchain links
+# threads=posix
+URL_MINGW32_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/32-bit/threads-posix/dwarf/x32-4.8.1-release-posix-dwarf-rev1.7z
+URL_MINGW64_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/64-bit/threads-posix/seh/x64-4.8.1-release-posix-seh-rev1.7z
+TOOLCHAINS_DIR_POSIX=${TOP_DIR}/toolchains_posix
+# threads=win32
+URL_MINGW32_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/32-bit/threads-win32/dwarf/x32-4.8.1-release-win32-dwarf-rev1.7z
+URL_MINGW64_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/64-bit/threads-win32/seh/x64-4.8.1-release-win32-seh-rev1.7z
+TOOLCHAINS_DIR_WIN32=${TOP_DIR}/toolchains_win32
+
+# By default use posix toolchains
+TOOLCHAINS_DIR=${TOOLCHAINS_DIR_POSIX}
+URL_MINGW32=${URL_MINGW32_POSIX}
+URL_MINGW64=${URL_MINGW64_POSIX}
 
 # Use system installed toolchains
 USER_DEFINED_TOOLCHAINS=no
 
-# DirectX SDK installation path
-DXSDK_DIR="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/"
-echo "WARNING: You need installed DirectX SDK for building Qt5..."
-
-# MinGW toolchain links
-URL_MINGW32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/32-bit/threads-posix/dwarf/x32-4.8.0-release-posix-dwarf-rev1.7z
-URL_MINGW64=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.0/64-bit/threads-posix/seh/x64-4.8.0-release-posix-seh-rev1.7z
-
 # MinGW-builds contain prebuilded python in opt subdirectory.
-# Does we use mingw-builds python or build python yourself.
-USE_MINGWBUILDS_PYTHON=yes
+# Does we use msys-python, mingw-builds python or build python yourself.
+USE_PYTHON=msys
+
+# Build and use Ruby
+BUILD_RUBY=no
+
+# Build and use Perl
+BUILD_PERL=yes
 
 # Build Qt-Creator
 BUILD_QTCREATOR=yes
-
-# Build QDesktopComponents
-BUILD_QUICKCONTROLS=no
 
 # Build some extra libraries
 BUILD_EXTRA_STUFF=no
@@ -123,19 +150,19 @@ RUN_ARGS="$@"
 	echo "                              Default Qt version is $QT_VERSION"
 	echo "    --qt-git-branch=<branch> - Specify what Qt git branch to clone when building Qt from git"
 	echo "                               Default branch is - $QT_GIT_BRANCH"
-	echo "    --build-python          - specifies to the script to build Python"
+	echo "    --build-python          - specifies to the script to build Python and use it when building Qt"
+	echo "    --toolchain-python      - specifies to the script to use Python from mingw-builds toolchain"
+	echo "    --build-ruby            - specifies to the script to build Ruby and use it when building Qt"
+	echo "                              By default using MSYS2 Ruby"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
-	echo "    --quickcontrols         - build QtQuickControls"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
 	echo "    --version               - print the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
-	echo "    4.8.4, 5.0.0, 5.0.1, 5.0.2, 5.1.0, git"
+	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, git"
 
 	exit 0
 }
-
-mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 
 export INSTALL=/bin/install
 
@@ -190,13 +217,10 @@ while [[ $# > 0 ]]; do
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--qt-git-branch=*) QT_GIT_BRANCH=${1/--qt-git-branch=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
-		--build-python) USE_MINGWBUILDS_PYTHON=no ;;
+		--build-python) USE_PYTHON=self ;;
+		--toolchain-python) USE_PYTHON=toolchain ;;
+		--build-ruby) BUILD_RUBY=yes ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
-		--quickcontrols)
-			[[ $STATIC_DEPS == no ]] && {
-				BUILD_QUICKCONTROLS=yes
-			}
-		;;
 		--static-qt)
 			export lt_cv_deplibs_check_method='pass_all'
 			LNKDEPS=$STATIC_LINK_FLAGS
@@ -205,7 +229,14 @@ while [[ $# > 0 ]]; do
 			BUILD_QDESKTOPCOMPONENTS=no
 			STATIC_DEPS=yes
 			STATIC_SUFFIX="-s"
-			STATIC_LD="-Wl,-Bstatic -lwinpthread -static"
+			STATIC_LD="-static-libstdc++ -static-libgcc"
+			# For static building prefer to use toolchains with threads=win32
+			# to avoid dependency from libwinpthread-1.dll
+			[[ $USER_DEFINED_TOOLCHAINS == no ]] && {
+				TOOLCHAINS_DIR=${TOOLCHAINS_DIR_WIN32}
+			}
+			URL_MINGW32=${URL_MINGW32_WIN32}
+			URL_MINGW64=${URL_MINGW64_WIN32}
 		;;
 		--extra-stuff) BUILD_EXTRA_STUFF=yes ;;
 		x32)
@@ -223,17 +254,17 @@ while [[ $# > 0 ]]; do
 		;;
 	esac
 	shift
-done		
+done
+
+SRC_DIR=${ROOT_DIR}/src
+MARKERS_DIR=${ROOT_DIR}/markers
+UNPACK_DIR=${ROOT_DIR}/unpack
+
+mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 
 [[ ${#BUILD_ARCHITECTURES[@]} > 2 || ${#BUILD_ARCHITECTURES[@]} == 0 || \
 	${BUILD_ARCHITECTURES[0]} == ${BUILD_ARCHITECTURES[1]} ]] && {
 	die "error in build architectures(${BUILD_ARCHITECTURES[@]}). terminate."
-}
-
-[[ $(env | grep PROCESSOR_ARCHITEW6432) =~ AMD64 ]] && {
-	IS_64BIT_HOST=yes
-} || {
-	IS_64BIT_HOST=no
 }
 
 [[ $IS_64BIT_HOST == no && ${BUILD_ARCHITECTURES[@]} =~ x64 ]] && {
@@ -255,13 +286,30 @@ x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 	die "Host toolchains is not installed. Terminate!"
 }
 
+if [ $USE_PYTHON=msys ]
+then 
+    command -v "python" > /dev/null 2>&1 || { USE_PYTHON=self; }
+fi
+
+if [ $BUILD_RUBY=no ]
+then 
+    command -v "ruby" > /dev/null 2>&1 || { BUILD_RUBY=yes; }
+fi
+	
 source versions.sh
 source package_order.sh
 
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 	PREFIX=${PREFIX_TOP}/ported${ARCHITECTURE//x/}${STATIC_SUFFIX}
-	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-$QT_VERSION${STATIC_SUFFIX}
+	[[ $QT_VERSION == git ]] && {
+		QTVER=${QT_VERSION}${STATIC_SUFFIX}-${QT_GIT_BRANCH}
+		QTVER=${QTVER//debug/deb}
+		QTVER=${QTVER//release/rel}
+	} || {
+		QTVER=${QT_VERSION}${STATIC_SUFFIX}
+	}
+	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-${QTVER}
 	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE${STATIC_SUFFIX}
 	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE${STATIC_SUFFIX}
 
@@ -294,29 +342,42 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	pushd ${PREFIX} > /dev/null
 	export PREFIX_WIN=`pwd -W`
 	popd > /dev/null
+	
+	MINGW_PART_PATH=$PREFIX/bin:$QTDIR/bin:$MINGWHOME/bin
 
-	MINGW_PERL_PREFIX=$PREFIX/perl
-	MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
-
-	[[ $USE_MINGWBUILDS_PYTHON == no ]] && {
+	if [ $USE_PYTHON == self ]
+	then
 		MINGW_PYTHON2_PREFIX=$PREFIX/python2
 		MINGW_PYTHON2_PREFIX_W=$PREFIX_WIN/python2
-	} || {
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
+	elif [ $USE_PYTHON == toolchain ]
+	then
 		MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
 		MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
 		export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
-	}
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
+	fi
 
-	MINGW_RUBY_PREFIX=$PREFIX/ruby
-	MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
+	if [ $BUILD_RUBY == yes ]
+	then
+		MINGW_RUBY_PREFIX=$PREFIX/ruby
+		MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_RUBY_PREFIX/bin
+	fi
 
-	MINGW_PART_PATH=$PREFIX/bin:$MINGW_PERL_PREFIX/bin:$MINGW_PYTHON2_PREFIX/bin:$MINGW_RUBY_PREFIX/bin:$QTDIR/bin:$MINGWHOME/bin
+	if [ $BUILD_PERL == yes ]
+	then
+		MINGW_PERL_PREFIX=$PREFIX/perl
+		MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
+		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin
+	fi
+
 	export PATH=$MINGW_PART_PATH:$PATH
 
 	HOST_CFLAGS="$OPTIM -pipe -O2"
 	HOST_CXXFLAGS="${HOST_CFLAGS}"
-	HOST_CPPFLAGS="-I${PREFIX}/include -I$PYTHONHOME/include"
-	HOST_LDFLAGS="$STATIC_LD -pipe -s -L${PREFIX}/lib -L$PYTHONHOME/lib/python2.7/config"
+	HOST_CPPFLAGS="-I${PREFIX}/include" #-I$PYTHONHOME/include
+	HOST_LDFLAGS="$STATIC_LD -pipe -s -L${PREFIX}/lib" #-L$PYTHONHOME/lib/python2.7/config
 	export PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig:${QTDIR}/lib/pkgconfig"
 
 	pushd ${QTDIR} > /dev/null

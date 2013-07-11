@@ -36,10 +36,9 @@
 # **************************************************************************
 
 P=qt
-P_V=qt-everywhere-opensource-src-${QT_VERSION}-alpha
+P_V=qt-everywhere-opensource-src-${QT_VERSION}
 SRC_FILE="${P_V}.tar.xz"
-URL=http://download.qt-project.org/development_releases/qt/5.1/${QT_VERSION}-alpha/single/$SRC_FILE
-#URL=http://releases.qt-project.org/qt5/${QT_VERSION}/single/$SRC_FILE
+URL=http://download.qt-project.org/official_releases/qt/5.1/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
@@ -51,13 +50,18 @@ change_paths() {
 	}
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
+	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
+	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/lib:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	#$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:
 }
 
 restore_paths() {
 	unset INCLUDE
 	unset LIB
+	unset CPATH
+	unset LIBRARY_PATH
 	export PATH=$OLD_PATH
 	unset OLD_PATH
 }
@@ -79,10 +83,10 @@ src_patch() {
 	local _patches=(
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
-		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
-		$P/5.0.x/qt-5.0.0-win32-g++-mkspec-optimization.patch
-		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
-		$P/5.0.x/qt-5.0.1-fix-gcc-OOM-error.patch
+		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
+		$P/5.1.x/qt-5.1.x-fix-configure-tests.patch
+		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
+		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 	)
 	
 	func_apply_patches \
@@ -165,7 +169,7 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		$PREFIX/perl/bin/perl configure \
+		./configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	

@@ -50,13 +50,20 @@ src_unpack() {
 }
 
 src_patch() {
-	echo "--> Patch empty"
+	local _patches=(
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 }
 
 src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		${LNKDEPS}
 		--disable-rpath
 		CFLAGS="\"${HOST_CFLAGS}\""

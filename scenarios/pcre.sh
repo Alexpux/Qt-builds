@@ -38,7 +38,7 @@
 P=pcre
 P_V=${P}-${PCRE_VERSION}
 SRC_FILE="${P_V}.tar.bz2"
-URL=ftp://ftp.csx.cam.ac.uk/pub/software/programming/${P}/${SRC_FILE}
+URL=http://sourceforge.net/projects/pcre/files/${P}/${PCRE_VERSION}/${SRC_FILE}
 DEPENDS=("bzip2" "readline" "zlib")
 
 src_download() {
@@ -73,7 +73,9 @@ src_patch() {
 src_configure() {
 	local _conf_flags=(
 		--prefix=${PREFIX}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		${LNKDEPS}
 		--enable-pcre8
 		--enable-pcre16

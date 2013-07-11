@@ -50,14 +50,23 @@ src_unpack() {
 }
 
 src_patch() {
-	echo "--> Empty"
+	local _patches=(
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
 }
 
 src_configure() {
 	local _conf_flags=(
 		--prefix=${MINGW_RUBY_PREFIX_W}
+		--build=${HOST}
 		--host=${HOST}
-		${SHARED_LINK_FLAGS}
+		--target=${HOST}
+		$( [[ $STATIC_DEPS == no ]] \
+				&& echo "--enable-shared" \
+		)
 		--disable-rpath
 		--with-out-ext=openssl
 		CFLAGS="\"${HOST_CFLAGS} -finline-functions\""

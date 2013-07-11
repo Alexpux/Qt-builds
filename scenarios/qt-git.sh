@@ -36,10 +36,10 @@
 # **************************************************************************
 
 P=qt
-P_V=$P-$QT_GIT_BRANCH
+P_V=$P-$QTVER
 SRC_FILE=
-URL_QT5=git://gitorious.org/qt/qt5.git
-
+MAINMODULE=qt5
+URL_QT5=git://gitorious.org/qt/$MAINMODULE.git
 SUBMODULES=(qtactiveqt
 			qtbase
 			qtdeclarative
@@ -56,7 +56,7 @@ SUBMODULES=(qtactiveqt
 			qttools
 			qttranslations
 			qtwebkit
-			qtwebkit-examples-and-demos
+			qtwebkit-examples
 			qtxmlpatterns
 )
 
@@ -71,13 +71,18 @@ change_paths() {
 	}
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
+	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
+	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$SRC_DIR/$P_V/gnuwin32/bin:$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$WINDOWS_PART_PATH:$MSYS_PART_PATH
+	export PATH=$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	#$SRC_DIR/$P_V/gnuwin32/bin:
 }
 
 restore_paths() {
 	unset INCLUDE
 	unset LIB
+	unset CPATH
+	unset LIBRARY_PATH
 	export PATH=$OLD_PATH
 	unset OLD_PATH
 }
@@ -112,11 +117,10 @@ src_patch() {
 	local _patches=(
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
-		$P/5.0.x/qt-5.0.0-fix-build-under-msys.patch
 		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
-		$P/5.0.x/qt-5.0.0-webkit-pkgconfig-link-windows.patch
-		$P/5.1.x/qt-5.1.0-webkit-implement-JIT-for-MinGW-w64-64-bit.patch
-		$P/5.1.x/qt-5.1.0-qtwebkit-msys-issue-with-environment.patch
+		$P/5.1.x/qt-5.1.x-fix-configure-tests.patch
+		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
+		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 	)
 	
 	func_apply_patches \
@@ -172,12 +176,10 @@ src_configure() {
 			-opensource
 			-$_mode
 			-confirm-license
-			-debug-and-release
 			$( [[ $STATIC_DEPS == no ]] \
 				&& echo "-plugin-sql-ibase \
 						 -plugin-sql-mysql \
 						 -plugin-sql-psql \
-						 -plugin-sql-oci \
 						 -plugin-sql-odbc \
 						 -no-iconv \
 						 -icu \
@@ -199,7 +201,7 @@ src_configure() {
 		)
 		local _allconf="${_conf_flags[@]}"
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $SRC_DIR/${P_V} )
-		$PREFIX/perl/bin/perl $_rel_path/configure \
+		$_rel_path/configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
 	
@@ -261,6 +263,7 @@ pkg_install() {
 		"installed"
 
 	install_docs
+	put_sha1
 
 	# Workaround for build other components (qbs, qtcreator, etc)
 	if [[ ! -f $BUILD_DIR/$P_V/qwindows.marker && $STATIC_DEPS == yes ]]
@@ -298,4 +301,26 @@ install_docs() {
 		"$_allmake" \
 		"installing docs..." \
 		"installed-docs"
+}
+
+put_sha1() {
+	if [ -d $SRC_DIR/$P_V ]
+	then
+		pushd $SRC_DIR/$P_V > /dev/null
+			echo -n "$MAINMODULE SHA1: " > $QTDIR/sha1s
+			git log -1 --pretty=format:%H >> $QTDIR/sha1s
+			echo " ;" >> $QTDIR/sha1s
+		popd > /dev/null
+	fi
+	
+	for mod in ${SUBMODULES[@]}; do
+		if [ -d $SRC_DIR/$P_V/$mod ]
+		then
+			pushd $SRC_DIR/$P_V/$mod > /dev/null
+				echo -n "$mod SHA1: " >> $QTDIR/sha1s
+				git log -1 --pretty=format:%H >> $QTDIR/sha1s
+				echo " ;" >> $QTDIR/sha1s
+			popd > /dev/null
+		fi
+	done
 }

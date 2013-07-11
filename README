@@ -12,18 +12,25 @@ In order to use the scripts provided by the Qt-builds project it is needed:
 3. Install MSYS:
   http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/
   Recommended version is rev11 or higher.
+OR:
+3. Install MSYS2 (choose latest snapshot):
+  https://sourceforge.net/projects/msys2/files/Alpha-versions/
 
 4. Get the scripts into '<msys root>/home/<user>/Qt-builds':
   "cd && git clone git://github.com/Alexpux/Qt-builds.git"
 
-5. In the MSYS file structure delete the '/MinGW' directory.
+5. Set git eol handling:
+  "git config --global core.eol lf"
+  "git config --global --unset core.autocrlf"
 
-6. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
+6. In the MSYS file structure delete the '/MinGW' directory.
 
-7. Go into the Qt-builds root directory.
+7. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
+
+8. Go into the Qt-builds root directory.
   "cd && cd Qt-builds"
 
-8. Build script has next parameters:
+9. Build script has next parameters:
   The '--buildroot=<path>' option specifies to the script to use '<path>' as build directory.
     By default used <SCRIPTS_DIR>/work.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
@@ -32,14 +39,18 @@ In order to use the scripts provided by the Qt-builds project it is needed:
     Affected only Qt-5.x versions. By default used '-angle' option.
   The '--qt-version=<version>' option specifies which version of Qt to build.
     If not specified the default (hardcoded in script) version is builded.
+  The '--qt-git-branch=<branch_name>' option specified what branch of Qt5 clone when building Qt from git.
+    By default clone stable branch.
   The '--build-python' specifies to the script to build Python instead using prebuilded Python from MinGW-builds.
+  The '--build-ruby' specifies to the script to build Ruby instead using MSYS-ruby (when using MSYS2).
+  The '--extra-stuff' specifies to the script to build some 3rdparty software.
   The '--no-qtcreator' specifies to the script doesn't build Qt-Creator.
   The '--static-qt' specifies to build Qt as static libraries with all dependencies as static.
     For now Qt5 static build has many restrictions and it can't be build with Webkit, ANGLE and ICU.
   The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 
-9. Run:
+10. Run:
   "./buildall x32" - for building 32-bit Qt
   "./buildall x64" - for building 64-bit Qt
   "./buildall x32 x64" - for building both 32 and 64 bits Qt

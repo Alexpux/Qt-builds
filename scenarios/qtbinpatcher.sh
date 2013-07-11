@@ -36,7 +36,7 @@
 # **************************************************************************
 
 P=qtbinpatcher
-P_V=${P}-1.0.0
+P_V=${P}-1.1.0
 SRC_FILE=
 URL=
 
@@ -66,7 +66,7 @@ src_configure() {
 
 pkg_build() {
 	local _make_flags=(
-		"-f Makefile.win.mingw"
+		"-f Makefile.win.msys"
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
@@ -78,9 +78,9 @@ pkg_build() {
 }
 
 pkg_install() {
-	if [ ! -f $BUILD_DIR/$P/install-${QT_VERSION}.marker ]
+	if [ ! -f $BUILD_DIR/$P/install-${QTVER}.marker ]
 	then
 		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
-		touch $BUILD_DIR/$P/install-${QT_VERSION}.marker
+		touch $BUILD_DIR/$P/install-${QTVER}.marker
 	fi
 }

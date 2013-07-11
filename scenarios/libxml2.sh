@@ -51,7 +51,7 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/libxml2-2.9.0-disable_static_modules.patch
+		$P/libxml2-2.9.1-disable_static_modules.patch
 		$P/libxml2-2.8.0_rc1-winnt.patch
 		$P/libxml2-2.9.0-largefile.patch
 		$P/libxml2-2.9.0-man_fixes.patch
@@ -79,7 +79,9 @@ src_configure() {
 
 	local _conf_flags=(
 		--prefix=${PREFIX}
+		--build=${HOST}
 		--host=${HOST}
+		--target=${HOST}
 		${LNKDEPS}
 		--with-modules
 		--without-python

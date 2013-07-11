@@ -56,6 +56,7 @@ src_patch() {
 		$P/${P}-1.0.1-parallel-build.patch
 		$P/${P}-1.0.1-x32.patch
 		$P/${P}-0.9.6-x509.patch
+		$P/${P}-1.0.1e-manfix.patch
 	)
 	
 	func_apply_patches \
@@ -117,8 +118,8 @@ pkg_build() {
 		${P_V} \
 		"/bin/make" \
 		"$_allmake" \
-		"building..." \
-		"built"
+		"building depends..." \
+		"built-depends"
 	
 	_make_flags=(
 		ZLIB_INCLUDE=-"I${PREFIX}/include"
@@ -129,8 +130,7 @@ pkg_build() {
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
-		"built" \
-		"1"
+		"built"
 }
 
 pkg_install() {
