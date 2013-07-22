@@ -54,7 +54,6 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		${P}/qt-creator-2.8.0-beta-Fix-building-from-MSYS-shell.patch
 	)
 
 	func_apply_patches \
