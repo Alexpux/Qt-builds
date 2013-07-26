@@ -160,6 +160,8 @@ RUN_ARGS="$@"
 	echo "    --toolchain-python      - specifies to the script to use Python from mingw-builds toolchain"
 	echo "    --build-ruby            - specifies to the script to build Ruby and use it when building Qt"
 	echo "                              By default using MSYS2 Ruby"
+	echo "    --make-jobs=<x>         - specifies number of jobs for make command (-jx)"
+	echo "                              Default is 3"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
@@ -226,6 +228,7 @@ while [[ $# > 0 ]]; do
 		--build-python) USE_PYTHON=self ;;
 		--toolchain-python) USE_PYTHON=toolchain ;;
 		--build-ruby) BUILD_RUBY=yes ;;
+		--make-jobs=*) MAKE_OPTS=${1/--make-jobs=/} ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
 		--static-qt)
 			export lt_cv_deplibs_check_method='pass_all'
