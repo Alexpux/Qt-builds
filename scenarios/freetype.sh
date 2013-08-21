@@ -45,12 +45,12 @@ DEPENDS=()
 
 src_download() {
 	func_download $P_V ".tar.bz2" $URL
-	func_download ${P}-doc-${FREETYPE_VERSION} ".tar.bz2" $URL_DOC
+	func_download ${P}-doc-2.5.0 ".tar.bz2" $URL_DOC
 }
 
 src_unpack() {
 	func_uncompress $P_V ".tar.bz2"
-	func_uncompress ${P}-doc-${FREETYPE_VERSION} ".tar.bz2"
+	func_uncompress ${P}-doc-2.5.0 ".tar.bz2"
 }
 
 src_patch() {
