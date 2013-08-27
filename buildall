@@ -38,7 +38,7 @@
 export TERM=cygwin
 export MSYSTEM=MINGW32
 export LC_ALL=en_US.UTF-8
-export SHELL=
+unset SHELL
 
 QT_BUILDS_VERSION="Qt-builds-0.5.0"
 BUG_URL=https://github.com/Alexpux/Qt-builds
