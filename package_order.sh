@@ -66,13 +66,13 @@ PACKAGES=(
 	)
 	# gettext
 	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "freetype \
+		&& echo "libpng \
+				 freetype \
 				 fontconfig" \
 	)
 	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "nasm \
 				libjpeg-turbo \
-				libpng \
 				jbigkit \
 				freeglut \
 				tiff \
