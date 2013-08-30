@@ -88,6 +88,7 @@ src_patch() {
 		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
 		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 		$P/5.1.x/qt-5.1.1-fix-mingw-file_id_128.patch
+		$P/5.1.x/qt-5.1.1-fix-mingw-SHSTOCKICONINFO.patch
 	)
 	
 	func_apply_patches \
