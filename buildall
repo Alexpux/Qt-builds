@@ -84,7 +84,7 @@ SHOW_LOG_ON_ERROR=yes
 
 # setup toolchain details
 GCC_VERSION=4.8.1
-REV_VERSION=rev3
+REV_VERSION=rev5
 ROOT_URL=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases
 
 # threads=posix
