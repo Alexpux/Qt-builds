@@ -51,7 +51,6 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/${P_V}-apng.patch
 	)
 	
 	func_apply_patches \
