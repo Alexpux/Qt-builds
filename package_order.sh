@@ -76,6 +76,7 @@ PACKAGES=(
 				jbigkit \
 				freeglut \
 				tiff \
+				lcms2 \
 				libidn \
 				libssh2 \
 				curl \
