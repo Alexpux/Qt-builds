@@ -38,19 +38,19 @@
 P=freetype
 P_V=${P}-${FREETYPE_VERSION}
 SRC_FILE="${P_V}.tar.bz2"
-DOC_FILE="${P}-doc-${FREETYPE_VERSION}.tar.bz2"
+DOC_FILE="${P}-doc-2.5.0.tar.bz2"
 URL=http://download.savannah.gnu.org/releases/${P}/${SRC_FILE}
 URL_DOC=http://download.savannah.gnu.org/releases/${P}/${DOC_FILE}
 DEPENDS=()
 
 src_download() {
 	func_download $P_V ".tar.bz2" $URL
-	func_download ${P}-doc-${FREETYPE_VERSION} ".tar.bz2" $URL_DOC
+	func_download ${P}-doc-2.5.0 ".tar.bz2" $URL_DOC
 }
 
 src_unpack() {
 	func_uncompress $P_V ".tar.bz2"
-	func_uncompress ${P}-doc-${FREETYPE_VERSION} ".tar.bz2"
+	func_uncompress ${P}-doc-2.5.0 ".tar.bz2"
 }
 
 src_patch() {

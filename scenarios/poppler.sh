@@ -37,16 +37,16 @@
 
 P=poppler
 P_V=${P}-${POPPLER_VERSION}
-SRC_FILE="$P_V.tar.gz"
+SRC_FILE="$P_V.tar.xz"
 URL=http://poppler.freedesktop.org/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V ".tar.xz" $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V ".tar.xz"
 }
 
 src_patch() {
@@ -69,11 +69,6 @@ src_configure() {
 		--disable-gtk-test
 		--enable-libcurl
 		--enable-zlib
-		POPPLER_QT4_CFLAGS="\"-I${QTDIR}/include\""
-		POPPLER_QT4_CXXFLAGS="\"-I${QTDIR}/include\""
-		POPPLER_QT4_LIBS="\"-L${QTDIR}/lib -lQtCore4 -lQtGui4 -lQtXml4\""
-		POPPLER_QT4_TEST_CFLAGS="\"-I${QTDIR}/include\""
-		POPPLER_QT4_TEST_LIBS="\"-L${QTDIR}/lib -lQtTest4\""
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""

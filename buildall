@@ -38,7 +38,7 @@
 export TERM=cygwin
 export MSYSTEM=MINGW32
 export LC_ALL=en_US.UTF-8
-export SHELL=
+unset SHELL
 
 QT_BUILDS_VERSION="Qt-builds-0.5.0"
 BUG_URL=https://github.com/Alexpux/Qt-builds
@@ -81,13 +81,19 @@ ROOT_DIR=${TOP_DIR}/work
 SHOW_LOG_ON_ERROR=yes
 
 # MinGW toolchain links
+
+# setup toolchain details
+GCC_VERSION=4.8.1
+REV_VERSION=rev5
+ROOT_URL=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases
+
 # threads=posix
-URL_MINGW32_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/32-bit/threads-posix/dwarf/x32-4.8.1-release-posix-dwarf-rev1.7z
-URL_MINGW64_POSIX=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/64-bit/threads-posix/seh/x64-4.8.1-release-posix-seh-rev1.7z
+URL_MINGW32_POSIX=${ROOT_URL}/${GCC_VERSION}/32-bit/threads-posix/dwarf/x32-${GCC_VERSION}-release-posix-dwarf-${REV_VERSION}.7z
+URL_MINGW64_POSIX=${ROOT_URL}/${GCC_VERSION}/64-bit/threads-posix/seh/x64-${GCC_VERSION}-release-posix-seh-${REV_VERSION}.7z
 TOOLCHAINS_DIR_POSIX=${TOP_DIR}/toolchains_posix
 # threads=win32
-URL_MINGW32_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/32-bit/threads-win32/dwarf/x32-4.8.1-release-win32-dwarf-rev1.7z
-URL_MINGW64_WIN32=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.8.1/64-bit/threads-win32/seh/x64-4.8.1-release-win32-seh-rev1.7z
+URL_MINGW32_WIN32=${ROOT_URL}/${GCC_VERSION}/32-bit/threads-win32/dwarf/x32-${GCC_VERSION}-release-win32-dwarf-${REV_VERSION}.7z
+URL_MINGW64_WIN32=${ROOT_URL}/${GCC_VERSION}/64-bit/threads-win32/seh/x64-${GCC_VERSION}-release-win32-seh-${REV_VERSION}.7z
 TOOLCHAINS_DIR_WIN32=${TOP_DIR}/toolchains_win32
 
 # By default use posix toolchains
@@ -154,12 +160,14 @@ RUN_ARGS="$@"
 	echo "    --toolchain-python      - specifies to the script to use Python from mingw-builds toolchain"
 	echo "    --build-ruby            - specifies to the script to build Ruby and use it when building Qt"
 	echo "                              By default using MSYS2 Ruby"
+	echo "    --make-jobs=<x>         - specifies number of jobs for make command (-jx)"
+	echo "                              Default is 3"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
 	echo "    --version               - print the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
-	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, git"
+	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, 5.1.1, git"
 
 	exit 0
 }
@@ -220,6 +228,7 @@ while [[ $# > 0 ]]; do
 		--build-python) USE_PYTHON=self ;;
 		--toolchain-python) USE_PYTHON=toolchain ;;
 		--build-ruby) BUILD_RUBY=yes ;;
+		--make-jobs=*) MAKE_OPTS=${1/--make-jobs=/} ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
 		--static-qt)
 			export lt_cv_deplibs_check_method='pass_all'
