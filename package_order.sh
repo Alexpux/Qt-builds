@@ -96,6 +96,8 @@ PACKAGES=(
 	)
 	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "poppler-data \
-				poppler" \
+				poppler \
+				SDL2 \
+				openscenegraph" \
 	)
 )

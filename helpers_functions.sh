@@ -244,7 +244,7 @@ function func_uncompress {
 	local _log_name=$_marker_location/$1-unpack.log
 
 	[[ $2 == .tar.gz || $2 == .tgz || $2 == .tar.bz2 || $2 == .tar.lzma \
-	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z ]] && {
+	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z || $2 == .zip ]] && {
 		[[ ! -f $_marker_name ]] && {
 			echo -n "--> unpack..."
 			case $2 in
@@ -254,6 +254,7 @@ function func_uncompress {
 				.tar.xz) _unpack_cmd="tar -xv --xz -f $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.7z) die "unimplemented. terminate." ;;
 				.7z) _unpack_cmd="7za x -y $SRC_DIR/$1$2 -o$_src_dir > $_log_name 2>&1" ;;
+				.zip) _unpack_cmd="unzip $SRC_DIR/$1$2 -d $_src_dir > $_log_name 2>&1" ;;
 				*) die " error. bad archive type: $2" ;;
 			esac
 			eval ${_unpack_cmd}
