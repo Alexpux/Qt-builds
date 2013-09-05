@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,72 +35,65 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	zlib
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+P=SDL
+P_V=${P}-${SDL_VERSION}
+SRC_FILE="$P_V.tar.gz"
+URL=http://www.libsdl.org/release/${SRC_FILE}
+DEPENDS=()
+
+src_download() {
+	func_download $P_V ".tar.gz" $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V ".tar.gz"
+}
+
+src_patch() {
+	local _patches=(
 	)
-	openssl
-	$( [[ $USE_PYTHON == self ]] \
-		&& echo "libffi python2" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--host=${HOST}
+		${LNKDEPS}
+		CFLAGS="\"${HOST_CFLAGS}\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
-	yaml
- 	$( [[ $BUILD_RUBY == yes ]] \
-		&& echo "ruby" \
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf"
+}
+
+pkg_build() {
+	local _make_flags=(
+		-j1
 	)
- 	$( [[ $BUILD_PERL == yes ]] \
-		&& echo "dmake \
-				 perl" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
 	)
-	# gettext
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "libpng \
-				 freetype \
-				 fontconfig" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "nasm \
-				libjpeg-turbo \
-				jbigkit \
-				freeglut \
-				tiff \
-				lcms2 \
-				libidn \
-				libssh2 \
-				curl \
-				libarchive \
-				cmake" \
-	)
-	qt-$QT_VERSION
-	qtbinpatcher
- 	$( [[ $STATIC_DEPS == yes ]] \
-		&& echo "installer-framework" \
-	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "qbs" \
-	)
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "poppler-data \
-				poppler \
-				boost \
-				SDL \
-				openscenegraph" \
-	)
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
