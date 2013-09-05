@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,73 +35,71 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	zlib
-	gperf
-	libgnurx
-	bzip2
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+P=collada-dom
+P_V=${P}-${COLLADA_DOM_VERSION}
+SRC_FILE=
+URL=svn://svn.code.sf.net/p/collada-dom/code/trunk
+DEPENDS=()
+
+src_download() {
+	func_download $P_V "svn" $URL
+
+}
+
+src_unpack() {
+	echo "--> Empty unpack"
+}
+
+src_patch() {
+	local _patches=(
+		$P/collada-2.4.0-mingw-w64-fix.patch
 	)
-	openssl
-	$( [[ $USE_PYTHON == self ]] \
-		&& echo "libffi python2" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
+		mkdir -p $BUILD_DIR/$P_V
+		pushd $BUILD_DIR/$P_V > /dev/null
+		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
+		$PREFIX/bin/cmake \
+			$_rell \
+			-G 'MSYS Makefiles' \
+			-DCMAKE_INSTALL_PREFIX=$PREFIX \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DBOOST_ROOT=$PREFIX/boost-${BOOST_VERSION} \
+			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
+		touch configure.marker
+		popd > /dev/null
+	}
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
 	)
-	yaml
- 	$( [[ $BUILD_RUBY == yes ]] \
-		&& echo "ruby" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
 	)
- 	$( [[ $BUILD_PERL == yes ]] \
-		&& echo "dmake \
-				 perl" \
-	)
-	# gettext
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "libpng \
-				 freetype \
-				 fontconfig" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "nasm \
-				libjpeg-turbo \
-				jbigkit \
-				freeglut \
-				tiff \
-				lcms2 \
-				libidn \
-				libssh2 \
-				curl \
-				libarchive \
-				cmake" \
-	)
-	qt-$QT_VERSION
-	qtbinpatcher
- 	$( [[ $STATIC_DEPS == yes ]] \
-		&& echo "installer-framework" \
-	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "qbs" \
-	)
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "poppler-data \
-				poppler \
-				boost \
-				SDL \
-				collada-dom \
-				openscenegraph" \
-	)
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
