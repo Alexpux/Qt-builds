@@ -305,6 +305,7 @@ function func_apply_patches {
 		echo -n "--> patching..."
 	}
 
+	local it=
 	for it in ${_list[@]} ; do
 		local _patch_marker_name=$_src_dir/$1/_patch-$_index.marker
 
