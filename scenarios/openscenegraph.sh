@@ -60,12 +60,8 @@ src_patch() {
 }
 
 src_configure() {
-	# local _conf_flags=(
-	# )
-	# local _allconf="${_conf_flags[@]}"
-	# func_configure $P_V $P_V "$_allconf"
-	
 	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
+		echo -n "--> configuring..."
 		mkdir -p $BUILD_DIR/$P_V
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
 		pushd $BUILD_DIR/$P_V > /dev/null
@@ -73,11 +69,13 @@ src_configure() {
 			$_rell \
 			-G 'MSYS Makefiles' \
 			-DCMAKE_BUILD_TYPE=Release \
-			-DSDL_INCLUDE_DIR=$PREFIX/include/SDL2 \
 			-DCMAKE_INSTALL_PREFIX=$PREFIX > $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
 			
 		touch configure.marker
 		popd > /dev/null
+		echo " done"
+	} || {
+		echo "--> Already configured"
 	}
 }
 
