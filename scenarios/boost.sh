@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #
@@ -56,7 +57,7 @@ src_patch() {
 		$P/boost-1.53.0-attribute.patch
 		#$P/boost-1.50.0-long-double-1.patch
 		$P/boost-1.50.0-pool.patch
-		$P/boost-1.54.0-__GLIBC_HAVE_LONG_LONG.patch
+		#$P/boost-1.54.0-__GLIBC_HAVE_LONG_LONG.patch
 		$P/001-coroutine.patch
 		$P/002-date-time.patch
 		$P/003-log.patch
@@ -85,6 +86,7 @@ src_patch() {
 		$P/boost-1.54.0-python-unused_typedef.patch
 		$P/boost-mingw.patch
 		$P/boost-include-intrin-h-on-mingw-w64.patch
+		$P/boost-1.54.0-bootstrap.patch
 	)
 
 	func_apply_patches \
@@ -93,37 +95,67 @@ src_patch() {
 }
 
 src_configure() {
-	[[ ! -f $BUILD_DIR/$P_Vconfigure.marker ]] && {
-		echo -n "--> Configuring..."
+	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
+		echo -n "--> configuring..."
 		mkdir -p $BUILD_DIR/$P_V
-		lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V > /dev/null
+		[[ ! -f $BUILD_DIR/$P_V/lndir.marker ]] && {
+			lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V > /dev/null
+			touch $BUILD_DIR/$P_V/lndir.marker
+		}
 		pushd $BUILD_DIR/$P_V > /dev/null
-		./bootstrap.sh --with-toolset=mingw \
-							--prefix=${PREFIX}/${P}-${BOOST_VERSION} \
-							--with-icu=${PREFIX} \
-							--without-libraries=python \
-							> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
 
-		cp project-config.jam project-config.jam.bak
-		sed \
-			-e 's|mingw|gcc|g' \
-			project-config.jam.bak > project-config.jam || die "Fail sed value"	
+		./bootstrap.sh \
+				--with-icu=$PREFIX \
+				> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
+
+		# cp project-config.jam project-config.jam.bak  --with-toolset=mingw 
+		# sed \
+			# -e 's|mingw|gcc|g' \
+			# project-config.jam.bak > project-config.jam || die "Fail sed value"	
 		touch configure.marker
 		popd > /dev/null
 		echo " done"
+	} || {
+		echo "--> Already configure"
 	}
 }
 
 pkg_build() {
 	[[ ! -f $BUILD_DIR/$P_V/build.marker ]] && {
-		echo -n "--> Build..."
+		echo -n "--> building..."
 		pushd ${BUILD_DIR}/${P_V} > /dev/null
-		local _bvar="variant=release threading=multi threadapi=win32 \
-			link=shared runtime-link=shared debug-symbols=on link=shared toolset=gcc"
+		local _bvar="variant=release threading=single,multi threadapi=win32 \
+			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
 		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == x32 ]] && echo 32 || echo 64 ) \
 			${_bvar} --without-mpi --without-python "
 	
-		./bjam ${MAKE_OPTS} \
+		./b2 ${MAKE_OPTS} \
+			${_bflag} \
+			--prefix=${PREFIX}/${P}-${BOOST_VERSION} \
+			-sHAVE_ICU=1 \
+			-sICU_PATH=${PREFIX} \
+			-sICU_LINK="-L${PREFIX}/lib -licuuc -licuin -licudt" \
+			-sICONV_PATH=${PREFIX} \
+			stage > $LOG_DIR/${P_V//\//_}-build.log 2>&1 || die "Error configure $P_V"
+
+		touch build.marker
+		popd > /dev/null
+		echo " done"
+	} || {
+		echo "--> Already built"
+	}
+}
+
+pkg_install() {
+	[[ ! -f $BUILD_DIR/$P_V/install.marker ]] && {
+		echo -n "--> installing..."
+		pushd ${BUILD_DIR}/${P_V} > /dev/null
+		local _bvar="variant=release threading=single,multi threadapi=win32 \
+			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
+		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == x32 ]] && echo 32 || echo 64 ) \
+			${_bvar} --without-mpi --without-python "
+	
+		./b2 ${MAKE_OPTS} \
 			${_bflag} \
 			--prefix=${PREFIX}/${P}-${BOOST_VERSION} \
 			-sHAVE_ICU=1 \
@@ -131,14 +163,12 @@ pkg_build() {
 			-sICU_LINK="-L${PREFIX}/lib -licuuc -licuin -licudt" \
 			-sICONV_PATH=${PREFIX} \
 			-sICONV_LINK="-L${PREFIX}/lib -liconv" \
-			install > $LOG_DIR/${P_V//\//_}-build.log 2>&1 || die "Error configure $P_V"
+			install > $LOG_DIR/${P_V//\//_}-install.log 2>&1 || die "Error configure $P_V"
 
-		touch build.marker
+		touch install.marker
 		popd > /dev/null
 		echo " done"
+	} || {
+		echo "--> Already install"
 	}
-}
-
-pkg_install() {
-	echo "Install no need"
 }
