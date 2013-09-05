@@ -35,6 +35,7 @@
 
 # Versions of packages
 export BZIP2_VERSION="1.0.6"
+export BOOST_VERSION="1.54.0"
 export CMAKE_VERSION="2.8.11"
 export CURL_VERSION="7.32.0"
 export DMAKE_VERSION="4.12.2"
