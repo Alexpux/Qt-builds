@@ -125,10 +125,9 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$SRC_DIR
+		_patches[@]
 	
-	pushd $SRC_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
+	pushd $UNPACK_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
 			rm -f qmake.conf
@@ -200,7 +199,7 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $SRC_DIR/${P_V} )
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $UNPACK_DIR/${P_V} )
 		$_rel_path/configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
