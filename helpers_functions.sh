@@ -306,6 +306,7 @@ function func_apply_patches {
 	}
 
 	local it=
+	local applevel=
 	pushd $_src_dir/$1 > /dev/null
 	for it in ${_list[@]} ; do
 		local _patch_marker_name=$_src_dir/$1/_patch-$_index.marker
@@ -313,27 +314,22 @@ function func_apply_patches {
 		[[ ! -f $_patch_marker_name ]] && {
 			[[ -f $PATCH_DIR/${it} ]] || die "Patch $PATCH_DIR/${it} not found!"
 			local level=
-			local applevel=
 			local found=no
 			for level in 0 1 2 3 4
 			do
 				applevel=$level
-				if patch -t -N -p$level --dry-run -i $PATCH_DIR/${it} > tmp.log 2>&1
+				if patch -p$level --dry-run -i $PATCH_DIR/${it} > $_src_dir/$1/patch-$_index.log 2>&1
 				then
 					found=yes
 					break
 				fi
 			done
 			[[ $found == "yes" ]] && {
-				_result=$(patch -p$applevel < $PATCH_DIR/${it} > $_src_dir/$1/patch-$_index.log 2>&1)
-				[[ $_result == 0 ]] && {
-					touch $_patch_marker_name
-				} || {
-					_result=1
-					break
-				}
+				patch -p$applevel -i $PATCH_DIR/${it} > $_src_dir/$1/patch-$_index.log 2>&1
+				touch $_patch_marker_name
 			} || {
-				die "Failed to apply patch ${it} at level $applevel"
+				_result=1
+				break
 			}
 		}
 		_index=$(($_index+1))
@@ -344,7 +340,7 @@ function func_apply_patches {
 		echo "done"
 	} || {
 		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/$1/patch-$_index.log &
-		die " error $_result!"
+		die "Failed to apply patch ${it} at level $applevel"
 	}
 }
 
