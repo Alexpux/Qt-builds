@@ -69,7 +69,8 @@ src_configure() {
 			$_rell \
 			-G 'MSYS Makefiles' \
 			-DCMAKE_BUILD_TYPE=Release \
-			-DCMAKE_INSTALL_PREFIX=$PREFIX > $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
+			-DCMAKE_INSTALL_PREFIX=$PREFIX \
+			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
 			
 		touch configure.marker
 		popd > /dev/null
