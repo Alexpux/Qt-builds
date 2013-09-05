@@ -46,7 +46,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V ".tar.gz"
 }
 
 src_patch() {
@@ -62,18 +62,15 @@ src_patch() {
 }
 
 src_configure() {
-	# local _conf_flags=(
-		# --prefix=${PREFIX}
-		# --host=${HOST}
-		# ${SHARED_LINK_FLAGS}
-		# --disable-rpath
-		# CFLAGS="\"${HOST_CFLAGS}\""
-		# LDFLAGS="\"${HOST_LDFLAGS}\""
-		# CPPFLAGS="\"${HOST_CPPFLAGS}\""
-	# )
-	# local _allconf="${_conf_flags[@]}"
-	# func_configure $P_V $P_V "$_allconf"
-	echo "--> Configure empty"
+	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
+		echo -n "--> configuring..."
+		mkdir -p $BUILD_DIR/$P_V
+		lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V
+		touch $BUILD_DIR/$P_V/configure.marker
+		echo " done"
+	} || {
+		echo "--> Already configure"
+	}
 }
 
 pkg_build() {
@@ -97,6 +94,9 @@ pkg_build() {
 		"$_allmake" \
 		"building..." \
 		"built"
+
+	minizip_configure
+	minizip_build
 
 	if ! [ -f $BUILD_DIR/$P_V/pkgconfig.marker ]
 	then
@@ -135,6 +135,7 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
+	minizip_install
 	if ! [ -f $BUILD_DIR/$P_V/pkg_install.marker ]
 	then
 		cp -f $BUILD_DIR/$P_V/zlib.pc ${PREFIX}/lib/pkgconfig/
@@ -143,4 +144,45 @@ pkg_install() {
 		}
 		touch $BUILD_DIR/$P_V/pkg_install.marker
 	fi
+}
+
+minizip_configure() {
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--host=${HOST}
+		-enable-demos
+		CFLAGS="\"${HOST_CFLAGS} -DHAVE_BZIP2\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+		LIBS="\"-lbz2\""
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V contrib/minizip "$_allconf" $BUILD_DIR/$P_V
+}
+
+minizip_build() {
+	local _make_flags=(
+		-j1
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}/contrib/minizip \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+minizip_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V}/contrib/minizip \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
 }
