@@ -65,14 +65,21 @@ src_configure() {
 		mkdir -p $BUILD_DIR/$P_V
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
 		pushd $BUILD_DIR/$P_V > /dev/null
+		export COLLADA_DIR=$PREFIX
 		$PREFIX/bin/cmake \
 			$_rell \
 			-G 'MSYS Makefiles' \
 			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_INSTALL_PREFIX=$PREFIX \
+			-DCOLLADA_INCLUDE_DIR=$PREFIX/include/collada-dom2.4 \
+			-DCOLLADA_DYNAMIC_LIBRARY=$PREFIX/lib/libcollada-dom2.4-dp.dll.a \
+			-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/boost-${BOOST_VERSION}/lib/libboost_filesystem-mt.dll.a \
+			-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/boost-${BOOST_VERSION}/lib/libboost_system-mt.dll.a \
+			-DGIFLIB_DIR=$PREFIX \
+			-DFREETYPE_DIR=$PREFIX \
 			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
-			
 		touch configure.marker
+		unset COLLADA_DIR
 		popd > /dev/null
 		echo " done"
 	} || {
