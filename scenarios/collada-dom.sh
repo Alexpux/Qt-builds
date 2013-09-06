@@ -63,6 +63,7 @@ src_patch() {
 src_configure() {
 	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
 		mkdir -p $BUILD_DIR/$P_V
+		echo -n "--> configuring..."
 		pushd $BUILD_DIR/$P_V > /dev/null
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
 		$PREFIX/bin/cmake \
@@ -74,6 +75,9 @@ src_configure() {
 			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
 		touch configure.marker
 		popd > /dev/null
+		echo " done"
+	} || {
+		echo "--> Already configured"
 	}
 }
 
