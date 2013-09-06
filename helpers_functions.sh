@@ -390,7 +390,7 @@ function func_make {
 
 	local _marker=$BUILD_DIR/$1/_$5$6.marker
 	local _result=0
-	local _log_name=$LOG_DIR/$1-$5$6.log
+	local _log_name=$LOG_DIR/${1//\//_}-$5$6.log
 	
 	local _make_cmd="$2 $3"
 
