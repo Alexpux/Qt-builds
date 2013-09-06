@@ -62,8 +62,8 @@ src_patch() {
 
 src_configure() {
 	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		mkdir -p $BUILD_DIR/$P_V
 		echo -n "--> configuring..."
+		mkdir -p $BUILD_DIR/$P_V
 		pushd $BUILD_DIR/$P_V > /dev/null
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
 		$PREFIX/bin/cmake \
@@ -106,4 +106,10 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
+		
+	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
+		cp -rf $PREFIX/include/collada-dom2.4/1.5/dom $PREFIX/dom
+		cp -f $PREFIX/lib/libcollada-dom2.4-dp.dll $PREFIX/bin/
+		touch $BUILD_DIR/$P_V/post-install.marker
+	}
 }
