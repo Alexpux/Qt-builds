@@ -57,8 +57,7 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$BUILD_DIR
+		_patches[@]
 }
 
 src_configure() {
