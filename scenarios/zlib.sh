@@ -51,8 +51,11 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/zlib-1.2.5-nostrip.patch
-		$P/zlib-1.2.5-tml.patch
+		$P/01-zlib-1.2.7-1-buildsys.mingw.patch
+		$P/02-no-undefined.mingw.patch
+		$P/03-dont-put-sodir-into-L.mingw.patch
+		$P/04-wrong-w8-check.mingw.patch
+		$P/05-fix-a-typo.mingw.patch
 	)
 	
 	func_apply_patches \
@@ -61,29 +64,31 @@ src_patch() {
 }
 
 src_configure() {
-	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		echo -n "--> configuring..."
+	[[ ! -f $BUILD_DIR/$P_V/lndir.marker ]] && {
 		mkdir -p $BUILD_DIR/$P_V
-		lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V
-		touch $BUILD_DIR/$P_V/configure.marker
-		echo " done"
-	} || {
-		echo "--> Already configure"
+		lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V > /dev/null || die "Fail copying sources"
+		touch $BUILD_DIR/$P_V/lndir.marker
 	}
+	
+	
+	local _conf_flags=(
+		prefix=${PREFIX}
+		--build=${HOST}
+		--host=${HOST}
+		--target=${HOST}
+		STRIP=true
+		sharedlibdir="${PREFIX}/bin"
+		CFLAGS="\"${HOST_CFLAGS}\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
 	local _make_flags=(
 		${MAKE_OPTS}
-		-f win32/Makefile.gcc
-		CC=${HOST}-gcc
-		AR=ar
-		RC=windres
-		DLLWRAP=dllwrap
-		STRIP=strip
-		$( [[ $STATIC_DEPS == yes ]] \
-			&& echo "LOC=\"${HOST_LDFLAGS}\"" \
-		)
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -116,13 +121,6 @@ pkg_build() {
 pkg_install() {
 
 	local _install_flags=(
-		-f win32/Makefile.gcc
-		INCLUDE_PATH=${PREFIX}/include
-		LIBRARY_PATH=${PREFIX}/lib
-		BINARY_PATH=${PREFIX}/bin
-		$( [[ $STATIC_DEPS == no ]] \
-			&& echo "SHARED_MODE=1" \
-		)
 		install
 	)
 
@@ -146,17 +144,24 @@ pkg_install() {
 }
 
 minizip_configure() {
+	[[ ! -f $BUILD_DIR/$P_V/minizip_reconf.marker ]] && {
+		pushd $BUILD_DIR/$P_V
+		autoreconf -fi > $BUILD_DIR/$P_V/autoreconf_minizip.log 2>&1 || die "Fail autoreconf minizip"
+		popd > /dev/null
+		touch $BUILD_DIR/$P_V/minizip_reconf.marker
+	}
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--host=${HOST}
 		-enable-demos
+		${LNKDEPS}
 		CFLAGS="\"${HOST_CFLAGS} -DHAVE_BZIP2\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 		LIBS="\"-lbz2\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V contrib/minizip "$_allconf" $BUILD_DIR/$P_V
+	func_configure $P_V/contrib/minizip contrib/minizip "$_allconf" $BUILD_DIR/$P_V
 }
 
 minizip_build() {
