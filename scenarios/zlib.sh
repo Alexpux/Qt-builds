@@ -72,15 +72,8 @@ src_configure() {
 	
 	
 	local _conf_flags=(
-		prefix=${PREFIX}
-		--build=${HOST}
-		--host=${HOST}
-		--target=${HOST}
-		STRIP=true
-		sharedlibdir="${PREFIX}/bin"
-		CFLAGS="\"${HOST_CFLAGS}\""
-		LDFLAGS="\"${HOST_LDFLAGS}\""
-		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+		--prefix=${PREFIX}
+		--sharedlibdir="${PREFIX}/bin"
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure $P_V $P_V "$_allconf"
@@ -89,6 +82,7 @@ src_configure() {
 pkg_build() {
 	local _make_flags=(
 		${MAKE_OPTS}
+		STRIP=true
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -121,6 +115,7 @@ pkg_build() {
 pkg_install() {
 
 	local _install_flags=(
+		STRIP=true
 		install
 	)
 
@@ -145,7 +140,7 @@ pkg_install() {
 
 minizip_configure() {
 	[[ ! -f $BUILD_DIR/$P_V/minizip_reconf.marker ]] && {
-		pushd $BUILD_DIR/$P_V
+		pushd $BUILD_DIR/$P_V/contrib/minizip > /dev/null
 		autoreconf -fi > $BUILD_DIR/$P_V/autoreconf_minizip.log 2>&1 || die "Fail autoreconf minizip"
 		popd > /dev/null
 		touch $BUILD_DIR/$P_V/minizip_reconf.marker
