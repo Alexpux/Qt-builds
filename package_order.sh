@@ -35,10 +35,10 @@
 
 PACKAGES=(
 	pkg-config
+	bzip2
 	zlib
 	gperf
 	libgnurx
-	bzip2
 	lzo
 	ncurses
 	readline
