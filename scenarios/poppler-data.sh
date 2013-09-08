@@ -47,7 +47,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT $BUILD_DIR
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -60,7 +60,7 @@ src_patch() {
 }
 
 src_configure() {
-	echo "--> Configure empty"
+	lndirs
 }
 
 pkg_build() {
