@@ -117,7 +117,10 @@ function func_absolute_to_relative {
 		_back="../${_back}"
 	done
 
-	echo "${_back}${_target#$_common/}"
+	[[ -z $_back ]] && {
+		_back="."
+	}
+	echo "${_back}${_target#$_common}"
 }
 
 # **************************************************************************
@@ -287,7 +290,7 @@ function lndirs() {
 	[[ ! -f $_dest_dir/lndirs.marker ]] && {
 		echo -n "--> Copy sources to build directory..."
 		mkdir -p $_dest_dir
-		lndir $_src_dir $_dest_dir > $LOG_DIR/${P_V}-lndirs.log 2>&1
+		lndir $_src_dir $_dest_dir > $LOG_DIR/${P_V}-lndirs.log 2>&1 || die "Fail lndir sources"
 		touch $_dest_dir/lndirs.marker
 		echo " done"
 	} || {
@@ -376,7 +379,7 @@ function func_configure {
 	# $4 - parent source directory (set if it not $SRC_DIR)
 
 	local _src_dir=$UNPACK_DIR/$2
-	[[ "x$4" != "x" ]] && {
+	[[ ! -z $4 ]] && {
 		_src_dir=$4/$2
 	}
 
@@ -387,7 +390,9 @@ function func_configure {
 	[[ ! -f $_marker ]] && {
 		echo -n "--> configure..."
 		mkdir -p $BUILD_DIR/$1
-		( cd $BUILD_DIR/$1 && eval $( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )/configure "${3}" > $_log_name 2>&1 )
+		local _rell=$( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )
+		pushd $BUILD_DIR/$1 > /dev/null
+		eval $_rell/configure "${3}" > $_log_name 2>&1
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"
@@ -396,6 +401,7 @@ function func_configure {
 			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
 			die " error $_result!"
 		}
+		popd > /dev/null
 	} || {
 		echo "---> configured"
 	}
