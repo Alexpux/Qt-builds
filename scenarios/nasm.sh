@@ -46,7 +46,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2" $BUILD_DIR
+	func_uncompress $P_V ".tar.bz2"
 }
 
 src_patch() {
@@ -59,6 +59,8 @@ src_patch() {
 }
 
 src_configure() {
+	lndirs
+
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--build=${HOST}

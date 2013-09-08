@@ -64,12 +64,7 @@ src_patch() {
 }
 
 src_configure() {
-	[[ ! -f $BUILD_DIR/$P_V/lndir.marker ]] && {
-		mkdir -p $BUILD_DIR/$P_V
-		lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V > /dev/null || die "Fail copying sources"
-		touch $BUILD_DIR/$P_V/lndir.marker
-	}
-	
+	lndirs
 	
 	local _conf_flags=(
 		--prefix=${PREFIX}

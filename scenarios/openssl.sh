@@ -45,7 +45,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V ".tar.gz"
 }
 
 src_patch() {
@@ -61,11 +61,11 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$BUILD_DIR
+		_patches[@]
 }
 
 src_configure() {
+	lndirs
 	[[ $ARCHITECTURE == x64 ]] &&
 	{
 		TOOLSET=mingw64

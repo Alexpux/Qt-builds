@@ -71,12 +71,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.xz" $BUILD_DIR
-
-	if [ -d $BUILD_DIR/$P_V ]
-	then 
-		mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT_VERSION
-	fi
+	func_uncompress $P_V ".tar.xz"
 }
 
 src_patch() {
@@ -91,14 +86,24 @@ src_patch() {
 		$P/5.1.x/qt-5.1.1-fix-mingw-SHSTOCKICONINFO.patch
 		$P/5.1.x/qt-5.1.x-workaround-pkgconfig-install-issue.patch
 	)
-	
+
 	func_apply_patches \
-		$P-$QT_VERSION \
-		_patches[@] \
-		$BUILD_DIR
-		
-	touch $BUILD_DIR/$P-$QT_VERSION/qtbase/.gitignore
-	
+		$P_V \
+		_patches[@]
+
+	touch $UNPACK_DIR/$P_V/qtbase/.gitignore
+}
+
+src_configure() {
+
+	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
+	then
+		mkdir -p ${QTDIR}/databases
+		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
+	fi
+
+	lndirs $P_V $P-$QT_VERSION
+
 	pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
@@ -113,15 +118,6 @@ src_patch() {
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
-	
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
-	then
-		mkdir -p ${QTDIR}/databases
-		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
-	fi
-}
-
-src_configure() {
 
 	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
 	then

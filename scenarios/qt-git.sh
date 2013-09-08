@@ -97,6 +97,7 @@ src_download() {
 	fi
 	func_download $P_V "git" $URL_QT5 $QT_GIT_BRANCH
 	
+	local mod=
 	for mod in ${SUBMODULES[@]}; do
 		if [ -d $SRC_DIR/$P_V/$mod ]
 		then
@@ -122,11 +123,13 @@ src_patch() {
 		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
 		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 	)
-	
+
 	func_apply_patches \
 		$P_V \
 		_patches[@]
-	
+}
+
+src_configure() {
 	pushd $UNPACK_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
 		if [ -f qmake.conf.patched ]
 		then
@@ -147,9 +150,6 @@ src_patch() {
 		mkdir -p ${QTDIR}/databases
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
 	fi
-}
-
-src_configure() {
 
 	if [ -f $BUILD_DIR/$P_V/configure.marker ]
 	then
