@@ -158,7 +158,7 @@ function func_download {
 			echo " done"
 		}
 		pushd $SRC_DIR > /dev/null
-		echo -n "--> download $1 ..."
+		echo -n "--> download $1..."
 		case $2 in
 			cvs)
 				#local _prev_dir=$PWD
@@ -362,7 +362,7 @@ function func_apply_patches {
 	popd > /dev/null
 
 	[[ $_result == 0 ]] && {
-		echo "done"
+		echo " done"
 	} || {
 		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/$1/patch-$_index.log &
 		die "Failed to apply patch ${it} at level $applevel"
