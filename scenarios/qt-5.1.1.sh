@@ -238,6 +238,12 @@ pkg_install() {
 		touch $BUILD_DIR/$P-$QT_VERSION/qwindows.marker
 	fi
 
+	# Workaround for installing empty .pc files
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker ]] && {
+		local _pc_files=( $(find $BUILD_DIR/$P-$QT_VERSION -type f -name Qt5*.pc) )
+		cp -f ${_pc_files[@]} ${QTDIR}/lib/pkgconfig/ > /dev/null 2>&1
+		touch $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker
+	}
 	restore_paths
 }
 
