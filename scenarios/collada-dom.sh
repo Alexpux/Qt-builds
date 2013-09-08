@@ -109,7 +109,7 @@ pkg_install() {
 		"installed"
 		
 	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
-		cp -rf $PREFIX/include/collada-dom2.4/1.5/dom $PREFIX/dom
+		cp -rf $PREFIX/include/collada-dom2.4/1.4/dom $PREFIX/dom
 		cp -f $PREFIX/lib/libcollada-dom2.4-dp.dll $PREFIX/bin/
 		touch $BUILD_DIR/$P_V/post-install.marker
 	}
