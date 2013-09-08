@@ -271,6 +271,29 @@ function func_uncompress {
 	}
 }
 
+# **************************************************************************
+
+# create copy of sources in build directory
+function lndirs() {
+	local _src_dir=
+	local _dest_dir=
+	[[ $# -eq 0 ]] && {
+		_src_dir=$UNPACK_DIR/$P_V
+		_dest_dir=$BUILD_DIR/$P_V
+	} || {
+		_src_dir=$UNPACK_DIR/$1
+		_dest_dir=$BUILD_DIR/$2
+	}
+	[[ ! -f $_dest_dir/lndirs.marker ]] && {
+		echo -n "--> Copy sources to build directory..."
+		mkdir -p $_dest_dir
+		lndir $_src_dir $_dest_dir > $LOG_DIR/${P_V}-lndirs.log 2>&1
+		touch $_dest_dir/lndirs.marker
+		echo " done"
+	} || {
+		echo "--> Sources already copied"
+	}
+}
 
 # **************************************************************************
 
