@@ -3,7 +3,8 @@ set -e
 
 P=perl
 P_V=${P}-${PERL_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.cpan.org/src/5.0/${SRC_FILE}
 DEPENDS=(dmake)
 
@@ -18,11 +19,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

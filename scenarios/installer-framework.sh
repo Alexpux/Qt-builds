@@ -37,6 +37,7 @@
 
 P=installer-framework
 P_V=$P
+EXT="git"
 SRC_FILE=
 URL=git://gitorious.org/${P}/${P}.git
 
@@ -49,7 +50,7 @@ src_download() {
 			git clean -f > /dev/null
 		popd > /dev/null
 	fi
-	func_download $P_V "git" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {

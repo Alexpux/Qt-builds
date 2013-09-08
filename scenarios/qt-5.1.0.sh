@@ -37,7 +37,8 @@
 
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
-SRC_FILE="${P_V}.tar.xz"
+EXT=".tar.xz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://download.qt-project.org/official_releases/qt/5.1/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
@@ -67,11 +68,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V ".tar.xz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.xz" $BUILD_DIR
+	func_uncompress $P_V $EXT $BUILD_DIR
 
 	if [ -d $BUILD_DIR/$P_V ]
 	then 

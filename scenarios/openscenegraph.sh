@@ -37,16 +37,17 @@
 
 P=OpenSceneGraph
 P_V=${P}-${OPENSCENEGRAPH_VERSION}
-SRC_FILE="$P_V.zip"
+EXT=".zip"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.openscenegraph.org/downloads/developer_releases/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".zip" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".zip"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

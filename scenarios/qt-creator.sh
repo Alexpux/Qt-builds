@@ -37,7 +37,8 @@
 
 P=qt-creator
 P_V=${P}-${QT_CREATOR_VERSION}-src
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 # Release versions
 URL=http://download.qt-project.org/official_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
 # Beta versions
@@ -45,11 +46,11 @@ URL=http://download.qt-project.org/official_releases/qtcreator/2.8/${QT_CREATOR_
 DEPENDS=(qt)
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" "--ignore"
+	func_uncompress $P_V $EXT "--ignore"
 }
 
 src_patch() {

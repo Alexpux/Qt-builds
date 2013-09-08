@@ -37,16 +37,17 @@
 
 P=libarchive
 P_V=${P}-${LIBARCHIVE_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.libarchive.org/downloads/${SRC_FILE}
 DEPENDS=(bzip2 expat libgnurx libxml2 lzo xz)
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

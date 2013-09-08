@@ -37,15 +37,16 @@
 
 P=dmake
 P_V=${P}-${DMAKE_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://dmake.apache-extras.org.codespot.com/files/${SRC_FILE}
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

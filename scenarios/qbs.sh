@@ -37,12 +37,13 @@
 
 P=qbs
 P_V=${P}
+EXT="git"
 SRC_FILE=""
-URL=git://gitorious.org/qt-labs/qbs.git
+URL=git://gitorious.org/qt-labs/${P}.git
 DEPENDS=()
 
 src_download() {
-	func_download $P_V "git" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {

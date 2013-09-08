@@ -37,12 +37,13 @@
 
 P=collada-dom
 P_V=${P}-${COLLADA_DOM_VERSION}
+EXT="svn"
 SRC_FILE=
 URL=svn://svn.code.sf.net/p/collada-dom/code/trunk
 DEPENDS=()
 
 src_download() {
-	func_download $P_V "svn" $URL
+	func_download $P_V $EXT $URL
 
 }
 

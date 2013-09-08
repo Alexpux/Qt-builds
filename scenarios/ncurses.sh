@@ -37,16 +37,17 @@
 
 P=ncurses
 P_V=${P}-${NCURSES_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://ftp.gnu.org/pub/gnu/ncurses/$SRC_FILE
 DEPENDS=("libgnurx")
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

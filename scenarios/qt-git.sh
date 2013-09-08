@@ -37,6 +37,7 @@
 
 P=qt
 P_V=$P-$QTVER
+EXT="git"
 SRC_FILE=
 MAINMODULE=qt5
 URL_QT5=git://gitorious.org/qt/$MAINMODULE.git
@@ -95,7 +96,7 @@ src_download() {
 			git clean -f > /dev/null
 		popd > /dev/null
 	fi
-	func_download $P_V "git" $URL_QT5 $QT_GIT_BRANCH
+	func_download $P_V $EXT $URL_QT5 $QT_GIT_BRANCH
 	
 	local mod=
 	for mod in ${SUBMODULES[@]}; do
@@ -106,7 +107,7 @@ src_download() {
 				git reset --hard > /dev/null
 			popd > /dev/null
 		fi
-		func_download $P_V/$mod "git" git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
+		func_download $P_V/$mod $EXT git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
 	done
 }
 

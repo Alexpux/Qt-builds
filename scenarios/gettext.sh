@@ -37,16 +37,17 @@
 
 P=gettext
 P_V=${P}-${GETTEXT_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=ftp://ftp.gnu.org/gnu/${P}/${SRC_FILE}
 DEPENDS=("expat" "libiconv" "libxml2" "readline")
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

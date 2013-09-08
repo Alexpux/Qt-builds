@@ -37,6 +37,7 @@
 
 P=qtbinpatcher
 P_V=${P}-1.1.0
+EXT=
 SRC_FILE=
 URL=
 
@@ -45,13 +46,13 @@ src_download() {
 }
 
 src_unpack() {
-	if [ -f $BUILD_DIR/$P_V.marker ]
+	if [ -f $BUILD_DIR/$P/$P_V.marker ]
 	then
 		echo "--> Sources copied"
 	else
 		echo -n "--> Copy sources..."
-		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $PROG_DIR"
-		touch $BUILD_DIR/$P_V.marker
+		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $BUILD_DIR"
+		touch $BUILD_DIR/$P/$P_V.marker
 		echo " done"
 	fi
 }

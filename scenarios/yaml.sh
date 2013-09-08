@@ -37,16 +37,17 @@
 
 P=yaml
 P_V=${P}-${YAML_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://pyyaml.org/download/libyaml/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

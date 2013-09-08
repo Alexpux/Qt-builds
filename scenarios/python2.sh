@@ -37,16 +37,17 @@
 
 P=Python
 P_V=${P}-${PYTHON2_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.python.org/ftp/python/${PYTHON2_VERSION}/$SRC_FILE
 DEPENDS=("expat" "libffi" "zlib")
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
