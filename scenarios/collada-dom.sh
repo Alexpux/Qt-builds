@@ -48,7 +48,7 @@ src_download() {
 }
 
 src_unpack() {
-	echo "--> Empty unpack"
+	echo "---> Empty unpack"
 }
 
 src_patch() {
@@ -63,7 +63,7 @@ src_patch() {
 
 src_configure() {
 	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		echo -n "--> configuring..."
+		echo -n "---> configuring..."
 		mkdir -p $BUILD_DIR/$P_V
 		pushd $BUILD_DIR/$P_V > /dev/null
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
@@ -78,7 +78,7 @@ src_configure() {
 		popd > /dev/null
 		echo " done"
 	} || {
-		echo "--> Already configured"
+		echo "---> Already configured"
 	}
 }
 

@@ -85,10 +85,10 @@ src_configure() {
 
 	if [ -f $BUILD_DIR/$P_V/configure.marker ]
 	then
-		echo "--> configured"
+		echo "---> configured"
 	else
 		pushd $BUILD_DIR/$P_V > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		sh Configure --prefix=${PREFIX} \
 			$_mode \
 			threads \

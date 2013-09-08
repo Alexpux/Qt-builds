@@ -112,7 +112,7 @@ src_download() {
 }
 
 src_unpack() {
-	echo "--> Empty unpack"
+	echo "---> Empty unpack"
 }
 
 src_patch() {
@@ -154,11 +154,11 @@ src_configure() {
 
 	if [ -f $BUILD_DIR/$P_V/configure.marker ]
 	then
-		echo "--> configured"
+		echo "---> configured"
 	else
 		mkdir -p $BUILD_DIR/$P_V
 		pushd $BUILD_DIR/$P_V > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
 			_opengl="-opengl desktop"
@@ -221,9 +221,9 @@ pkg_build() {
 		pushd $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
 		if [ -f workaround.marker ]
 		then
-			echo "--> Workaround applied"
+			echo "---> Workaround applied"
 		else
-			echo -n "--> Applying workaround..."
+			echo -n "---> Applying workaround..."
 			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
 			qmake $_rel_path/libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1

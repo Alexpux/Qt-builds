@@ -47,7 +47,7 @@ src_download() {
 }
 
 src_unpack() {
-	echo "--> Unpack empty"
+	echo "---> Unpack empty"
 }
 
 src_patch() {

@@ -122,10 +122,10 @@ src_configure() {
 
 	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
 	then
-		echo "--> configured"
+		echo "---> configured"
 	else
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
 			_opengl="-opengl desktop"
@@ -188,9 +188,9 @@ pkg_build() {
 		pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
 		if [ -f workaround.marker ]
 		then
-			echo "--> Workaround applied"
+			echo "---> Workaround applied"
 		else
-			echo -n "--> Applying workaround..."
+			echo -n "---> Applying workaround..."
 			qmake libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
@@ -240,8 +240,10 @@ pkg_install() {
 
 	# Workaround for installing empty .pc files
 	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker ]] && {
+		echo -n "---> Fix pkgconfig files..."
 		local _pc_files=( $(find $BUILD_DIR/$P-$QT_VERSION -type f -name Qt5*.pc) )
 		cp -f ${_pc_files[@]} ${QTDIR}/lib/pkgconfig/ > /dev/null 2>&1
+		echo " done"
 		touch $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker
 	}
 	restore_paths

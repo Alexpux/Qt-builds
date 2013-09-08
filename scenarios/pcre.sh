@@ -62,7 +62,7 @@ src_patch() {
 	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
 	then
 		pushd $UNPACK_DIR/$P_V > /dev/null
-		echo -n "--> Execute after patch..."
+		echo -n "---> Execute after patch..."
 		libtoolize --copy --force > execute.log 2>&1
 		autoreconf >> execute.log 2>&1
 		echo " done"

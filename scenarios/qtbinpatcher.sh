@@ -42,15 +42,15 @@ SRC_FILE=
 URL=
 
 src_download() {
-	echo "--> Local sources"
+	echo "---> Local sources"
 }
 
 src_unpack() {
 	if [ -f $BUILD_DIR/$P/$P_V.marker ]
 	then
-		echo "--> Sources copied"
+		echo "---> Sources copied"
 	else
-		echo -n "--> Copy sources..."
+		echo -n "---> Copy sources..."
 		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $BUILD_DIR"
 		touch $BUILD_DIR/$P/$P_V.marker
 		echo " done"
@@ -58,11 +58,11 @@ src_unpack() {
 }
 
 src_patch() {
-	echo "--> No patches needed"
+	echo "---> No patches needed"
 }
 
 src_configure() {
-	echo "--> Don't need configure"
+	echo "---> Don't need configure"
 }
 
 pkg_build() {

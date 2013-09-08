@@ -153,12 +153,12 @@ function func_download {
 	}
 	[[ ! -f $_marker_name || "$2" == "git" ]] && {
 		[[ -f $SRC_DIR/$_filename ]] && {
-			echo -n "--> Delete corrupted download..."
+			echo -n "---> Delete corrupted download..."
 			rm -f $SRC_DIR/$_filename
 			echo " done"
 		}
 		pushd $SRC_DIR > /dev/null
-		echo -n "--> download $1..."
+		echo -n "---> download $1..."
 		case $2 in
 			cvs)
 				#local _prev_dir=$PWD
@@ -248,7 +248,7 @@ function func_uncompress {
 	[[ $2 == .tar.gz || $2 == .tgz || $2 == .tar.bz2 || $2 == .tar.lzma \
 	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z || $2 == .zip ]] && {
 		[[ ! -f $_marker_name ]] && {
-			echo -n "--> unpack..."
+			echo -n "---> unpack..."
 			case $2 in
 				.tar.gz|.tgz) _unpack_cmd="tar xvf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
 				.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
@@ -288,13 +288,13 @@ function lndirs() {
 		_dest_dir=$BUILD_DIR/$2
 	}
 	[[ ! -f $_dest_dir/lndirs.marker ]] && {
-		echo -n "--> Copy sources to build directory..."
+		echo -n "---> Copy sources to build directory..."
 		mkdir -p $_dest_dir
 		lndir $_src_dir $_dest_dir > $LOG_DIR/${P_V}-lndirs.log 2>&1 || die "Fail lndir sources"
 		touch $_dest_dir/lndirs.marker
 		echo " done"
 	} || {
-		echo "--> Sources already copied"
+		echo "---> Sources already copied"
 	}
 }
 
@@ -315,7 +315,7 @@ function func_apply_patches {
 	local _index=0
 	local -a _list=( "${!2}" )
 	[[ ${#_list[@]} == 0 ]] && {
-		echo "--> No patches for $1"
+		echo "---> No patches for $1"
 		return 0
 	}
 
@@ -327,7 +327,7 @@ function func_apply_patches {
 	_index=0
 
 	[[ ${#_list[@]} > 0 ]] && {
-		echo -n "--> patching..."
+		echo -n "---> patching..."
 	}
 
 	local it=
@@ -388,7 +388,7 @@ function func_configure {
 	local _log_name=$LOG_DIR/${2//\//_}-configure.log
 
 	[[ ! -f $_marker ]] && {
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		mkdir -p $BUILD_DIR/$1
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )
 		pushd $BUILD_DIR/$1 > /dev/null
@@ -424,7 +424,7 @@ function func_make {
 	local _make_cmd="$2 $3"
 
 	[[ ! -f $_marker ]] && {
-		echo -n "--> $4..."
+		echo -n "---> $4..."
 		( cd $BUILD_DIR/$1 && eval ${_make_cmd} > $_log_name 2>&1 )
 		_result=$?
 		[[ $_result == 0 ]] && {

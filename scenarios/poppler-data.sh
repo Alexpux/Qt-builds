@@ -64,7 +64,7 @@ src_configure() {
 }
 
 pkg_build() {
-	echo "--> Make empty"
+	echo "---> Make empty"
 }
 
 pkg_install() {

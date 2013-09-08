@@ -93,7 +93,7 @@ src_patch() {
 	if ! [ -f $UNPACK_DIR/$P_V/post-patch.marker ]
 	then
 		pushd $UNPACK_DIR/$P_V > /dev/null
-		echo -n "--> Executing..."
+		echo -n "---> Executing..."
 		rm -rf Modules/expat
 		rm -rf Modules/_ctypes/libffi*
 		rm -rf Modules/zlib

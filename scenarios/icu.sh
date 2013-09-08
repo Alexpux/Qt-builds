@@ -52,7 +52,7 @@ src_unpack() {
 	pushd $UNPACK_DIR > /dev/null
 	if ! [ -f $P_V/post-unpack.marker ]
 		then
-		echo -n "--> Move icu to $P_V..."
+		echo -n "---> Move icu to $P_V..."
 		mv -f $P $P_V
 		echo "done"
 	fi
@@ -78,7 +78,7 @@ src_configure() {
 	pushd $UNPACK_DIR/$P_V/source > /dev/null
 	if ! [ -f pre-configure.marker ]
 	then
-		echo -n "--> Execute before configure..."
+		echo -n "---> Execute before configure..."
 		autoconf --force > execute.log 2>&1
 		echo " done"
 	fi
@@ -128,7 +128,7 @@ pkg_install() {
 
 	if ! [ -f $BUILD_DIR/$P_V/post-install.marker ]
 	then
-		echo -n "--> Execute after install..."
+		echo -n "---> Execute after install..."
 		for i in ${PREFIX}/lib/*.dll ; \
 			do cp -f ${i} ${PREFIX}/bin/; done
 		echo " done"

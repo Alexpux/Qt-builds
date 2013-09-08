@@ -42,10 +42,10 @@ src_configure() {
 
 	if [ -f $BUILD_DIR/$P_V/win32/configure.marker ]
 	then
-		echo "--> configured"
+		echo "---> configured"
 	else
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		
 		local DRV=`expr substr $MINGW_PERL_PREFIX_W 1 2`
 		local NOTDRV=${MINGW_PERL_PREFIX_W#$DRV}
@@ -79,14 +79,14 @@ pkg_build() {
 
 	if [ -f $BUILD_DIR/$P_V/win32/make.marker ]
 	then
-		echo "--> Builded"
+		echo "---> Builded"
 	else
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
-		echo "--> Building..."
+		echo "---> Building..."
 		change_paths
 		$MINGW_PERL_PREFIX_W/bin/dmake || die "Error building PERL"
 		restore_paths
-		echo "done"
+		echo " done"
 		touch make.marker
 		popd > /dev/null
 	fi
@@ -96,14 +96,14 @@ pkg_install() {
 
 	if [ -f $BUILD_DIR/$P_V/win32/install.marker ]
 	then
-		echo "--> Installed"
+		echo "---> Installed"
 	else
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
-		echo "--> Installing..."
+		echo "---> Installing..."
 		change_paths
 		$MINGW_PERL_PREFIX_W/bin/dmake install || die "Error installing PERL"
 		restore_paths
-		echo "done"
+		echo " done"
 		touch install.marker
 		popd > /dev/null
 	fi

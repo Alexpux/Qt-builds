@@ -54,7 +54,6 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/sdl-clipcursor.patch
-		#$P/sdl-2.0.0-fix-objects.patch
 	)
 	
 	func_apply_patches \

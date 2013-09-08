@@ -97,7 +97,7 @@ src_patch() {
 
 src_configure() {
 	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		echo -n "--> configuring..."
+		echo -n "---> configuring..."
 		mkdir -p $BUILD_DIR/$P_V
 		[[ ! -f $BUILD_DIR/$P_V/lndir.marker ]] && {
 			lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V > /dev/null
@@ -117,13 +117,13 @@ src_configure() {
 		popd > /dev/null
 		echo " done"
 	} || {
-		echo "--> Already configure"
+		echo "---> Already configure"
 	}
 }
 
 pkg_build() {
 	[[ ! -f $BUILD_DIR/$P_V/build.marker ]] && {
-		echo -n "--> building..."
+		echo -n "---> building..."
 		pushd ${BUILD_DIR}/${P_V} > /dev/null
 		local _bvar="variant=release threading=single,multi threadapi=win32 \
 			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
@@ -143,13 +143,13 @@ pkg_build() {
 		popd > /dev/null
 		echo " done"
 	} || {
-		echo "--> Already built"
+		echo "---> Already built"
 	}
 }
 
 pkg_install() {
 	[[ ! -f $BUILD_DIR/$P_V/install.marker ]] && {
-		echo -n "--> installing..."
+		echo -n "---> installing..."
 		pushd ${BUILD_DIR}/${P_V} > /dev/null
 		local _bvar="variant=release threading=single,multi threadapi=win32 \
 			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
@@ -170,6 +170,6 @@ pkg_install() {
 		popd > /dev/null
 		echo " done"
 	} || {
-		echo "--> Already install"
+		echo "---> Already install"
 	}
 }
