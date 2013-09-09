@@ -101,7 +101,7 @@ src_configure() {
 			${TOOLSET} \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "configure error!"
 		
-		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch
+		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch > Makefile_patch.log 2>&1
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
