@@ -132,7 +132,7 @@ STATIC_SUFFIX=""
 STATIC_LD=""
 
 # Default Qt version to build
-QT_VERSION="5.0.2"
+QT_VERSION="5.1.1"
 
 # Qt5 git branch to build
 QT_GIT_BRANCH="stable"
