@@ -53,6 +53,7 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/osg-qt-movetothread.patch
+		$P/osg-collada-dae-fixes.patch
 	)
 
 	func_apply_patches \
