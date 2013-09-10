@@ -118,7 +118,7 @@ function func_absolute_to_relative {
 	done
 
 	[[ -z $_back ]] && {
-		_back="."
+		_back="./"
 	}
 	echo "${_back}${_target#$_common}"
 }
@@ -392,7 +392,7 @@ function func_configure {
 		mkdir -p $BUILD_DIR/$1
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )
 		pushd $BUILD_DIR/$1 > /dev/null
-		eval $_rell/configure "${3}" > $_log_name 2>&1
+		eval ${_rell}configure "${3}" > $_log_name 2>&1
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"
