@@ -47,7 +47,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V EXT
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
