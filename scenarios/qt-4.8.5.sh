@@ -88,6 +88,8 @@ src_patch() {
 		$P/4.8.x/qt-4.8.3-assistant-4.8.2+gcc-4.7.patch
 		$P/4.8.x/qt-4.8.3-qmake-cmd-mkdir-slash-direction.patch
 		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch
+		$P/4.8.x/qt-4.8.5-fix-0-width-polylines.patch
+		$P/4.8.x/qt-4.8.5-fix-data-corruption-in-readData.patch
 	)
 	
 	func_apply_patches \
