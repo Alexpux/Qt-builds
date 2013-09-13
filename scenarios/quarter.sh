@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,81 +35,73 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	bzip2
-	zlib
-	gperf
-	libgnurx
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+P=quarter
+P_V=${P}
+EXT="git"
+SRC_FILE=""
+URL=https://github.com/Alexpux/Quarter.git
+DEPENDS=()
+
+src_download() {
+	func_download $P_V $EXT $URL
+}
+
+src_unpack() {
+	echo "---> Unpack empty"
+}
+
+src_patch() {
+	local _patches=(
 	)
-	openssl
-	$( [[ $USE_PYTHON == self ]] \
-		&& echo "libffi python2" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	export QTDIR=${QTDIR}
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--build=${HOST}
+		--host=${HOST}
+		--target=${HOST}
+		${LNKDEPS}
+		--enable-pkgconfig
+		--enable-html
+		--with-coin=$PREFIX
+		--with-qt=$QTDIR	
+		CFLAGS="\"${HOST_CFLAGS}\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
-	yaml
- 	$( [[ $BUILD_RUBY == yes ]] \
-		&& echo "ruby" \
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V-${QTVER} $P_V "$_allconf"
+	unset QTDIR
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
 	)
- 	$( [[ $BUILD_PERL == yes ]] \
-		&& echo "dmake \
-				 perl" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}-${QTVER} \
+		"mingw32-make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		install
 	)
-	# gettext
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "libpng \
-				 freetype \
-				 fontconfig" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "nasm \
-				libjpeg-turbo \
-				giflib \
-				jbigkit \
-				freeglut \
-				tiff \
-				lcms2 \
-				libidn \
-				libssh2 \
-				curl \
-				libarchive \
-				cmake" \
-	)
-	qt-$QT_VERSION
-	qtbinpatcher
- 	$( [[ $STATIC_DEPS == yes ]] \
-		&& echo "installer-framework" \
-	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "qbs" \
-	)
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "poppler-data \
-				poppler \
-				boost" \
-	)
-	$( [[ $BUILD_OSG == yes && $STATIC_DEPS == no ]]
-		&& echo "SDL \
-				collada-dom \
-				openscenegraph" \
-	)
-	$( [[ $BUILD_COIN3D == yes && $STATIC_DEPS == no ]]
-		&& echo "simage \
-				coin3d \
-				quarter" \
-	)
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V}-${QTVER} \
+		"mingw32-make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
