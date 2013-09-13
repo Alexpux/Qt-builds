@@ -145,15 +145,19 @@ function func_download {
 	local _result=0
 	local _log_name=$MARKERS_DIR/${1//\//_}-download.log
 	local _marker_name=$MARKERS_DIR/${1//\//_}-download.marker
+	local _update=false
 
 	local _filename=$(basename $3)
 	
 	[[ $2 == cvs || $2 == svn || $2 == hg || $2 == git ]] && {
 		local _lib_name=$UNPACK_DIR/$1
+		[[ $UPDATE_SOURCES == yes ]] && {
+			_update=true
+		}
 	} || {
 		local _lib_name=$SRC_DIR/$1
 	}
-	[[ ! -f $_marker_name || "$2" == "git" ]] && {
+	[[ ! -f $_marker_name || $_update == true ]] && {
 		[[ -f $SRC_DIR/$_filename ]] && {
 			echo -n "---> Delete corrupted download..."
 			rm -f $SRC_DIR/$_filename

@@ -31,6 +31,7 @@ In order to use the scripts provided by the Qt-builds project it is needed:
     By default used <SCRIPTS_DIR>/work.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
     By default used "C:/QtSDK" directory.
+  The '--update-sources' option specifies to the script to update sources from repositories.
   The '--opengl-desktop' option specifies to the script to build Qt with '-opengl desktop' option.
     Affected only Qt-5.x versions. By default used '-angle' option.
   The '--qt-version=<version>' option specifies which version of Qt to build.

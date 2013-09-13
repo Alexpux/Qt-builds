@@ -104,6 +104,9 @@ URL_MINGW64=${URL_MINGW64_POSIX}
 # Use system installed toolchains
 USER_DEFINED_TOOLCHAINS=no
 
+# Update sources from repositories
+UPDATE_SOURCES=no
+
 # MinGW-builds contain prebuilded python in opt subdirectory.
 # Does we use msys-python, mingw-builds python or build python yourself.
 USE_PYTHON=msys
@@ -153,6 +156,7 @@ RUN_ARGS="$@"
 	echo "                              Default is $PREFIX_TOP"
 	echo "    --toolchains-dir=<path> - specifies directory where installed Mingw 32-bit and 64-bit toolchains"
 	echo "                              You must have mingw32 and mingw64 directories there"
+	echo "    --update-sources        - try update sources from repositories"
 	echo "    --opengl-desktop        - build Qt with opengl=desktop (for Qt-5.x only)"
 	echo "    --qt-version=<version>  - specifies the Qt version to build"
 	echo "                              Default Qt version is $QT_VERSION"
@@ -225,6 +229,7 @@ while [[ $# > 0 ]]; do
 			popd > /dev/null
 			USER_DEFINED_TOOLCHAINS=yes
 		;;
+		--update-sources) UPDATE_SOURCES=yes ;;
 		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--qt-git-branch=*) QT_GIT_BRANCH=${1/--qt-git-branch=/} ;;
