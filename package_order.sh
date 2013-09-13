@@ -100,12 +100,12 @@ PACKAGES=(
 				poppler \
 				boost" \
 	)
-	$( [[ $BUILD_OSG == yes && $STATIC_DEPS == no ]]
+	$( [[ $BUILD_OSG == yes && $STATIC_DEPS == no ]] \
 		&& echo "SDL \
 				collada-dom \
 				openscenegraph" \
 	)
-	$( [[ $BUILD_COIN3D == yes && $STATIC_DEPS == no ]]
+	$( [[ $BUILD_COIN3D == yes && $STATIC_DEPS == no ]] \
 		&& echo "simage \
 				coin3d \
 				quarter" \
