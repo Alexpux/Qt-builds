@@ -50,7 +50,7 @@ src_unpack() {
 		echo "---> Sources copied"
 	} || {
 		echo -n "---> Copy sources..."
-		cp -rf ${PROG_DIR}/$P ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX} || die "Error copy $P to $BUILD_DIR"
+		lndir ${PROG_DIR}/$P ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX} || die "Error copy $P to $BUILD_DIR"
 		touch ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX}/${P_V}.marker
 		echo " done"
 	}
