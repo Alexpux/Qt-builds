@@ -95,7 +95,7 @@ pkg_build() {
 	local _allmake="${_make_flags[@]}"
 	func_make \
 		${P_V} \
-		"mingw32-make" \
+		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -108,7 +108,7 @@ pkg_install() {
 	local _allinstall="${_install_flags[@]}"
 	func_make \
 		${P_V} \
-		"mingw32-make" \
+		"bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
