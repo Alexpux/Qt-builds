@@ -75,8 +75,8 @@ change_paths() {
 	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
-	#$SRC_DIR/$P_V/gnuwin32/bin:
+	export PATH=$BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/bin:$BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	#$SRC_DIR/$P_V-${QTDIR_PREFIX}/gnuwin32/bin:
 }
 
 restore_paths() {
@@ -148,11 +148,11 @@ src_configure() {
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
 	}
 
-	[[ -f $BUILD_DIR/$P_V/configure.marker ]] && {
+	[[ -f $BUILD_DIR/$P_V-${QTDIR_PREFIX}/configure.marker ]] && {
 		echo "---> configured"
 	} || {
-		mkdir -p $BUILD_DIR/$P_V
-		pushd $BUILD_DIR/$P_V > /dev/null
+		mkdir -p $BUILD_DIR/$P_V-${QTDIR_PREFIX}
+		pushd $BUILD_DIR/$P_V-${QTDIR_PREFIX} > /dev/null
 		echo -n "---> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
@@ -195,7 +195,7 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $UNPACK_DIR/${P_V} )
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTDIR_PREFIX} $UNPACK_DIR/${P_V} )
 		$_rel_path/configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
@@ -212,13 +212,13 @@ pkg_build() {
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
 		#Workaround for
 		#https://bugreports.qt-project.org/browse/QTBUG-28845
-		mkdir -p $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2
-		pushd $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
+		mkdir -p $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/src/angle/src/libGLESv2
+		pushd $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/src/angle/src/libGLESv2 > /dev/null
 		[[ -f workaround.marker ]] && {
 			echo "---> Workaround applied"
 		} || {
 			echo -n "---> Applying workaround..."
-			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
+			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTDIR_PREFIX}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
 			qmake $_rel_path/libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
@@ -232,7 +232,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -250,7 +250,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
@@ -260,10 +260,10 @@ pkg_install() {
 	put_sha1
 
 	# Workaround for build other components (qbs, qtcreator, etc)
-	[[ ! -f $BUILD_DIR/$P_V/qwindows.marker && $STATIC_DEPS == yes ]] && {
+	[[ ! -f $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qwindows.marker && $STATIC_DEPS == yes ]] && {
 		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
 		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
-		touch $BUILD_DIR/$P_V/qwindows.marker
+		touch $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qwindows.marker
 	}
 
 	restore_paths
@@ -277,7 +277,7 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
@@ -289,7 +289,7 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \

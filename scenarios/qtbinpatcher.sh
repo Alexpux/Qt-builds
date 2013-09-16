@@ -46,12 +46,12 @@ src_download() {
 }
 
 src_unpack() {
-	[[ -f $BUILD_DIR/$P/$P_V.marker ]] && {
+	[[ -f ${BUILD_DIR}/${P}-${QTVER}-${QTDIR_PREFIX}/$P_V.marker ]] && {
 		echo "---> Sources copied"
 	} || {
 		echo -n "---> Copy sources..."
-		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $BUILD_DIR"
-		touch $BUILD_DIR/$P/$P_V.marker
+		cp -rf ${PROG_DIR}/$P ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX} || die "Error copy $P to $BUILD_DIR"
+		touch ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX}/${P_V}-.marker
 		echo " done"
 	}
 }
@@ -70,7 +70,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P} \
+		${P}-${QTVER}-${QTDIR_PREFIX} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -78,8 +78,8 @@ pkg_build() {
 }
 
 pkg_install() {
-	[[ ! -f $BUILD_DIR/$P/install-${QTVER}.marker ]] && {
-		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
-		touch $BUILD_DIR/$P/install-${QTVER}.marker
+	[[ ! -f $BUILD_DIR/$P-${QTVER}-${QTDIR_PREFIX}/install-${QTVER}.marker ]] && {
+		cp -f $BUILD_DIR/$P-${QTVER}-${QTDIR_PREFIX}/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
+		touch $BUILD_DIR/$P-${QTVER}-${QTDIR_PREFIX}/install-${QTVER}.marker
 	}
 }

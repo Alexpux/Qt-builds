@@ -139,6 +139,9 @@ STATIC_LD=""
 # Default Qt version to build
 QT_VERSION="5.1.1"
 
+#Use different folders for building Qt with different opengl options
+QTDIR_PREFIX="angle"
+
 # Qt5 git branch to build
 QT_GIT_BRANCH="stable"
 
@@ -230,7 +233,10 @@ while [[ $# > 0 ]]; do
 			USER_DEFINED_TOOLCHAINS=yes
 		;;
 		--update-sources) UPDATE_SOURCES=yes ;;
-		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
+		--opengl-desktop)
+			USE_OPENGL_DESKTOP=yes
+			QTDIR_PREFIX="opengl"
+		;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--qt-git-branch=*) QT_GIT_BRANCH=${1/--qt-git-branch=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
@@ -333,7 +339,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	} || {
 		QTVER=${QT_VERSION}${STATIC_SUFFIX}
 	}
-	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-${QTVER}
+	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-${QTVER}-${QTDIR_PREFIX}
 	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE${STATIC_SUFFIX}
 	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE${STATIC_SUFFIX}
 

@@ -63,14 +63,14 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
+	mkdir -p $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX}
 
-	[[ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]] && {
+	[[ -f $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX}/configure.marker ]] && {
 		echo "---> configured"
 	} || {
-		pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
+		pushd $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX} > /dev/null
 		echo -n "---> configure..."
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $UNPACK_DIR/$P_V ) 
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX} $UNPACK_DIR/$P_V ) 
 		${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
 		echo " done"
@@ -85,7 +85,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
+		${P_V}-${QTVER}-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -99,7 +99,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
+		${P_V}-${QTVER}-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
@@ -117,7 +117,7 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
+		${P_V}-${QTVER}-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
@@ -129,7 +129,7 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
+		${P_V}-${QTVER}-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \

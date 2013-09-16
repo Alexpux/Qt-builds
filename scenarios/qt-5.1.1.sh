@@ -54,8 +54,8 @@ change_paths() {
 	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
-	#$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:
+	export PATH=$BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/bin:$BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	#$BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/gnuwin32/bin:
 }
 
 restore_paths() {
@@ -102,9 +102,9 @@ src_configure() {
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
 	}
 
-	lndirs $P_V $P-$QT_VERSION
+	lndirs $P_V $P-$QT_VERSION-$QTDIR_PREFIX
 
-	pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
+	pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/mkspecs/win32-g++ > /dev/null
 		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
@@ -118,10 +118,10 @@ src_configure() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 
-	[[ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]] && {
+	[[ -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/configure.marker ]] && {
 		echo "---> configured"
 	} || {
-		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
+		pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX > /dev/null
 		echo -n "---> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
@@ -168,7 +168,7 @@ src_configure() {
 		local _allconf="${_conf_flags[@]}"
 		./configure.bat \
 			$_allconf \
-			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
+			> ${LOG_DIR}/${P_V}-$QTDIR_PREFIX_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths
 		echo " done"
@@ -182,7 +182,7 @@ pkg_build() {
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
 		# Workaround for
 		# https://bugreports.qt-project.org/browse/QTBUG-28845
-		pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
+		pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/src/angle/src/libGLESv2 > /dev/null
 		[[ -f workaround.marker ]] && {
 			echo "---> Workaround applied"
 		} || {
@@ -200,7 +200,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -218,7 +218,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
@@ -227,19 +227,19 @@ pkg_install() {
 	install_docs
 
 	# Workaround for build other components (qbs, qtcreator, etc)
-	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/qwindows.marker && $STATIC_DEPS == yes ]] && {
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qwindows.marker && $STATIC_DEPS == yes ]] && {
 		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
 		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
-		touch $BUILD_DIR/$P-$QT_VERSION/qwindows.marker
+		touch $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qwindows.marker
 	}
 
 	# Workaround for installing empty .pc files
-	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker ]] && {
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/pkgconfig.marker ]] && {
 		echo -n "---> Fix pkgconfig files..."
 		local _pc_files=( $(find $BUILD_DIR/$P-$QT_VERSION -type f -name Qt5*.pc) )
 		cp -f ${_pc_files[@]} ${QTDIR}/lib/pkgconfig/ > /dev/null 2>&1
 		echo " done"
-		touch $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker
+		touch $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/pkgconfig.marker
 	}
 	restore_paths
 }
@@ -252,7 +252,7 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
@@ -264,7 +264,7 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \
