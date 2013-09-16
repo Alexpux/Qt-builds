@@ -65,8 +65,7 @@ src_patch() {
 }
 
 src_configure() {
-	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "---> Execute before configure..."
 		libtoolize --copy --force > execute.log 2>&1
@@ -76,7 +75,7 @@ src_configure() {
 		echo " done"
 		touch pre-configure.marker
 		popd > /dev/null
-	fi
+	}
 
 	local _conf_flags=(
 		--prefix=${PREFIX}

@@ -59,8 +59,7 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "---> Execute after patch..."
 		libtoolize --copy --force > execute.log 2>&1
@@ -68,7 +67,7 @@ src_patch() {
 		echo " done"
 		touch pre-configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 src_configure() {

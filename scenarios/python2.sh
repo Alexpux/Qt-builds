@@ -90,8 +90,7 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $UNPACK_DIR/$P_V/post-patch.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/post-patch.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "---> Executing..."
 		rm -rf Modules/expat
@@ -111,7 +110,7 @@ src_patch() {
 		echo " done"
 		touch post-patch.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 src_configure() {

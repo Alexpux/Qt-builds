@@ -99,9 +99,8 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if ! [ -f $BUILD_DIR/$P_V/post-install.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
 		cp -rf $MINGW_PERL_PREFIX/share/startup $MINGW_PERL_PREFIX/bin/
 		touch $BUILD_DIR/$P_V/post-install.marker
-	fi
+	}
 }

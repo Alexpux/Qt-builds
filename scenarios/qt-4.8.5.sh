@@ -67,12 +67,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT $BUILD_DIR
-
-	if [ -d $BUILD_DIR/$P_V ]
-	then 
-		mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT_VERSION
-	fi
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -94,37 +89,34 @@ src_patch() {
 	
 	func_apply_patches \
 		$P-$QT_VERSION \
-		_patches[@] \
-		$BUILD_DIR
+		_patches[@]
+}
+
+src_configure() {
+	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
+		mkdir -p ${QTDIR}/databases
+		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
+	}
 	
+	lndirs $P_V $P-$QT_VERSION
+
 	pushd $BUILD_DIR/$P-$QT_VERSION/mkspecs/win32-g++ > /dev/null
-		if [ -f qmake.conf.patched ]
-		then
+		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
-		else
+		} || {
 			cp -f qmake.conf qmake.conf.patched
-		fi
+		}
 		
 		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
 					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
-	
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
-	then
-		mkdir -p ${QTDIR}/databases
-		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
-	fi
-}
 
-src_configure() {
-
-	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
-	then
+	[[ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]] && {
 		echo "---> configured"
-	else
+	} || {
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "---> configure..."
 		change_paths
@@ -177,7 +169,7 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {
@@ -185,15 +177,14 @@ pkg_build() {
 	change_paths
 	
 	pushd $BUILD_DIR/$P-$QT_VERSION/src/3rdparty/webkit/Source/WebKit/qt/declarative > /dev/null
-	if [ -f workaround.marker ]
-	then
+	[[ -f workaround.marker ]] && {
 		echo "---> Workaround applied"
-	else
+	} || {
 		echo -n "---> Applying workaround..."
 		$BUILD_DIR/$P-$QT_VERSION/bin/qmake declarative.pro || die "QMake failed"
 		echo " done"
 		touch workaround.marker
-	fi
+	}
 	popd > /dev/null
 
 	local _make_flags=(
@@ -232,8 +223,7 @@ pkg_install() {
 
 private_headers() {
 
-	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/private_headers.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/private_headers.marker ]] && {
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo "---> Install private headers"
 
@@ -337,13 +327,12 @@ private_headers() {
 		echo "---> Done install private headers"
 		touch private_headers.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkgconfig_files() {
-	if ! [ -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.marker ]] && {
 		cp -rf $BUILD_DIR/$P-$QT_VERSION/lib/pkgconfig/* $QTDIR/lib/pkgconfig/ > $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.log 2>&1
 		touch $BUILD_DIR/$P-$QT_VERSION/pkgconfig_files.marker
-	fi
+	}
 }

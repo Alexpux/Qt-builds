@@ -80,8 +80,7 @@ src_configure() {
 	func_configure $P_V $P_V "$_allconf"
 	
 	pushd $BUILD_DIR/$P_V > /dev/null
-		if [ ! -f defs.marker ]
-		then
+		[[ ! -f defs.marker ]] && {
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/blibecpg_compatdll.def src/interfaces/ecpg/compatlib/blibecpg_compatdll.def
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/libecpg_compatddll.def src/interfaces/ecpg/compatlib/libecpg_compatddll.def
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/libecpg_compatdll.def src/interfaces/ecpg/compatlib/libecpg_compatdll.def
@@ -99,7 +98,7 @@ src_configure() {
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/libpq/libpqdll.def src/interfaces/libpq/libpqdll.def
 			
 			touch defs.marker
-		fi
+		}
 	popd > /dev/null
 }
 
@@ -131,10 +130,9 @@ pkg_install() {
 		"installed"
 
 	pushd $BUILD_DIR/$P_V > /dev/null
-		if [ ! -f postinstall.marker ]
-		then
+		[[ ! -f postinstall.marker ]] && {
 			cp -f $PREFIX/lib/*.dll $PREFIX/bin/
 			touch postinstall.marker
-		fi
+		}
 	popd > /dev/null	
 }

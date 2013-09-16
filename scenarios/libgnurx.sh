@@ -59,8 +59,7 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $UNPACK_DIR/$P_V/post-patch.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/post-patch.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "---> Execute after patch..."
 		cp ${PATCH_DIR}/${P}/mingw32-libgnurx-configure.ac configure.ac
@@ -74,7 +73,7 @@ src_patch() {
 		echo " done"
 		touch post-patch.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 src_configure() {
@@ -118,13 +117,12 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if ! [ -f $BUILD_DIR/${P_V}/post-install.marker ]
-	then
+	[[ ! -f $BUILD_DIR/${P_V}/post-install.marker ]] && {
 		[[ $STATIC_DEPS == no ]] && {
 			cp -f ${PREFIX}/lib/libgnurx.dll.a ${PREFIX}/lib/libregex.dll.a
 		} || {
 			cp -f ${PREFIX}/lib/libgnurx.a ${PREFIX}/lib/libregex.a
 		}
 		touch $BUILD_DIR/${P_V}/post-install.marker
-	fi
+	}
 }

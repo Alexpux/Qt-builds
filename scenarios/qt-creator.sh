@@ -65,10 +65,9 @@ src_patch() {
 src_configure() {
 	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
 
-	if [ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]
-	then
+	[[ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]] && {
 		echo "---> configured"
-	else
+	} || {
 		pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
 		echo -n "---> configure..."
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $UNPACK_DIR/$P_V ) 
@@ -77,7 +76,7 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {

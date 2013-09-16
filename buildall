@@ -312,15 +312,13 @@ x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 	die "Host toolchains is not installed. Terminate!"
 }
 
-if [ $USE_PYTHON=msys ]
-then 
+[[ $USE_PYTHON == msys ]] && {
     command -v "python" > /dev/null 2>&1 || { USE_PYTHON=self; }
-fi
+}
 
-if [ $BUILD_RUBY=no ]
-then 
+[[ $BUILD_RUBY == no ]] && {
     command -v "ruby" > /dev/null 2>&1 || { BUILD_RUBY=yes; }
-fi
+}
 	
 source versions.sh
 source package_order.sh
@@ -371,32 +369,30 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	
 	MINGW_PART_PATH=$PREFIX/bin:$PREFIX/boost-${BOOST_VERSION}/bin:$QTDIR/bin:$MINGWHOME/bin
 
-	if [ $USE_PYTHON == self ]
-	then
+	[[ $USE_PYTHON == self ]] && {
 		MINGW_PYTHON2_PREFIX=$PREFIX/python2
 		MINGW_PYTHON2_PREFIX_W=$PREFIX_WIN/python2
 		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
-	elif [ $USE_PYTHON == toolchain ]
-	then
-		MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
-		MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
-		export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
-		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
-	fi
+	} || {
+		[[ $USE_PYTHON == toolchain ]] && {
+			MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
+			MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
+			export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
+			MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
+		}
+	}
 
-	if [ $BUILD_RUBY == yes ]
-	then
+	[[ $BUILD_RUBY == yes ]] && {
 		MINGW_RUBY_PREFIX=$PREFIX/ruby
 		MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
 		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_RUBY_PREFIX/bin
-	fi
+	}
 
-	if [ $BUILD_PERL == yes ]
-	then
+	[[ $BUILD_PERL == yes ]] && {
 		MINGW_PERL_PREFIX=$PREFIX/perl
 		MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
 		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin
-	fi
+	}
 
 	export PATH=$MINGW_PART_PATH:$PATH
 
@@ -420,6 +416,9 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 		source ${SCENARIOS}/${sub}.sh
 
+		[[ $sub == coin3d ]] && {
+			echo "Breakpoint"
+		}
 		src_download
 		src_unpack
 		src_patch
@@ -428,6 +427,5 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 		pkg_install
 
 	done
-
 done
 

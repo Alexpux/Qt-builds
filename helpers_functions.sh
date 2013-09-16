@@ -65,39 +65,35 @@ toolchains_prepare() {
 
 	pushd $TOOLCHAINS_DIR > /dev/null
 
-	if ! [ -f $TOOLCHAINS_DIR/${_file_mingw32%.$_ext_mingw32}-unpack.marker ]
-	then
+	[[ ! -f $TOOLCHAINS_DIR/${_file_mingw32%.$_ext_mingw32}-unpack.marker ]] && {
 		echo "-> Prepare 32-bit toolchain..."
-		if [ -d $TOOLCHAINS_DIR/mingw32 ]
-		then
+		[[ -d $TOOLCHAINS_DIR/mingw32 ]] && {
 			echo -n "--> Remove previous toolchain..."
 			rm -rf $TOOLCHAINS_DIR/mingw32
 			echo " done"
-		fi
+		}
 
 		func_download ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $URL_MINGW32
 		func_uncompress ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $TOOLCHAINS_DIR
 		echo "--> Preparing 32-bit toolchain done"
-	else
+	} || {
 		echo "-> 32-bit toolchain prepared"
-	fi
+	}
 
-	if ! [ -f $TOOLCHAINS_DIR/${_file_mingw64%.$_ext_mingw64}-unpack.marker ]
-	then
+	[[ ! -f $TOOLCHAINS_DIR/${_file_mingw64%.$_ext_mingw64}-unpack.marker ]] && {
 		echo "-> Prepare 64-bit toolchain..."
-		if [ -d $TOOLCHAINS_DIR/mingw64 ]
-		then
+		[[ -d $TOOLCHAINS_DIR/mingw64 ]] && {
 			echo -n "--> Remove previous toolchain..."
 			rm -rf $TOOLCHAINS_DIR/mingw64
 			echo " done"
-		fi
+		}
 
 		func_download ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $URL_MINGW64
 		func_uncompress ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $TOOLCHAINS_DIR
 		echo "--> Preparing 64-bit toolchain done"
-	else
+	} || {
 		echo "-> 64-bit toolchain prepared"
-	fi
+	}
 
 	popd > /dev/null
 }
@@ -145,19 +141,17 @@ function func_download {
 	local _result=0
 	local _log_name=$MARKERS_DIR/${1//\//_}-download.log
 	local _marker_name=$MARKERS_DIR/${1//\//_}-download.marker
-	local _update=false
+	local _repo_update=no
 
 	local _filename=$(basename $3)
 	
-	[[ $2 == cvs || $2 == svn || $2 == hg || $2 == git ]] && {
+	[[ "$2" == "cvs" || "$2" == "svn" || "$2" == "hg" || "$2" == "git" ]] && {
 		local _lib_name=$UNPACK_DIR/$1
-		[[ $UPDATE_SOURCES == yes ]] && {
-			_update=true
-		}
+		[[ $UPDATE_SOURCES == yes ]] && _repo_update=yes
 	} || {
 		local _lib_name=$SRC_DIR/$1
 	}
-	[[ ! -f $_marker_name || $_update == true ]] && {
+	[[ ! -f $_marker_name || "$_repo_update" == "yes" ]] && {
 		[[ -f $SRC_DIR/$_filename ]] && {
 			echo -n "---> Delete corrupted download..."
 			rm -f $SRC_DIR/$_filename

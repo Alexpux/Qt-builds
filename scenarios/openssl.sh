@@ -83,10 +83,9 @@ src_configure() {
 	unset SCRIPTS
 	unset CROSS_COMPILE
 
-	if [ -f $BUILD_DIR/$P_V/configure.marker ]
-	then
+	[[ -f $BUILD_DIR/$P_V/configure.marker ]] && {
 		echo "---> configured"
-	else
+	} || {
 		pushd $BUILD_DIR/$P_V > /dev/null
 		echo -n "---> configure..."
 		sh Configure --prefix=${PREFIX} \
@@ -105,7 +104,7 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 	unset TOOLSET
 }
 

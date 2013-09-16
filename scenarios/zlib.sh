@@ -92,8 +92,7 @@ pkg_build() {
 	minizip_configure
 	minizip_build
 
-	if ! [ -f $BUILD_DIR/$P_V/pkgconfig.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P_V/pkgconfig.marker ]] && {
 		pushd $BUILD_DIR/$P_V > /dev/null
 		sed \
 			-e 's|@prefix@|'${PREFIX}'|g' \
@@ -105,7 +104,7 @@ pkg_build() {
 			zlib.pc.in > zlib.pc || die "SED error"
 		touch pkgconfig.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_install() {
@@ -124,14 +123,13 @@ pkg_install() {
 		"installed"
 
 	minizip_install
-	if ! [ -f $BUILD_DIR/$P_V/pkg_install.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P_V/pkg_install.marker ]] && {
 		cp -f $BUILD_DIR/$P_V/zlib.pc ${PREFIX}/lib/pkgconfig/
 		[[ $STATIC_DEPS == no ]] && {
 			rm -f ${PREFIX}/lib/libz.a
 		}
 		touch $BUILD_DIR/$P_V/pkg_install.marker
-	fi
+	}
 }
 
 minizip_configure() {

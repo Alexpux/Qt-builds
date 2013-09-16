@@ -50,12 +50,11 @@ src_unpack() {
 	func_uncompress $P_V $EXT
 	
 	pushd $UNPACK_DIR > /dev/null
-	if ! [ -f $P_V/post-unpack.marker ]
-		then
+	[[ ! -f $P_V/post-unpack.marker ]] && {
 		echo -n "---> Move icu to $P_V..."
 		mv -f $P $P_V
 		echo "done"
-	fi
+	}
 	touch $P_V/post-unpack.marker
 	popd > /dev/null	
 }
@@ -76,12 +75,11 @@ src_patch() {
 
 src_configure() {
 	pushd $UNPACK_DIR/$P_V/source > /dev/null
-	if ! [ -f pre-configure.marker ]
-	then
+	[[ ! -f pre-configure.marker ]] & {
 		echo -n "---> Execute before configure..."
 		autoconf --force > execute.log 2>&1
 		echo " done"
-	fi
+	}
 	touch pre-configure.marker
 	popd > /dev/null
 	
@@ -126,12 +124,12 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if ! [ -f $BUILD_DIR/$P_V/post-install.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
 		echo -n "---> Execute after install..."
+		local i=
 		for i in ${PREFIX}/lib/*.dll ; \
 			do cp -f ${i} ${PREFIX}/bin/; done
 		echo " done"
 		touch $BUILD_DIR/$P_V/post-install.marker
-	fi
+	}
 }

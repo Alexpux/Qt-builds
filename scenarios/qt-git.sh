@@ -90,23 +90,21 @@ restore_paths() {
 
 src_download() {
 	
-	if [ -d $SRC_DIR/$P_V ]
-	then
+	[[ -d $SRC_DIR/$P_V ]] && {
 		pushd $SRC_DIR/$P_V > /dev/null
 			git clean -f > /dev/null
 		popd > /dev/null
-	fi
+	}
 	func_download $P_V $EXT $URL_QT5 $QT_GIT_BRANCH
 	
 	local mod=
 	for mod in ${SUBMODULES[@]}; do
-		if [ -d $SRC_DIR/$P_V/$mod ]
-		then
+		[[ -d $SRC_DIR/$P_V/$mod ]] && {
 			pushd $SRC_DIR/$P_V/$mod > /dev/null
 				git clean -f > /dev/null
 				git reset --hard > /dev/null
 			popd > /dev/null
-		fi
+		}
 		func_download $P_V/$mod $EXT git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
 	done
 }
@@ -132,13 +130,12 @@ src_patch() {
 
 src_configure() {
 	pushd $UNPACK_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
-		if [ -f qmake.conf.patched ]
-		then
+		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
-		else
+		} || {
 			cp -f qmake.conf qmake.conf.patched
-		fi
+		}
 
 		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
 					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
@@ -146,16 +143,14 @@ src_configure() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
-	then
+	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
 		mkdir -p ${QTDIR}/databases
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
-	fi
+	}
 
-	if [ -f $BUILD_DIR/$P_V/configure.marker ]
-	then
+	[[ -f $BUILD_DIR/$P_V/configure.marker ]] && {
 		echo "---> configured"
-	else
+	} || {
 		mkdir -p $BUILD_DIR/$P_V
 		pushd $BUILD_DIR/$P_V > /dev/null
 		echo -n "---> configure..."
@@ -209,7 +204,7 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {
@@ -219,17 +214,16 @@ pkg_build() {
 		#https://bugreports.qt-project.org/browse/QTBUG-28845
 		mkdir -p $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2
 		pushd $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
-		if [ -f workaround.marker ]
-		then
+		[[ -f workaround.marker ]] && {
 			echo "---> Workaround applied"
-		else
+		} || {
 			echo -n "---> Applying workaround..."
 			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
 			qmake $_rel_path/libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
 			touch workaround.marker
-		fi
+		}
 		popd > /dev/null
 	} 
 	
@@ -266,12 +260,11 @@ pkg_install() {
 	put_sha1
 
 	# Workaround for build other components (qbs, qtcreator, etc)
-	if [[ ! -f $BUILD_DIR/$P_V/qwindows.marker && $STATIC_DEPS == yes ]]
-	then
+	[[ ! -f $BUILD_DIR/$P_V/qwindows.marker && $STATIC_DEPS == yes ]] && {
 		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
 		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
 		touch $BUILD_DIR/$P_V/qwindows.marker
-	fi
+	}
 
 	restore_paths
 }
@@ -304,23 +297,22 @@ install_docs() {
 }
 
 put_sha1() {
-	if [ -d $SRC_DIR/$P_V ]
-	then
+	[[ -d $SRC_DIR/$P_V ]] && {
 		pushd $SRC_DIR/$P_V > /dev/null
 			echo -n "$MAINMODULE SHA1: " > $QTDIR/sha1s
 			git log -1 --pretty=format:%H >> $QTDIR/sha1s
 			echo " ;" >> $QTDIR/sha1s
 		popd > /dev/null
-	fi
-	
+	}
+
+	local mod=
 	for mod in ${SUBMODULES[@]}; do
-		if [ -d $SRC_DIR/$P_V/$mod ]
-		then
+		[[ -d $SRC_DIR/$P_V/$mod ]] && {
 			pushd $SRC_DIR/$P_V/$mod > /dev/null
 				echo -n "$mod SHA1: " >> $QTDIR/sha1s
 				git log -1 --pretty=format:%H >> $QTDIR/sha1s
 				echo " ;" >> $QTDIR/sha1s
 			popd > /dev/null
-		fi
+		}
 	done
 }

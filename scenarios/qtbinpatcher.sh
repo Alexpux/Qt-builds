@@ -46,15 +46,14 @@ src_download() {
 }
 
 src_unpack() {
-	if [ -f $BUILD_DIR/$P/$P_V.marker ]
-	then
+	[[ -f $BUILD_DIR/$P/$P_V.marker ]] && {
 		echo "---> Sources copied"
-	else
+	} || {
 		echo -n "---> Copy sources..."
 		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $BUILD_DIR"
 		touch $BUILD_DIR/$P/$P_V.marker
 		echo " done"
-	fi
+	}
 }
 
 src_patch() {
@@ -79,9 +78,8 @@ pkg_build() {
 }
 
 pkg_install() {
-	if [ ! -f $BUILD_DIR/$P/install-${QTVER}.marker ]
-	then
+	[[ ! -f $BUILD_DIR/$P/install-${QTVER}.marker ]] && {
 		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
 		touch $BUILD_DIR/$P/install-${QTVER}.marker
-	fi
+	}
 }

@@ -62,13 +62,12 @@ src_patch() {
 src_configure() {
 	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
 	pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
-	if ! [ -f configure.marker ]
-	then
+	[[ ! -f configure.marker ]] && {
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $UNPACK_DIR/${P_V} ) 
 		${QTDIR}/bin/qmake.exe -r $_rel_path/qbs.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
 		touch configure.marker
-	fi
+	}
 	popd > /dev/null
 }
 

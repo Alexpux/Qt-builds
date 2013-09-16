@@ -97,22 +97,20 @@ src_patch() {
 
 src_configure() {
 
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
-	then
+	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
 		mkdir -p ${QTDIR}/databases
 		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
-	fi
+	}
 
 	lndirs $P_V $P-$QT_VERSION
 
 	pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
-		if [ -f qmake.conf.patched ]
-		then
+		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
-		else
+		} || {
 			cp -f qmake.conf qmake.conf.patched
-		fi
+		}
 
 		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
 					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
@@ -120,10 +118,9 @@ src_configure() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 
-	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
-	then
+	[[ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]] && {
 		echo "---> configured"
-	else
+	} || {
 		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
 		echo -n "---> configure..."
 		local _opengl
@@ -177,7 +174,7 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {
@@ -186,16 +183,15 @@ pkg_build() {
 		# Workaround for
 		# https://bugreports.qt-project.org/browse/QTBUG-28845
 		pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
-		if [ -f workaround.marker ]
-		then
+		[[ -f workaround.marker ]] && {
 			echo "---> Workaround applied"
-		else
+		} || {
 			echo -n "---> Applying workaround..."
 			qmake libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
 			touch workaround.marker
-		fi
+		}
 		popd > /dev/null
 	} 
 	
@@ -231,12 +227,11 @@ pkg_install() {
 	install_docs
 
 	# Workaround for build other components (qbs, qtcreator, etc)
-	if [[ ! -f $BUILD_DIR/$P-$QT_VERSION/qwindows.marker && $STATIC_DEPS == yes ]]
-	then
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/qwindows.marker && $STATIC_DEPS == yes ]] && {
 		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
 		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
 		touch $BUILD_DIR/$P-$QT_VERSION/qwindows.marker
-	fi
+	}
 
 	# Workaround for installing empty .pc files
 	[[ ! -f $BUILD_DIR/$P-$QT_VERSION/pkgconfig.marker ]] && {
