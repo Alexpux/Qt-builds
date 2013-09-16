@@ -416,9 +416,6 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 		source ${SCENARIOS}/${sub}.sh
 
-		[[ $sub == coin3d ]] && {
-			echo "Breakpoint"
-		}
 		src_download
 		src_unpack
 		src_patch
