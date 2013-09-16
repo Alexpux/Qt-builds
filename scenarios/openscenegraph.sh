@@ -68,6 +68,7 @@ src_configure() {
 		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
 		pushd $BUILD_DIR/$P_V > /dev/null
 		export COLLADA_DIR=$PREFIX
+		export USE_COIN=1
 		$PREFIX/bin/cmake \
 			$_rell \
 			-G 'MSYS Makefiles' \
@@ -100,6 +101,7 @@ src_configure() {
 			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
 		touch configure.marker
 		unset COLLADA_DIR
+		unset USE_COIN
 		popd > /dev/null
 		echo " done"
 	} || {
