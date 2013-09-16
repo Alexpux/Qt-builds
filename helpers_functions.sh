@@ -147,7 +147,10 @@ function func_download {
 	
 	[[ "$2" == "cvs" || "$2" == "svn" || "$2" == "hg" || "$2" == "git" ]] && {
 		local _lib_name=$UNPACK_DIR/$1
-		[[ $UPDATE_SOURCES == yes ]] && _repo_update=yes
+		if [[ $UPDATE_SOURCES == yes ]]
+		then
+			_repo_update=yes
+		fi
 	} || {
 		local _lib_name=$SRC_DIR/$1
 	}
