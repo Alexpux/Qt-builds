@@ -236,7 +236,7 @@ pkg_install() {
 	# Workaround for installing empty .pc files
 	[[ ! -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/pkgconfig.marker ]] && {
 		echo -n "---> Fix pkgconfig files..."
-		local _pc_files=( $(find $BUILD_DIR/$P-$QT_VERSION -type f -name Qt5*.pc) )
+		local _pc_files=( $(find $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX -type f -name Qt5*.pc) )
 		cp -f ${_pc_files[@]} ${QTDIR}/lib/pkgconfig/ > /dev/null 2>&1
 		echo " done"
 		touch $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/pkgconfig.marker
