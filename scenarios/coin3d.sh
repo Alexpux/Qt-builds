@@ -108,7 +108,7 @@ pkg_install() {
 	local _allinstall="${_install_flags[@]}"
 	func_make \
 		${P_V} \
-		"bin/make" \
+		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
