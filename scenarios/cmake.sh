@@ -42,6 +42,16 @@ SRC_FILE="${P_V}${EXT}"
 URL=http://www.cmake.org/files/v2.8/${SRC_FILE}
 DEPENDS=(curl expat libarchive ncurses pkg-config zlib)
 
+change_paths() {
+	OLD_PATH=$PATH
+	export PATH=${PATH//$QTDIR\/bin:/}
+}
+
+restore_paths() {
+	export PATH=$OLD_PATH
+	unset OLD_PATH
+}
+
 src_download() {
 	func_download $P_V $EXT $URL
 }
@@ -66,7 +76,9 @@ src_configure() {
 		--no-qt-gui
 	)
 	local _allconf="${_conf_flags[@]}"
+	change_paths
 	func_configure $P_V $P_V "$_allconf"
+	restore_paths
 }
 
 pkg_build() {
