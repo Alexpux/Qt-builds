@@ -175,10 +175,18 @@ function func_download {
 				_result=$?
 			;;
 			svn)
-				[[ -n $4 ]] && {
-					svn co -r $4 $3 $_lib_name > $_log_name 2>&1
+				[[ -d $_lib_name/.svn ]] && {
+					pushd $_lib_name > /dev/null
+					svn-clean -f > $_log_name 2>&1
+					svn revert -R ./ >> $_log_name 2>&1
+					svn up >> $_log_name 2>&1
+					popd > /dev/null
 				} || {
-					svn co $3 $_lib_name > $_log_name 2>&1
+					[[ -n $4 ]] && {
+						svn co -r $4 $3 $_lib_name > $_log_name 2>&1
+					} || {
+						svn co $3 $_lib_name > $_log_name 2>&1
+					}
 				}
 				_result=$?
 			;;
@@ -188,8 +196,11 @@ function func_download {
 			;;
 			git)
 				[[ -d $_lib_name/.git ]] && {
-					cd $_lib_name
-					git pull > $_log_name 2>&1
+					pushd $_lib_name > /dev/null
+					git clean -f > $_log_name 2>&1
+					git reset --hard >> $_log_name 2>&1
+					git pull >> $_log_name 2>&1
+					popd > /dev/null
 				} || {
 					[[ -n $4 ]] && {
 						git clone --branch $4 $3 $_lib_name > $_log_name 2>&1
