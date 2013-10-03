@@ -1,4 +1,5 @@
-/toolchains
+/toolchains_posix
+/toolchains_win32
 *.exe
 *.bat
 *.7z
