@@ -67,7 +67,7 @@ src_patch() {
 
 src_configure() {
 	lndirs
-	[[ $ARCHITECTURE == x64 ]] &&
+	[[ $ARCHITECTURE == x86_64 ]] &&
 	{
 		TOOLSET=mingw64
 	} || {
