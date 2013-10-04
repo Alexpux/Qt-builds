@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,54 +35,89 @@
 
 # **************************************************************************
 
-# Versions of packages
-export BZIP2_VERSION="1.0.6"
-export BOOST_VERSION="1.54.0"
-export CMAKE_VERSION="2.8.11.2"
-export COLLADA_DOM_VERSION="2.4.0"
-export CURL_VERSION="7.32.0"
-export DMAKE_VERSION="4.12.2"
-export EXPAT_VERSION="2.1.0"
-export FONTCONFIG_VERSION="2.10.2"
-export FREEGLUT_VERSION="2.8.1"
-export FREETYPE_VERSION="2.5.0.1"
-export GIFLIB_VERSION="4.2.3"
-export GETTEXT_VERSION="0.18.2.1"
-export GPERF_VERSION="3.0.4"
-export ICU_VERSION="51.2"
-export JBIGKIT_VERSION="2.0"
-export LCMS2_VERSION="2.5"
-export LIBARCHIVE_VERSION="3.1.2"
-export LIBFFI_VERSION="3.0.13"
-export LIBGNURX_VERSION="2.5.1"
-export LIBICONV_VERSION="1.14"
-export LIBIDN_VERSION="1.28"
-export LIBJPEG_TURBO_VERSION="1.3.0"
-export LIBPNG_VERSION="1.6.6"
-export LIBSSH2_VERSION="1.4.3"
-export LIBXML2_VERSION="2.9.1"
-export LIBXSLT_VERSION="1.1.28"
-export LZO_VERSION="2.06"
-export NASM_VERSION="2.10.09"
-export NCURSES_VERSION="5.9"
-export OPENSCENEGRAPH_VERSION="3.2.0"
-export OPENSSL_VERSION="1.0.1e"
-export PCRE_VERSION="8.33"
-export PERL_VERSION="5.18.1"
-export PKG_CONFIG_VERSION="0.28"
-export POPPLER_VERSION="0.24.2"
-export POPPLER_DATA_VERSION="0.4.6"
-export POSTGRESQL_VERSION="9.2.4"
-export PYTHON2_VERSION="2.7.5"
-export QT_CREATOR_VERSION="2.8.1"
-export READLINE_VERSION="6.2"
-export RUBY_VERSION="2.0.0-p247"
-export SDL_VERSION="1.2.15"
-export SDL2_VERSION="2.0.0"
-export SQLITE_VERSION="3080002" #3.8.0.2
-export TCL_VERSION="8.6.1"
-export TK_VERSION="8.6.1"
-export TIFF_VERSION="4.0.3"
-export XZ_TOOLS_VERSION="5.0.5"
-export YAML_VERSION="0.1.4"
-export ZLIB_VERSION="1.2.8"
+P=tcl
+P_V=${P}${TCL_VERSION}
+EXT=".tar.gz"
+SRC_FILE="${P_V}-src${EXT}"
+URL=http://prdownloads.sourceforge.net/tcl/${SRC_FILE}
+DEPENDS=()
+
+src_download() {
+	func_download $P_V $EXT $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V $EXT
+}
+
+src_patch() {
+	local _patches=(
+		$P/tcl-8.5.14-autopath.patch
+		$P/tcl-8.5.14-conf.patch
+		$P/tcl-8.5.14-hidden.patch
+		$P/tcl-mingw-w64-compatibility.patch
+		$P/tcl-8.6.1-mingwexcept.patch
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	lndirs
+	
+	local _conf_flags=(
+		--build=${HOST}
+		--host=${HOST}
+		--target=${HOST}
+		--prefix=${PREFIX}
+		--with-tcl=$PREFIX/lib
+		--enable-shared
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V/win win "$_allconf" $BUILD_DIR/$P_V
+}
+
+pkg_build() {
+	local _make_flags=(
+		-j1
+		TCL_LIBRARY=$LIBS_DIR/lib/tcl8.6
+		all
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}/win \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+
+	local _install_flags=(
+		TCL_LIBRARY=$LIBS_DIR/lib/tcl8.6
+		install
+	)
+
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V}/win \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+
+	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
+		ln -s $PREFIX/bin/tclsh86.exe $PREFIX/bin/tclsh.exe
+		mv $PREFIX/lib/libtcl86.a $PREFIX/lib/libtcl86.dll.a
+		mv $PREFIX/lib/libtclstub86.a $PREFIX/lib/libtclstub86.dll.a
+		ln -s $PREFIX/lib/libtcl86.dll.a $PREFIX/lib/libtcl.dll.a
+		ln -s $PREFIX/lib/tclConfig.sh $PREFIX/lib/tcl8.6/tclConfig.sh
+		mkdir -p $PREFIX/include/tcl-private/{generic,win}
+		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win -name \"*.h\" -exec cp -p '{}' $PREFIX/include/tcl-private/'{}' ';'
+
+		touch $BUILD_DIR/$P_V/post-install.marker
+	}
+}

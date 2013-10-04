@@ -45,6 +45,8 @@ PACKAGES=(
 	xz
 	expat
 	sqlite
+	tcl
+	tk
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "pcre \
 				 icu \
