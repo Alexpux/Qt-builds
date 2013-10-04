@@ -127,7 +127,7 @@ pkg_build() {
 		pushd ${BUILD_DIR}/${P_V} > /dev/null
 		local _bvar="variant=release threading=single,multi threadapi=win32 \
 			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
-		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == x32 ]] && echo 32 || echo 64 ) \
+		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == i686 ]] && echo 32 || echo 64 ) \
 			${_bvar} --without-mpi --without-python "
 	
 		./b2 ${MAKE_OPTS} \
@@ -153,7 +153,7 @@ pkg_install() {
 		pushd ${BUILD_DIR}/${P_V} > /dev/null
 		local _bvar="variant=release threading=single,multi threadapi=win32 \
 			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
-		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == x32 ]] && echo 32 || echo 64 ) \
+		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == i686 ]] && echo 32 || echo 64 ) \
 			${_bvar} --without-mpi --without-python "
 	
 		./b2 ${MAKE_OPTS} \

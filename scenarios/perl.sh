@@ -87,7 +87,7 @@ src_configure() {
 
 		local COMMA=
 		local EXTRA=$MINGWHOME_WIN/$TARGET/lib
-		[[ $ARCHITECTURE == x32 ]] && {
+		[[ $ARCHITECTURE == i686 ]] && {
 			COMMA=""	
 		} || {
 			COMMA="#"

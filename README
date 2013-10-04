@@ -50,15 +50,15 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   For all available options please run: "./buildall --help"
 
 10. Run:
-  "./buildall x32" - for building 32-bit Qt
-  "./buildall x64" - for building 64-bit Qt
-  "./buildall x32 x64" - for building both 32 and 64 bits Qt
+  "./buildall i686" - for building 32-bit Qt
+  "./buildall x86_64" - for building 64-bit Qt
+  "./buildall i686 x86_64" - for building both 32 and 64 bits Qt
 
 By default Qt installing in "C:/QtSDK/Qt{32,64}-<version>" and 3rdparty libraries in "C:/QtSDK/ported{32,64}".
 You may change install location by pass "--install-top=$DIRECTORY" to build script.
 
 For example:
-./buildall --install-top=C:/SDK x32
+./buildall --install-top=C:/SDK i686
 building 32-bit Qt and installing Qt into C:/SDK/Qt32-<version>.
 
 Binary builds are hosted on https://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/Qt-Builds/.
