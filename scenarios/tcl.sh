@@ -82,7 +82,7 @@ src_configure() {
 pkg_build() {
 	local _make_flags=(
 		-j1
-		TCL_LIBRARY=$LIBS_DIR/lib/tcl8.6
+		TCL_LIBRARY=$PREFIX/lib/tcl8.6
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -97,7 +97,7 @@ pkg_build() {
 pkg_install() {
 
 	local _install_flags=(
-		TCL_LIBRARY=$LIBS_DIR/lib/tcl8.6
+		TCL_LIBRARY=$PREFIX/lib/tcl8.6
 		install
 	)
 
