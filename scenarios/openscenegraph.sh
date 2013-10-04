@@ -52,7 +52,7 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/osg-qt-movetothread.patch
+		#$P/osg-qt-movetothread.patch
 		$P/osg-collada-dae-fixes.patch
 	)
 
@@ -94,8 +94,8 @@ src_configure() {
 			-DBUILD_OSG_EXAMPLES:BOOL=ON \
 			-DCOLLADA_INCLUDE_DIR=$PREFIX/include/collada-dom2.4 \
 			-DCOLLADA_DYNAMIC_LIBRARY=$PREFIX/lib/libcollada-dom2.4-dp.dll.a \
-			-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/boost-${BOOST_VERSION}/lib/libboost_filesystem-mt.dll.a \
-			-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/boost-${BOOST_VERSION}/lib/libboost_system-mt.dll.a \
+			-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/lib/libboost_filesystem-mt.dll.a \
+			-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/lib/libboost_system-mt.dll.a \
 			-DGIFLIB_DIR=$PREFIX \
 			-DFREETYPE_DIR=$PREFIX \
 			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"

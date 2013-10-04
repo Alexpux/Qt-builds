@@ -73,7 +73,7 @@ src_configure() {
 			-DCMAKE_INSTALL_PREFIX=$PREFIX \
 			-DOPT_COLLADA15:BOOL=OFF \
 			-DCMAKE_BUILD_TYPE=Release \
-			-DBOOST_ROOT=$PREFIX/boost-${BOOST_VERSION} \
+			-DBOOST_ROOT=$PREFIX \
 			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
 		touch configure.marker
 		popd > /dev/null

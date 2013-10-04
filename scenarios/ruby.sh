@@ -61,7 +61,7 @@ src_patch() {
 
 src_configure() {
 	local _conf_flags=(
-		--prefix=${MINGW_RUBY_PREFIX_W}
+		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
 		--target=${HOST}

@@ -81,7 +81,7 @@ src_configure() {
 		echo -n "---> configure..."
 		
 		local DRV=`expr substr $MINGW_PERL_PREFIX_W 1 2`
-		local NOTDRV=${MINGW_PERL_PREFIX_W#$DRV}
+		local NOTDRV=${PREFIX_WIN#$DRV}
 		NOTDRV=$(echo $NOTDRV | sed 's|/|\\\\|g')
 		local MINGWHOME_WIN_P=$(echo $MINGWHOME_WIN | sed 's|/|\\\\|g')
 
@@ -116,7 +116,7 @@ pkg_build() {
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
 		echo "---> Building..."
 		change_paths
-		$MINGW_PERL_PREFIX_W/bin/dmake || die "Error building PERL"
+		$PREFIX_WIN/bin/dmake || die "Error building PERL"
 		restore_paths
 		echo " done"
 		touch make.marker
@@ -132,7 +132,7 @@ pkg_install() {
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
 		echo "---> Installing..."
 		change_paths
-		$MINGW_PERL_PREFIX_W/bin/dmake install || die "Error installing PERL"
+		$PREFIX_WIN/bin/dmake install || die "Error installing PERL"
 		restore_paths
 		echo " done"
 		touch install.marker

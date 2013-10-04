@@ -61,7 +61,7 @@ src_patch() {
 
 src_configure() {
 	local _conf_flags=(
-		--prefix=${MINGW_PERL_PREFIX}
+		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
 		--target=${HOST}
@@ -100,7 +100,7 @@ pkg_install() {
 		"installed"
 
 	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
-		cp -rf $MINGW_PERL_PREFIX/share/startup $MINGW_PERL_PREFIX/bin/
+		cp -rf $PREFIX/share/startup $PREFIX/bin/
 		touch $BUILD_DIR/$P_V/post-install.marker
 	}
 }

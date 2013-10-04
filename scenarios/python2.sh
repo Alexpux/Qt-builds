@@ -118,7 +118,7 @@ src_configure() {
 	export ac_cv_working_tzset=no
 	
 	local _conf_flags=(
-		--prefix=${MINGW_PYTHON2_PREFIX}
+		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
 		--enable-shared
@@ -132,7 +132,7 @@ src_configure() {
 		CFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$MINGWHOME_WIN/$HOST/include\""
 		CXXFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncurses -I$MINGWHOME_WIN/$HOST/include\""
 		CPPFLAGS="\"$HOST_CPPFLAGS -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncurses -I$MINGWHOME_WIN/$HOST/include\""
-		LDFLAGS="\"-pipe -s -L$MINGWHOME_WIN/$HOST/lib -L$MINGW_PYTHON2_PREFIX/lib -L$PREFIX_WIN/lib\""
+		LDFLAGS="\"-pipe -s -L$MINGWHOME_WIN/$HOST/lib -L$PREFIX_WIN/lib\""
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure $P_V $P_V "$_allconf"
@@ -162,5 +162,5 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-	export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
+	export PYTHONHOME=$PREFIX
 }

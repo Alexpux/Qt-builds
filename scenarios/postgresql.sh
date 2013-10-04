@@ -104,7 +104,6 @@ src_configure() {
 
 pkg_build() {
 	local _make_flags=(
-		PYTHON_DIR=$MINGW_PYTHON2_PREFIX
 		all
 	)
 	local _allmake="${_make_flags[@]}"

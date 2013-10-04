@@ -132,7 +132,7 @@ pkg_build() {
 	
 		./b2 ${MAKE_OPTS} \
 			${_bflag} \
-			--prefix=${PREFIX}/${P}-${BOOST_VERSION} \
+			--prefix=${PREFIX} \
 			-sHAVE_ICU=1 \
 			-sICU_PATH=${PREFIX} \
 			-sICU_LINK="-L${PREFIX}/lib -licuuc -licuin -licudt" \
@@ -158,7 +158,7 @@ pkg_install() {
 	
 		./b2 ${MAKE_OPTS} \
 			${_bflag} \
-			--prefix=${PREFIX}/${P}-${BOOST_VERSION} \
+			--prefix=${PREFIX} \
 			-sHAVE_ICU=1 \
 			-sICU_PATH=${PREFIX} \
 			-sICU_LINK="-L${PREFIX}/lib -licuuc -licuin -licudt" \
