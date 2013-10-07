@@ -104,7 +104,9 @@ src_patch() {
 src_configure() {
 	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
 		mkdir -p ${QTDIR}/databases
-		rsync -av ${PATCH_DIR}/${P}/databases-${ARCHITECTURE} ${QTDIR}/databases
+		echo "---> Sync database folder... "
+		rsync -av ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/ ${QTDIR}/databases/ > /dev/null
+		echo "done"
 	}
 
 	lndirs $P_V $P-$QT_VERSION-$QTDIR_PREFIX

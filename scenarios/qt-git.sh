@@ -145,7 +145,9 @@ src_configure() {
 	
 	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
 		mkdir -p ${QTDIR}/databases
-		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
+		echo "---> Sync database folder... "
+		rsync -av ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/ ${QTDIR}/databases/ > /dev/null
+		echo "done"
 	}
 
 	[[ -f $BUILD_DIR/$P_V-${QTDIR_PREFIX}/configure.marker ]] && {
