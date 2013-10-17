@@ -40,6 +40,13 @@ die() {
 
 # **************************************************************************
 
+clear_env() {
+	unset PKG_CONFIGURE
+	unset PKG_LNDIR
+}
+
+# **************************************************************************
+
 get_filename_extension() {
 	local _fileext=
 	local _filename=$1
@@ -402,11 +409,16 @@ function func_configure {
 	local _log_name=$LOG_DIR/${2//\//_}-configure.log
 
 	[[ ! -f $_marker ]] && {
-		echo -n "---> configure..."
 		mkdir -p $BUILD_DIR/$1
-		local _rell=$( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )
+		[[ $PKG_LNDIR == yes ]] && {
+			lndirs
+			local _rell="."
+		} || {
+			local _rell=$( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )
+		}
+		echo -n "---> configure..."
 		pushd $BUILD_DIR/$1 > /dev/null
-		eval ${_rell}/configure "${3}" > $_log_name 2>&1
+		eval ${_rell}/${PKG_CONFIGURE} "${3}" > $_log_name 2>&1
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"

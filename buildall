@@ -397,6 +397,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	echo "-> Start building"
 
 	for sub in ${PACKAGES[@]}; do
+		clear_env
 		echo -e "-> \E[32;40m$sub\E[37;40m"
 		[[ ! -f $SCENARIOS/$sub.sh ]] && {
 			die "script for subtarget \"$sub\" is not exists. terminate."
@@ -404,6 +405,8 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 		source ${SCENARIOS}/${sub}.sh
 
+		[[ -z $PKG_CONFIGURE ]] && { PKG_CONFIGURE=configure; }
+		[[ -z $PKG_LNDIR ]] && { PKG_LNDIR=no; }
 		src_download
 		src_unpack
 		src_patch
