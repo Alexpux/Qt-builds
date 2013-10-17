@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,86 +35,68 @@
 
 # **************************************************************************
 
-PACKAGES=(
-	pkg-config
-	bzip2
-	zlib
-	gperf
-	libgnurx
-	lzo
-	ncurses
-	readline
-	xz
-	expat
-	sqlite
-	tcl
-	tk
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
+P=discount
+P_V=${P}-${DISCOUNT_VERSION}
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
+URL=http://www.pell.portland.or.us/~orc/Code/${P}/${SRC_FILE}
+DEPENDS=()
+PKG_CONFIGURE=configure.sh
+PKG_LNDIR=yes
+
+src_download() {
+	func_download $P_V $EXT $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V $EXT
+}
+
+src_patch() {
+	local _patches=(
 	)
-	openssl
-	$( [[ $USE_PYTHON == self ]] \
-		&& echo "libffi python2" \
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	lndirs
+	export CC=gcc
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--enable-all-features
+		--enable-dl-tag
+		--enable-superscript
 	)
-	yaml
- 	$( [[ $BUILD_RUBY == yes ]] \
-		&& echo "ruby" \
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf"
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
 	)
- 	$( [[ $BUILD_PERL == yes ]] \
-		&& echo "dmake \
-				 perl" \
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
 	)
-	gettext
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "libpng \
-				 freetype \
-				 fontconfig" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "nasm \
-				hunspell \
-				libjpeg-turbo \
-				giflib \
-				jbigkit \
-				freeglut \
-				tiff \
-				lcms2 \
-				libidn \
-				libssh2 \
-				curl \
-				libarchive \
-				cmake \
-				discount" \
-	)
-	qt-$QT_VERSION
-	qtbinpatcher
- 	$( [[ $STATIC_DEPS == yes ]] \
-		&& echo "installer-framework" \
-	)
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "qbs" \
-	)
-	$( [[ $BUILD_QTCREATOR == yes ]] \
-		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "poppler-data \
-				poppler \
-				boost" \
-	)
-	$( [[ $BUILD_COIN3D == yes && $STATIC_DEPS == no ]] \
-		&& echo "simage \
-				coin3d \
-				quarter \
-				simvoleon" \
-	)
-	$( [[ $BUILD_OSG == yes && $STATIC_DEPS == no ]] \
-		&& echo "SDL \
-				collada-dom \
-				openscenegraph" \
-	)
-)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
