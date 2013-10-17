@@ -64,7 +64,7 @@ src_configure() {
 		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
-		--target=${HOST}
+		#--target=${HOST}
 		${LNKDEPS}
 		--disable-rpath
 		--with-internal-glib
