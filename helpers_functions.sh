@@ -53,6 +53,8 @@ clear_env() {
 	unset PKG_URL
 	unset PKG_DEPENDS
 	unset PKG_MAKE
+	unset PKG_USE_CMAKE
+	unset PKG_USE_QMAKE
 }
 
 # **************************************************************************
@@ -436,12 +438,21 @@ function func_configure {
 
 	local _marker=$_bld_dir/_configure.marker
 	local _result=0
-
+	
+	local _conf_cmd="${_rell}/${PKG_CONFIGURE} ${1}"
+	[[ $PKG_USE_CMAKE == yes ]] && {
+		local _conf_cmd="cmake ${_rell} ${1}"
+	}
+	[[ $PKG_USE_QMAKE == yes ]] && {
+		local _conf_cmd="qmake ${_rell}/${PKG_CONFIGURE} ${1}"
+	}
+	
 	[[ ! -f $_marker ]] && {
 		mkdir -p $_bld_dir
 		echo -n "---> configure..."
 		pushd $_bld_dir > /dev/null
-		eval ${_rell}/${PKG_CONFIGURE} "${1}" > $_log_name 2>&1
+		
+		eval ${_conf_cmd} > $_log_name 2>&1
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"
