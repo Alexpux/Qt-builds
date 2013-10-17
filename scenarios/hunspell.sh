@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,55 +35,73 @@
 
 # **************************************************************************
 
-# Versions of packages
-export BZIP2_VERSION="1.0.6"
-export BOOST_VERSION="1.54.0"
-export CMAKE_VERSION="2.8.11.2"
-export COLLADA_DOM_VERSION="2.4.0"
-export CURL_VERSION="7.32.0"
-export DMAKE_VERSION="4.12.2"
-export EXPAT_VERSION="2.1.0"
-export FONTCONFIG_VERSION="2.10.2"
-export FREEGLUT_VERSION="2.8.1"
-export FREETYPE_VERSION="2.5.0.1"
-export GIFLIB_VERSION="4.2.3"
-export GETTEXT_VERSION="0.18.3.1"
-export GPERF_VERSION="3.0.4"
-export HUNSPELL_VERSION="1.3.2"
-export ICU_VERSION="51.2"
-export JBIGKIT_VERSION="2.0"
-export LCMS2_VERSION="2.5"
-export LIBARCHIVE_VERSION="3.1.2"
-export LIBFFI_VERSION="3.0.13"
-export LIBGNURX_VERSION="2.5.1"
-export LIBICONV_VERSION="1.14"
-export LIBIDN_VERSION="1.28"
-export LIBJPEG_TURBO_VERSION="1.3.0"
-export LIBPNG_VERSION="1.6.6"
-export LIBSSH2_VERSION="1.4.3"
-export LIBXML2_VERSION="2.9.1"
-export LIBXSLT_VERSION="1.1.28"
-export LZO_VERSION="2.06"
-export NASM_VERSION="2.10.09"
-export NCURSES_VERSION="5.9"
-export OPENSCENEGRAPH_VERSION="3.2.0"
-export OPENSSL_VERSION="1.0.1e"
-export PCRE_VERSION="8.33"
-export PERL_VERSION="5.18.1"
-export PKG_CONFIG_VERSION="0.28"
-export POPPLER_VERSION="0.24.2"
-export POPPLER_DATA_VERSION="0.4.6"
-export POSTGRESQL_VERSION="9.2.4"
-export PYTHON2_VERSION="2.7.5"
-export QT_CREATOR_VERSION="2.8.1"
-export READLINE_VERSION="6.2"
-export RUBY_VERSION="2.0.0-p247"
-export SDL_VERSION="1.2.15"
-export SDL2_VERSION="2.0.0"
-export SQLITE_VERSION="3080002" #3.8.0.2
-export TCL_VERSION="8.6.1"
-export TK_VERSION="8.6.1"
-export TIFF_VERSION="4.0.3"
-export XZ_TOOLS_VERSION="5.0.5"
-export YAML_VERSION="0.1.4"
-export ZLIB_VERSION="1.2.8"
+P=hunspell
+P_V=${P}-${HUNSPELL_VERSION}
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
+URL=http://download.sourceforge.net/${P}/${SRC_FILE}
+DEPENDS=()
+
+src_download() {
+	func_download $P_V $EXT $URL
+}
+
+src_unpack() {
+	func_uncompress $P_V $EXT
+}
+
+src_patch() {
+	local _patches=(
+	)
+	
+	func_apply_patches \
+		$P_V \
+		_patches[@]
+}
+
+src_configure() {
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--build=${HOST}
+		--host=${HOST}
+		#--target=${HOST}
+		${LNKDEPS}
+		--disable-rpath
+		--enable-threads=win32
+		--with-ui
+		--with-readline
+		CFLAGS="\"${HOST_CFLAGS} -I${PREFIX}/include/ncursesw\""
+		CXXFLAGS="\"${HOST_CFLAGS} -I${PREFIX}/include/ncursesw\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf"
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V} \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+}
