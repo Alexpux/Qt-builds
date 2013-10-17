@@ -64,7 +64,7 @@ src_configure() {
 		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
-		--target=${HOST}
+		#--target=${HOST}
 		--without-ada
 		--with-cxx
 		--enable-pc-files
@@ -78,7 +78,7 @@ src_configure() {
 		--enable-sp-funcs
 		--enable-term-driver
 		--enable-interop
-		--disable-widec
+		--enable-widec
 		CFLAGS="\"${HOST_CFLAGS} -D__USE_MINGW_ANSI_STDIO=1\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
