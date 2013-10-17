@@ -70,6 +70,7 @@ src_configure() {
 		--host=${HOST}
 		--target=${HOST}
 		${LNKDEPS}
+		--with-curses
 		CFLAGS="\"${HOST_CFLAGS} -D__USE_MINGW_ANSI_STDIO=1\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""

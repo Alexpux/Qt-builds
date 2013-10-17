@@ -112,4 +112,9 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
+
+	[[ ! -f $BUILD_DIR/${P_V}/post-install.marker ]] && {
+		cp -f ${PREFIX}/lib/libncursesw.a ${PREFIX}/lib/libncurses.a
+		touch $BUILD_DIR/${P_V}/post-install.marker
+	}
 }

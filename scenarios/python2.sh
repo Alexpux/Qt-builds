@@ -130,8 +130,8 @@ src_configure() {
 		LIBFFI_INCLUDEDIR="$PREFIX_WIN/lib/libffi-$LIBFFI_VERSION/include"
 		OPT=""
 		CFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$MINGWHOME_WIN/$HOST/include\""
-		CXXFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncurses -I$MINGWHOME_WIN/$HOST/include\""
-		CPPFLAGS="\"$HOST_CPPFLAGS -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncurses -I$MINGWHOME_WIN/$HOST/include\""
+		CXXFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncursesw -I$MINGWHOME_WIN/$HOST/include\""
+		CPPFLAGS="\"$HOST_CPPFLAGS -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncursesw -I$MINGWHOME_WIN/$HOST/include\""
 		LDFLAGS="\"-pipe -s -L$MINGWHOME_WIN/$HOST/lib -L$PREFIX_WIN/lib\""
 	)
 	local _allconf="${_conf_flags[@]}"
