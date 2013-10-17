@@ -66,7 +66,7 @@ PACKAGES=(
 		&& echo "dmake \
 				 perl" \
 	)
-	# gettext
+	gettext
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "libpng \
 				 freetype \
