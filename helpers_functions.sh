@@ -43,6 +43,16 @@ die() {
 clear_env() {
 	unset PKG_CONFIGURE
 	unset PKG_LNDIR
+	unset PKG_LNDIR_SRC
+	unset PKG_LNDIR_DEST
+	unset PKG_SRC_SUBDIR
+	unset P_V
+	unset P
+	unset PKG_EXT
+	unset PKG_SRC_FILE
+	unset PKG_URL
+	unset PKG_DEPENDS
+	unset PKG_MAKE
 }
 
 # **************************************************************************
@@ -299,15 +309,19 @@ function func_uncompress {
 
 # create copy of sources in build directory
 function lndirs() {
-	local _src_dir=
-	local _dest_dir=
-	[[ $# -eq 0 ]] && {
-		_src_dir=$UNPACK_DIR/$P_V
-		_dest_dir=$BUILD_DIR/$P_V
+	local _src_dir=$UNPACK_DIR
+	local _dest_dir=$BUILD_DIR
+	[[ -n $PKG_LNDIR_SRC ]] && {
+		_src_dir=$_src_dir/$PKG_LNDIR_SRC
 	} || {
-		_src_dir=$UNPACK_DIR/$1
-		_dest_dir=$BUILD_DIR/$2
+		_src_dir=$_src_dir/$P_V
 	}
+	[[ -n $PKG_LNDIR_DEST ]] && {
+		_dest_dir=$_dest_dir/$PKG_LNDIR_DEST
+	} || {
+		_dest_dir=$_dest_dir/$P_V
+	}
+
 	[[ ! -f $_dest_dir/lndirs.marker ]] && {
 		echo -n "---> Copy sources to build directory..."
 		mkdir -p $_dest_dir
@@ -323,25 +337,24 @@ function lndirs() {
 
 # apply list of patches
 function func_apply_patches {
-	# $1 - src dir name
-	# $2 - patches list
-	# $3 - sources directory
+	# $1 - patches list
+	# $2 - sources directory
 	
-	local _src_dir=$UNPACK_DIR
-	[[ "x$3" != "x" ]] && {
-		_src_dir=$3
+	local _src_dir=$UNPACK_DIR/$P_V
+	[[ -n $2 ]] && {
+		_src_dir=$2
 	}
 	
 	local _result=0
 	local _index=0
-	local -a _list=( "${!2}" )
+	local -a _list=( "${!1}" )
 	[[ ${#_list[@]} == 0 ]] && {
-		echo "---> No patches for $1"
+		echo "---> No patches for $P_V"
 		return 0
 	}
 
 	_index=$((${#_list[@]}-1))
-	[[ -f $_src_dir/$1/_patch-$_index.marker ]] && {
+	[[ -f $_src_dir/_patch-$_index.marker ]] && {
 		echo "---> patched"
 		return 0
 	}
@@ -353,9 +366,9 @@ function func_apply_patches {
 
 	local it=
 	local applevel=
-	pushd $_src_dir/$1 > /dev/null
+	pushd $_src_dir > /dev/null
 	for it in ${_list[@]} ; do
-		local _patch_marker_name=$_src_dir/$1/_patch-$_index.marker
+		local _patch_marker_name=$_src_dir/_patch-$_index.marker
 
 		[[ ! -f $_patch_marker_name ]] && {
 			[[ -f $PATCH_DIR/${it} ]] || die "Patch $PATCH_DIR/${it} not found!"
@@ -364,14 +377,14 @@ function func_apply_patches {
 			for level in 0 1 2 3 4
 			do
 				applevel=$level
-				if patch -p$level --dry-run -i $PATCH_DIR/${it} > $_src_dir/$1/patch-$_index.log 2>&1
+				if patch -p$level --dry-run -i $PATCH_DIR/${it} > $_src_dir/patch-$_index.log 2>&1
 				then
 					found=yes
 					break
 				fi
 			done
 			[[ $found == "yes" ]] && {
-				patch -p$applevel -i $PATCH_DIR/${it} > $_src_dir/$1/patch-$_index.log 2>&1
+				patch -p$applevel -i $PATCH_DIR/${it} > $_src_dir/patch-$_index.log 2>&1
 				touch $_patch_marker_name
 			} || {
 				_result=1
@@ -385,7 +398,7 @@ function func_apply_patches {
 	[[ $_result == 0 ]] && {
 		echo " done"
 	} || {
-		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/$1/patch-$_index.log &
+		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/patch-$_index.log &
 		die "Failed to apply patch ${it} at level $applevel"
 	}
 }
@@ -394,31 +407,41 @@ function func_apply_patches {
 
 # configure
 function func_configure {
-	# $1 - build dir name
-	# $2 - src dir name
-	# $3 - flags
-	# $4 - parent source directory (set if it not $SRC_DIR)
+	# $1 - configure flags
 
-	local _src_dir=$UNPACK_DIR/$2
-	[[ ! -z $4 ]] && {
-		_src_dir=$4/$2
+	local _src_dir=$UNPACK_DIR
+	local _bld_dir=$BUILD_DIR
+
+	[[ -n $PKG_LNDIR_DEST ]] && {
+		local _bld_dir=$_bld_dir/$PKG_LNDIR_DEST
+	} || {
+		local _bld_dir=$_bld_dir/$P_V
+		local _src_dir=$_src_dir/$P_V
+	}
+	
+	[[ -n $PKG_SRC_SUBDIR ]] && {
+		_bld_dir=$_bld_dir/$PKG_SRC_SUBDIR
+		_src_dir=$_src_dir/$PKG_SRC_SUBDIR
+		local _log_name=$LOG_DIR/${P_V}_${PKG_SRC_SUBDIR//\//_}-configure.log
+	} || {
+		local _log_name=$LOG_DIR/${P_V}-configure.log
 	}
 
-	local _marker=$BUILD_DIR/$1/_configure.marker
+	[[ $PKG_LNDIR == yes ]] && {
+		lndirs
+		local _rell="."
+	} || {
+		local _rell=$( func_absolute_to_relative $_bld_dir $_src_dir )
+	}
+
+	local _marker=$_bld_dir/_configure.marker
 	local _result=0
-	local _log_name=$LOG_DIR/${2//\//_}-configure.log
 
 	[[ ! -f $_marker ]] && {
-		mkdir -p $BUILD_DIR/$1
-		[[ $PKG_LNDIR == yes ]] && {
-			lndirs
-			local _rell="."
-		} || {
-			local _rell=$( func_absolute_to_relative $BUILD_DIR/$1 $_src_dir )
-		}
+		mkdir -p $_bld_dir
 		echo -n "---> configure..."
-		pushd $BUILD_DIR/$1 > /dev/null
-		eval ${_rell}/${PKG_CONFIGURE} "${3}" > $_log_name 2>&1
+		pushd $_bld_dir > /dev/null
+		eval ${_rell}/${PKG_CONFIGURE} "${1}" > $_log_name 2>&1
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"
@@ -436,22 +459,33 @@ function func_configure {
 
 # make
 function func_make {
-	# $1 - build dir name
-	# $2 - make prog name
-	# $3 - make flags
-	# $4 - text
-	# $5 - text if completed
-	# $6 - index
+	# $1 - make flags
+	# $2 - text
+	# $3 - text if completed
 
-	local _marker=$BUILD_DIR/$1/_$5$6.marker
-	local _result=0
-	local _log_name=$LOG_DIR/${1//\//_}-$5$6.log
+	local _bld_dir=$BUILD_DIR
+
+	[[ -n $PKG_LNDIR_DEST ]] && {
+		local _bld_dir=$_bld_dir/$PKG_LNDIR_DEST
+	} || {
+		local _bld_dir=$_bld_dir/$P_V
+	}
 	
-	local _make_cmd="$2 $3"
+	[[ -n $PKG_SRC_SUBDIR ]] && {
+		_bld_dir=$_bld_dir/$PKG_SRC_SUBDIR
+		local _log_name=$LOG_DIR/${P_V}_${PKG_SRC_SUBDIR//\//_}-$3.log
+	} || {
+		local _log_name=$LOG_DIR/${P_V}-$3.log
+	}
+	
+	local _marker=$_bld_dir/_$3.marker
+	local _result=0
+	
+	local _make_cmd="$PKG_MAKE $1"
 
 	[[ ! -f $_marker ]] && {
-		echo -n "---> $4..."
-		( cd $BUILD_DIR/$1 && eval ${_make_cmd} > $_log_name 2>&1 )
+		echo -n "---> $2..."
+		( cd $_bld_dir && eval ${_make_cmd} > $_log_name 2>&1 )
 		_result=$?
 		[[ $_result == 0 ]] && {
 			echo " done"
@@ -461,7 +495,7 @@ function func_make {
 			die " error $_result!"
 		}
 	} || {
-		echo "---> $5"
+		echo "---> $3"
 	}
 }
 

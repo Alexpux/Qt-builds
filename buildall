@@ -407,6 +407,7 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
 		[[ -z $PKG_CONFIGURE ]] && { PKG_CONFIGURE=configure; }
 		[[ -z $PKG_LNDIR ]] && { PKG_LNDIR=no; }
+		[[ -Z $PKG_MAKE ]] && { PKG_MAKE="/bin/make"; }
 		src_download
 		src_unpack
 		src_patch
