@@ -37,17 +37,17 @@
 
 P=xz
 P_V=${P}-${XZ_TOOLS_VERSION}
-EXT=".tar.xz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://tukaani.org/${P}/${SRC_FILE}
+PKG_EXT=".tar.xz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://tukaani.org/${P}/${PKG_SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -73,7 +73,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -82,8 +82,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -96,8 +94,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

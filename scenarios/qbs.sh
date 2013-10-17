@@ -37,13 +37,17 @@
 
 P=qbs
 P_V=${P}
-EXT="git"
-SRC_FILE=""
-URL=git://gitorious.org/qt-labs/${P}.git
-DEPENDS=()
+PKG_EXT="git"
+PKG_SRC_FILE=""
+PKG_URL=git://gitorious.org/qt-labs/${P}.git
+PKG_DEPENDS=()
+PKG_USE_QMAKE=yes
+PKG_CONFIGURE=qbs.pro
+PKG_MAKE=mingw32-make
+PKG_LNDIR_DEST=${P_V}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
@@ -60,15 +64,11 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX}
-	pushd $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX} > /dev/null
-	[[ ! -f configure.marker ]] && {
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX} $UNPACK_DIR/${P_V} ) 
-		${QTDIR}/bin/qmake.exe -r $_rel_path/qbs.pro CONFIG+=release \
-			> ${LOG_DIR}/${P_V}-${QTVER}-${QTDIR_PREFIX}-configure.log 2>&1 || die "QMAKE failed"
-		touch configure.marker
-	}
-	popd > /dev/null
+	local _conf_flags=(
+		CONFIG+=release
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -78,8 +78,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -90,8 +88,6 @@ pkg_build() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
 		"built-docs"
@@ -104,8 +100,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

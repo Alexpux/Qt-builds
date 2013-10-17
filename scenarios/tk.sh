@@ -37,17 +37,20 @@
 
 P=tk
 P_V=${P}${TK_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}-src${EXT}"
-URL=http://prdownloads.sourceforge.net/tcl/${SRC_FILE}
-DEPENDS=()
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}-src${PKG_EXT}"
+PKG_URL=http://prdownloads.sourceforge.net/tcl/${PKG_SRC_FILE}
+PKG_DEPENDS=()
+
+PKG_LNDIR=yes
+PKG_SRC_SUBDIR=win
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V-src $EXT
+	func_uncompress $P_V-src $PKG_EXT
 }
 
 src_patch() {
@@ -62,8 +65,6 @@ src_patch() {
 }
 
 src_configure() {
-	lndirs
-	
 	local _conf_flags=(
 		--build=${HOST}
 		--host=${HOST}
@@ -73,7 +74,7 @@ src_configure() {
 		--enable-shared
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V/win win "$_allconf" $BUILD_DIR/$P_V
+	func_configure "$_allconf"
 	
 	[[ ! -f $BUILD_DIR/$P_V/post-conf.marker ]] && {
 		pushd $BUILD_DIR/$P_V > /dev/null
@@ -97,8 +98,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}/win \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -113,8 +112,6 @@ pkg_install() {
 
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}/win \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

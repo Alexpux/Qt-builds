@@ -37,13 +37,14 @@
 
 P=quarter
 P_V=${P}
-EXT="git"
-SRC_FILE=""
-URL=https://github.com/Alexpux/Quarter.git
-DEPENDS=()
+PKG_EXT="git"
+PKG_SRC_FILE=""
+PKG_URL=https://github.com/Alexpux/Quarter.git
+PKG_DEPENDS=()
+PKG_LNDIR_DEST=${P_V}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
@@ -76,7 +77,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V-${QTVER} $P_V "$_allconf"
+	func_configure "$_allconf"
 	unset QTDIR
 }
 
@@ -86,8 +87,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -99,8 +98,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

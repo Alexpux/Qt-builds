@@ -37,11 +37,17 @@
 
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}-alpha
-EXT=".tar.xz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://download.qt-project.org/development_releases/qt/5.2/5.2.0-alpha/single/$SRC_FILE
-#URL=http://download.qt-project.org/official_releases/qt/5.2/${QT_VERSION}/single/$SRC_FILE
-DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
+PKG_EXT=".tar.xz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://download.qt-project.org/development_releases/qt/5.2/5.2.0-alpha/single/$PKG_SRC_FILE
+#PKG_URL=http://download.qt-project.org/official_releases/qt/5.2/${QT_VERSION}/single/$PKG_SRC_FILE
+PKG_DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
+
+PKG_LNDIR=yes
+PKG_LNDIR_SRC=$P_V
+PKG_LNDIR_DEST=$P-$QT_VERSION-$QTDIR_PREFIX
+PKG_CONFIGURE=configure.bat
+PKG_MAKE=mingw32-make
 
 change_paths() {
 	local _sql_include=
@@ -69,11 +75,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -102,8 +108,6 @@ src_configure() {
 		echo "done"
 	}
 
-	lndirs $P_V $P-$QT_VERSION-$QTDIR_PREFIX
-
 	pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/mkspecs/win32-g++ > /dev/null
 		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
@@ -118,63 +122,53 @@ src_configure() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 
-	[[ -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/configure.marker ]] && {
-		echo "---> configured"
+	local _opengl
+	[[ $USE_OPENGL_DESKTOP == yes ]] && {
+		_opengl="-opengl desktop"
 	} || {
-		pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX > /dev/null
-		echo -n "---> configure..."
-		local _opengl
-		[[ $USE_OPENGL_DESKTOP == yes ]] && {
-			_opengl="-opengl desktop"
-		} || {
-			_opengl="-angle"
-		}
-	
-		change_paths
-		local _mode=shared
-		[[ $STATIC_DEPS == yes ]] && {
-			_mode=static
-		}
-		local _conf_flags=(
-			-prefix $QTDIR_WIN
-			-opensource
-			-$_mode
-			-confirm-license
-			-debug-and-release
-			$( [[ $STATIC_DEPS == no ]] \
-				&& echo "-plugin-sql-ibase \
-						 -plugin-sql-mysql \
-						 -plugin-sql-psql \
-						 -plugin-sql-oci \
-						 -plugin-sql-odbc \
-						 -no-iconv \
-						 -icu \
-						 -system-pcre \
-						 -system-zlib" \
-				|| echo "-no-icu \
-						 -no-iconv \
-						 -qt-sql-sqlite \
-						 -qt-zlib \
-						 -qt-pcre" \
-			)
-			-fontconfig
-			-openssl
-			-no-dbus
-			$_opengl
-			-platform win32-g++
-			-nomake tests
-			-nomake examples
-		)
-		local _allconf="${_conf_flags[@]}"
-		./configure.bat \
-			$_allconf \
-			> ${LOG_DIR}/${P_V}-$QTDIR_PREFIX_configure.log 2>&1 || die "Qt configure error"
-	
-		restore_paths
-		echo " done"
-		touch configure.marker
-		popd > /dev/null
+		_opengl="-angle"
 	}
+
+	change_paths
+	local _mode=shared
+	[[ $STATIC_DEPS == yes ]] && {
+		_mode=static
+	}
+
+	local _conf_flags=(
+		-prefix $QTDIR_WIN
+		-opensource
+		-$_mode
+		-confirm-license
+		-debug-and-release
+		$( [[ $STATIC_DEPS == no ]] \
+			&& echo "-plugin-sql-ibase \
+					 -plugin-sql-mysql \
+					 -plugin-sql-psql \
+					 -plugin-sql-oci \
+					 -plugin-sql-odbc \
+					 -no-iconv \
+					 -icu \
+					 -system-pcre \
+					 -system-zlib" \
+			|| echo "-no-icu \
+					 -no-iconv \
+					 -qt-sql-sqlite \
+					 -qt-zlib \
+					 -qt-pcre" \
+		)
+		-fontconfig
+		-openssl
+		-no-dbus
+		$_opengl
+		-platform win32-g++
+		-nomake tests
+		-nomake examples
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
+
+	restore_paths
 }
 
 pkg_build() {
@@ -200,8 +194,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION-$QTDIR_PREFIX \
-		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -218,8 +210,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P-$QT_VERSION-$QTDIR_PREFIX \
-		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
@@ -252,8 +242,6 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION-$QTDIR_PREFIX \
-		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
 		"built-docs"
@@ -264,8 +252,6 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION-$QTDIR_PREFIX \
-		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \
 		"installed-docs"

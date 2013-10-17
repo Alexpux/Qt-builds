@@ -37,17 +37,17 @@
 
 P=gettext
 P_V=${P}-${GETTEXT_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=ftp://ftp.gnu.org/gnu/${P}/${SRC_FILE}
-DEPENDS=("expat" "libiconv" "libxml2" "readline")
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=ftp://ftp.gnu.org/gnu/${P}/${PKG_SRC_FILE}
+PKG_DEPENDS=("expat" "libiconv" "libxml2" "readline")
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -87,7 +87,7 @@ src_configure() {
 	)
 	export lt_cv_deplibs_check_method='pass_all'
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -96,8 +96,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -110,8 +108,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

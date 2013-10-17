@@ -38,17 +38,21 @@
 
 P=boost
 P_V=${P}_${BOOST_VERSION//./_}
-EXT=".tar.bz2"
-SRC_FILE="${P_V}${EXT}"
-URL=http://download.sourceforge.net/${P}/${SRC_FILE}
-DEPENDS=()
+PKG_EXT=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://download.sourceforge.net/${P}/${PKG_SRC_FILE}
+PKG_DEPENDS=()
+
+PKG_LNDIR=yes
+PKG_CONFIGURE=bootstrap.sh
+PKG_MAKE="./b2"
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -96,80 +100,56 @@ src_patch() {
 }
 
 src_configure() {
-	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		echo -n "---> configuring..."
-		mkdir -p $BUILD_DIR/$P_V
-		[[ ! -f $BUILD_DIR/$P_V/lndir.marker ]] && {
-			lndir $UNPACK_DIR/$P_V $BUILD_DIR/$P_V > /dev/null
-			touch $BUILD_DIR/$P_V/lndir.marker
-		}
-		pushd $BUILD_DIR/$P_V > /dev/null
-
-		./bootstrap.sh \
-				--with-icu=$PREFIX \
-				> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
-
-		# cp project-config.jam project-config.jam.bak  --with-toolset=mingw 
-		# sed \
-			# -e 's|mingw|gcc|g' \
-			# project-config.jam.bak > project-config.jam || die "Fail sed value"	
-		touch configure.marker
-		popd > /dev/null
-		echo " done"
-	} || {
-		echo "---> Already configure"
-	}
+	local _conf_flags=(
+		--with-icu=$PREFIX
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
-	[[ ! -f $BUILD_DIR/$P_V/build.marker ]] && {
-		echo -n "---> building..."
-		pushd ${BUILD_DIR}/${P_V} > /dev/null
-		local _bvar="variant=release threading=single,multi threadapi=win32 \
-			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
-		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == i686 ]] && echo 32 || echo 64 ) \
-			${_bvar} --without-mpi --without-python "
-	
-		./b2 ${MAKE_OPTS} \
-			${_bflag} \
-			--prefix=${PREFIX} \
-			-sHAVE_ICU=1 \
-			-sICU_PATH=${PREFIX} \
-			-sICU_LINK="-L${PREFIX}/lib -licuuc -licuin -licudt" \
-			-sICONV_PATH=${PREFIX} \
-			stage > $LOG_DIR/${P_V//\//_}-build.log 2>&1 || die "Error configure $P_V"
+	local _bvar="variant=release threading=single,multi threadapi=win32 \
+		link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
+	local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == i686 ]] && echo 32 || echo 64 ) \
+		${_bvar} --without-mpi --without-python "
 
-		touch build.marker
-		popd > /dev/null
-		echo " done"
-	} || {
-		echo "---> Already built"
-	}
+	local _make_flags=(
+		${MAKE_OPTS}
+		${_bflag}
+		--prefix=${PREFIX}
+		-sHAVE_ICU=1
+		-sICU_PATH=${PREFIX}
+		-sICU_LINK="\"-L${PREFIX}/lib -licuuc -licuin -licudt\""
+		-sICONV_PATH=${PREFIX}
+		stage
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		"$_allmake" \
+		"building..." \
+		"built"
 }
 
 pkg_install() {
-	[[ ! -f $BUILD_DIR/$P_V/install.marker ]] && {
-		echo -n "---> installing..."
-		pushd ${BUILD_DIR}/${P_V} > /dev/null
-		local _bvar="variant=release threading=single,multi threadapi=win32 \
-			link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
-		local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == i686 ]] && echo 32 || echo 64 ) \
-			${_bvar} --without-mpi --without-python "
-	
-		./b2 ${MAKE_OPTS} \
-			${_bflag} \
-			--prefix=${PREFIX} \
-			-sHAVE_ICU=1 \
-			-sICU_PATH=${PREFIX} \
-			-sICU_LINK="-L${PREFIX}/lib -licuuc -licuin -licudt" \
-			-sICONV_PATH=${PREFIX} \
-			-sICONV_LINK="-L${PREFIX}/lib -liconv" \
-			install > $LOG_DIR/${P_V//\//_}-install.log 2>&1 || die "Error configure $P_V"
+	local _bvar="variant=release threading=single,multi threadapi=win32 \
+		link=shared,static debug-symbols=on pch=off link=shared toolset=gcc"
+	local _bflag="-d2 --layout=tagged address-model=$( [[ $ARCHITECTURE == i686 ]] && echo 32 || echo 64 ) \
+		${_bvar} --without-mpi --without-python "
 
-		touch install.marker
-		popd > /dev/null
-		echo " done"
-	} || {
-		echo "---> Already install"
-	}
+	local _install_flags=(
+		${MAKE_OPTS}
+		${_bflag}
+		--prefix=${PREFIX}
+		-sHAVE_ICU=1
+		-sICU_PATH=${PREFIX}
+		-sICU_LINK="\"-L${PREFIX}/lib -licuuc -licuin -licudt\""
+		-sICONV_PATH=${PREFIX}
+		-sICONV_LINK="\"-L${PREFIX}/lib -liconv\""
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
 }

@@ -37,10 +37,10 @@
 
 P=cmake
 P_V=${P}-${CMAKE_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://www.cmake.org/files/v2.8/${SRC_FILE}
-DEPENDS=(curl expat libarchive ncurses pkg-config zlib)
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://www.cmake.org/files/v2.8/${PKG_SRC_FILE}
+PKG_DEPENDS=(curl expat libarchive ncurses pkg-config zlib)
 
 change_paths() {
 	OLD_PATH=$PATH
@@ -53,11 +53,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -77,7 +77,7 @@ src_configure() {
 	)
 	local _allconf="${_conf_flags[@]}"
 	change_paths
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 	restore_paths
 }
 
@@ -87,8 +87,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -101,8 +99,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

@@ -37,10 +37,16 @@
 
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://download.qt-project.org/official_releases/qt/4.8/4.8.5/$SRC_FILE
-DEPENDS=()
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://download.qt-project.org/official_releases/qt/4.8/4.8.5/$PKG_SRC_FILE
+PKG_DEPENDS=()
+
+PKG_LNDIR=yes
+PKG_LNDIR_SRC=$P_V
+PKG_LNDIR_DEST=$P-$QT_VERSION
+PKG_CONFIGURE=configure.exe
+PKG_MAKE=mingw32-make
 
 change_paths() {
 	local _sql_include=
@@ -63,11 +69,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -99,8 +105,6 @@ src_configure() {
 		rsync -av ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/ ${QTDIR}/databases/ > /dev/null
 		echo "done"
 	}
-	
-	lndirs $P_V $P-$QT_VERSION
 
 	pushd $BUILD_DIR/$P-$QT_VERSION/mkspecs/win32-g++ > /dev/null
 		[[ -f qmake.conf.patched ]] && {
@@ -116,62 +120,52 @@ src_configure() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 
-	[[ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]] && {
-		echo "---> configured"
-	} || {
-		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
-		echo -n "---> configure..."
-		change_paths
+	change_paths
 
-		local _mode=shared
-		[[ $STATIC_DEPS == yes ]] && {
-			_mode=static
-		}
-		local _conf_flags=(
-			-prefix $QTDIR_WIN
-			-opensource
-			-$_mode
-			-confirm-license
-			-debug-and-release
-			$( [[ $STATIC_DEPS == no ]] \
-				&& echo "-plugin-sql-ibase \
-						 -plugin-sql-mysql \
-						 -plugin-sql-psql \
-						 -plugin-sql-odbc \
-						 -plugin-sql-oci" \
-				|| echo "-qt-sql-sqlite \
-						 -qt-zlib" \
-			)
-			-openssl
-			-platform win32-g++-4.6
-			-nomake demos
-			-nomake examples
-			-nomake tests
-			-I $MINGWHOME/$HOST/include
-			-I $PREFIX/include
-			-L $PREFIX/lib
-			-L $MINGWHOME/$HOST/lib
-			$( [[ $STATIC_DEPS == no ]] \
-				&& echo "-I $QTDIR/databases/firebird/include \
-						-I $QTDIR/databases/mysql/include/mysql \
-						-I $QTDIR/databases/pgsql/include \
-						-I $QTDIR/databases/oci/include \
-						-L $QTDIR/databases/firebird/lib \
-						-L $QTDIR/databases/mysql/lib \
-						-L $QTDIR/databases/pgsql/lib \
-						-L $QTDIR/databases/oci/lib" \
-			)
-		)
-		local _allconf="${_conf_flags[@]}"
-		./configure.exe \
-			$_allconf > ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
-
-		restore_paths
-		cp -rf mkspecs $QTDIR/
-		echo " done"
-		touch configure.marker
-		popd > /dev/null
+	local _mode=shared
+	[[ $STATIC_DEPS == yes ]] && {
+		_mode=static
 	}
+	local _conf_flags=(
+		-prefix $QTDIR_WIN
+		-opensource
+		-$_mode
+		-confirm-license
+		-debug-and-release
+		$( [[ $STATIC_DEPS == no ]] \
+			&& echo "-plugin-sql-ibase \
+					 -plugin-sql-mysql \
+					 -plugin-sql-psql \
+					 -plugin-sql-odbc \
+					 -plugin-sql-oci" \
+			|| echo "-qt-sql-sqlite \
+					 -qt-zlib" \
+		)
+		-openssl
+		-platform win32-g++-4.6
+		-nomake demos
+		-nomake examples
+		-nomake tests
+		-I $MINGWHOME/$HOST/include
+		-I $PREFIX/include
+		-L $PREFIX/lib
+		-L $MINGWHOME/$HOST/lib
+		$( [[ $STATIC_DEPS == no ]] \
+			&& echo "-I $QTDIR/databases/firebird/include \
+					-I $QTDIR/databases/mysql/include/mysql \
+					-I $QTDIR/databases/pgsql/include \
+					-I $QTDIR/databases/oci/include \
+					-L $QTDIR/databases/firebird/lib \
+					-L $QTDIR/databases/mysql/lib \
+					-L $QTDIR/databases/pgsql/lib \
+					-L $QTDIR/databases/oci/lib" \
+		)
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
+
+	restore_paths
+	cp -rf $BUILD_DIR/$P-$QT_VERSION/mkspecs $QTDIR/
 }
 
 pkg_build() {
@@ -194,8 +188,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
-		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -212,8 +204,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
-		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

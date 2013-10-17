@@ -37,14 +37,14 @@
 
 P=simvoleon
 P_V=${P}
-EXT="git"
-SRC_FILE=""
-URL=https://github.com/Alexpux/SIMVoleon.git
-DEPENDS=()
+PKG_EXT="git"
+PKG_SRC_FILE=""
+PKG_URL=https://github.com/Alexpux/SIMVoleon.git
+PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $EXT $URL
-	func_download $P_V/lib/VolumeViz/Coin $EXT https://github.com/Alexpux/CoinCodeShare.git
+	func_download $P_V $PKG_EXT $PKG_URL
+	func_download $P_V/lib/VolumeViz/Coin $PKG_EXT https://github.com/Alexpux/CoinCodeShare.git
 }
 
 src_unpack() {
@@ -66,14 +66,14 @@ src_configure() {
 		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
-		--target=${HOST}
+		#--target=${HOST}
 		${LNKDEPS}
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 	unset QTDIR
 }
 
@@ -83,8 +83,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -96,8 +94,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

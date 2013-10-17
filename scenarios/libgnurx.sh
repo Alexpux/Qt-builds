@@ -37,17 +37,17 @@
 
 P=libgnurx
 P_V=mingw-${P}-${LIBGNURX_VERSION}
-EXT=".tar.gz"
-SRC_FILE="mingw-${P}-${LIBGNURX_VERSION}-src${EXT}"
-URL=http://sourceforge.net/projects/mingw/files/Other/UserContributed/regex/mingw-regex-2.5.1/$SRC_FILE
-DEPENDS=()
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="mingw-${P}-${LIBGNURX_VERSION}-src${PKG_EXT}"
+PKG_URL=http://sourceforge.net/projects/mingw/files/Other/UserContributed/regex/mingw-regex-2.5.1/$PKG_SRC_FILE
+PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress "mingw-${P}-${LIBGNURX_VERSION}-src" $EXT
+	func_uncompress "mingw-${P}-${LIBGNURX_VERSION}-src" $PKG_EXT
 }
 
 src_patch() {
@@ -88,7 +88,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -97,8 +97,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -111,8 +109,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

@@ -37,17 +37,17 @@
 
 P=sqlite
 P_V=${P}-autoconf-${SQLITE_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://www.sqlite.org/2013/${SRC_FILE}
-DEPENDS=("icu" "readline")
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://www.sqlite.org/2013/${PKG_SRC_FILE}
+PKG_DEPENDS=("icu" "readline")
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -81,7 +81,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS} -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -90,8 +90,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -104,8 +102,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

@@ -37,17 +37,17 @@
 
 P=gperf
 P_V=${P}-${GPERF_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://ftp.gnu.org/pub/gnu/$P/$SRC_FILE
-DEPENDS=()
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://ftp.gnu.org/pub/gnu/$P/$PKG_SRC_FILE
+PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -81,8 +81,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -95,8 +93,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

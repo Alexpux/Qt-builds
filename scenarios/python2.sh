@@ -37,17 +37,17 @@
 
 P=Python
 P_V=${P}-${PYTHON2_VERSION}
-EXT=".tar.bz2"
-SRC_FILE="${P_V}${EXT}"
-URL=http://www.python.org/ftp/python/${PYTHON2_VERSION}/$SRC_FILE
-DEPENDS=("expat" "libffi" "zlib")
+PKG_EXT=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://www.python.org/ftp/python/${PYTHON2_VERSION}/$PKG_SRC_FILE
+PKG_DEPENDS=("expat" "libffi" "zlib")
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -135,7 +135,7 @@ src_configure() {
 		LDFLAGS="\"-pipe -s -L$MINGWHOME_WIN/$HOST/lib -L$PREFIX_WIN/lib\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -144,8 +144,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -157,8 +155,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

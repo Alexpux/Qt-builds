@@ -37,13 +37,14 @@
 
 P=collada-dom
 P_V=${P}-${COLLADA_DOM_VERSION}
-EXT="svn"
-SRC_FILE=
-URL=svn://svn.code.sf.net/p/collada-dom/code/trunk
-DEPENDS=()
+PKG_EXT="svn"
+PKG_SRC_FILE=
+PKG_URL=svn://svn.code.sf.net/p/collada-dom/code/trunk
+PKG_DEPENDS=()
+PKG_USE_CMAKE=yes
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 
 }
 
@@ -62,25 +63,15 @@ src_patch() {
 }
 
 src_configure() {
-	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		echo -n "---> configuring..."
-		mkdir -p $BUILD_DIR/$P_V
-		pushd $BUILD_DIR/$P_V > /dev/null
-		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
-		$PREFIX/bin/cmake \
-			$_rell \
-			-G 'MSYS Makefiles' \
-			-DCMAKE_INSTALL_PREFIX=$PREFIX \
-			-DOPT_COLLADA15:BOOL=OFF \
-			-DCMAKE_BUILD_TYPE=Release \
-			-DBOOST_ROOT=$PREFIX \
-			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
-		touch configure.marker
-		popd > /dev/null
-		echo " done"
-	} || {
-		echo "---> Already configured"
-	}
+	local _conf_flags=(
+		-G 'MSYS Makefiles'
+		-DCMAKE_INSTALL_PREFIX=$PREFIX
+		-DOPT_COLLADA15:BOOL=OFF
+		-DCMAKE_BUILD_TYPE=Release
+		-DBOOST_ROOT=$PREFIX
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -89,8 +80,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -103,8 +92,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

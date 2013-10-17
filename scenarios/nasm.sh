@@ -37,17 +37,18 @@
 
 P=nasm
 P_V=${P}-${NASM_VERSION}
-EXT=".tar.bz2"
-SRC_FILE="${P_V}${EXT}"
-URL=http://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/${SRC_FILE}
-DEPENDS=()
+PKG_EXT=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/${PKG_SRC_FILE}
+PKG_DEPENDS=()
+PKG_LNDIR=yes
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -60,8 +61,6 @@ src_patch() {
 }
 
 src_configure() {
-	lndirs
-
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--build=${HOST}
@@ -72,7 +71,7 @@ src_configure() {
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
 	)
 	local _allconf="${_conf_flags[@]}"
-	func_configure $P_V $P_V "$_allconf" $BUILD_DIR
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -81,8 +80,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -95,8 +92,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

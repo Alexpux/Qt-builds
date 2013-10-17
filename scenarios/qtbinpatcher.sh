@@ -37,9 +37,10 @@
 
 P=qtbinpatcher
 P_V=${P}-1.1.0
-EXT=
-SRC_FILE=
-URL=
+PKG_EXT=
+PKG_SRC_FILE=
+PKG_URL=
+PKG_LNDIR_DEST=${P}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
 	echo "---> Local sources"
@@ -71,8 +72,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P}-${QTVER}-${QTDIR_PREFIX} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"

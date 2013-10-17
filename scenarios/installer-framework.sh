@@ -37,10 +37,13 @@
 
 P=installer-framework
 P_V=$P
-EXT="git"
-SRC_FILE=
-URL=git://gitorious.org/${P}/${P}.git
-
+PKG_EXT="git"
+PKG_SRC_FILE=
+PKG_URL=git://gitorious.org/${P}/${P}.git
+PKG_USE_QMAKE=yes
+PKG_CONFIGURE=installerfw.pro
+PKG_LNDIR_DEST=${P_V}-${QTVER}
+PKG_MAKE=mingw32-make
 DEPENDS=(qt)
 
 src_download() {
@@ -49,7 +52,7 @@ src_download() {
 			git clean -f > /dev/null
 		popd > /dev/null
 	}
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
@@ -67,20 +70,11 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
-
-	[[ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]] && {
-		echo "---> configured"
-	} || {
-		pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
-		echo -n "---> configure..."
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $SRC_DIR/$P_V ) 
-		${QTDIR}/bin/qmake.exe $_rel_path/installerfw.pro CONFIG+=release \
-			> ${LOG_DIR}/${P_V}-${QTVER}-configure.log 2>&1 || die "QMAKE failed"
-		echo " done"
-		touch configure.marker
-		popd > /dev/null
-	}
+	local _conf_flags=(
+		CONFIG+=release
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -89,8 +83,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
-		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -103,8 +95,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QTVER} \
-		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

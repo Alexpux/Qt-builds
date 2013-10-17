@@ -44,6 +44,10 @@ URL=http://download.qt-project.org/official_releases/qtcreator/2.8/${QT_CREATOR_
 # Beta versions
 #URL=http://download.qt-project.org/development_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
 DEPENDS=(qt)
+PKG_USE_QMAKE=yes
+PKG_CONFIGURE=qtcreator.pro
+PKG_MAKE=mingw32-make
+PKG_LNDIR_DEST=${P_V}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
 	func_download $P_V $EXT $URL
@@ -63,20 +67,11 @@ src_patch() {
 }
 
 src_configure() {
-	mkdir -p $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX}
-
-	[[ -f $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX}/configure.marker ]] && {
-		echo "---> configured"
-	} || {
-		pushd $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX} > /dev/null
-		echo -n "---> configure..."
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER}-${QTDIR_PREFIX} $UNPACK_DIR/$P_V ) 
-		${QTDIR}/bin/qmake.exe $_rel_path/qtcreator.pro CONFIG+=release \
-			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "QMAKE failed"
-		echo " done"
-		touch configure.marker
-		popd > /dev/null
-	}
+	local _conf_flags=(
+		CONFIG+=release
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
 }
 
 pkg_build() {
@@ -85,8 +80,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -99,8 +92,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
@@ -117,8 +108,6 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
 		"built-docs"
@@ -129,8 +118,6 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		${P_V}-${QTVER}-${QTDIR_PREFIX} \
-		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \
 		"installed-docs"

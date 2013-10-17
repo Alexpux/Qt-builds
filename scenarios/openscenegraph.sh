@@ -37,17 +37,18 @@
 
 P=OpenSceneGraph
 P_V=${P}-${OPENSCENEGRAPH_VERSION}
-EXT=".zip"
-SRC_FILE="${P_V}${EXT}"
-URL=http://www.openscenegraph.org/downloads/developer_releases/${SRC_FILE}
-DEPENDS=()
+PKG_EXT=".zip"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://www.openscenegraph.org/downloads/developer_releases/${PKG_SRC_FILE}
+PKG_DEPENDS=()
+PKG_USE_CMAKE=true
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
@@ -62,51 +63,42 @@ src_patch() {
 }
 
 src_configure() {
-	[[ ! -f $BUILD_DIR/$P_V/configure.marker ]] && {
-		echo -n "---> configuring..."
-		mkdir -p $BUILD_DIR/$P_V
-		local _rell=$( func_absolute_to_relative $BUILD_DIR/$P_V $UNPACK_DIR/$P_V )
-		pushd $BUILD_DIR/$P_V > /dev/null
-		export COLLADA_DIR=$PREFIX
-		export USE_COIN=1
-		$PREFIX/bin/cmake \
-			$_rell \
-			-G 'MSYS Makefiles' \
-			-DCMAKE_BUILD_TYPE=Release \
-			$( [[ $USE_OPENGL_DESKTOP == no ]] \
-				&& echo " \
-				-DOSG_GL1_AVAILABLE:BOOL=OFF \
-				-DOSG_GL2_AVAILABLE:BOOL=OFF \
-				-DOSG_GL3_AVAILABLE:BOOL=OFF \
-				-DOSG_GLES1_AVAILABLE:BOOL=OFF \
-				-DOSG_GLES2_AVAILABLE:BOOL=ON \
-				-DOPENGL_INCLUDE_DIR:PATH=${QTDIR}/include/QtANGLE \
-				-DOPENGL_LIBRARY:PATH=${QTDIR}/lib/liblibGLESv2.a \
-				-DOPENGL_egl_LIBRARY:PATH=${QTDIR}/lib/liblibEGL.a \
-				-DOSG_GL_DISPLAYLISTS_AVAILABLE:BOOL=OFF \
-				-DOSG_GL_MATRICES_AVAILABLE:BOOL=OFF \
-				-DOSG_GL_VERTEX_FUNCS_AVAILABLE:BOOL=OFF \
-				-DOSG_GL_VERTEX_ARRAY_FUNCS_AVAILABLE:BOOL=OFF \
-				-DOSG_GL_FIXED_FUNCTION_AVAILABLE:BOOL=OFF \
-				-DOSG_CPP_EXCEPTIONS_AVAILABLE:BOOL=OFF" \
-			) \
-			-DCMAKE_INSTALL_PREFIX=$PREFIX \
-			-DBUILD_OSG_EXAMPLES:BOOL=ON \
-			-DCOLLADA_INCLUDE_DIR=$PREFIX/include/collada-dom2.4 \
-			-DCOLLADA_DYNAMIC_LIBRARY=$PREFIX/lib/libcollada-dom2.4-dp.dll.a \
-			-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/lib/libboost_filesystem-mt.dll.a \
-			-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/lib/libboost_system-mt.dll.a \
-			-DGIFLIB_DIR=$PREFIX \
-			-DFREETYPE_DIR=$PREFIX \
-			> $LOG_DIR/${P_V//\//_}-configure.log 2>&1 || die "Error configure $P_V"
-		touch configure.marker
-		unset COLLADA_DIR
-		unset USE_COIN
-		popd > /dev/null
-		echo " done"
-	} || {
-		echo "---> Already configured"
-	}
+	export COLLADA_DIR=$PREFIX
+	export USE_COIN=1
+	local _conf_flags=(
+		-G 'MSYS Makefiles'
+		-DCMAKE_BUILD_TYPE=Release
+		$( [[ $USE_OPENGL_DESKTOP == no ]] \
+			&& echo " \
+			-DOSG_GL1_AVAILABLE:BOOL=OFF \
+			-DOSG_GL2_AVAILABLE:BOOL=OFF \
+			-DOSG_GL3_AVAILABLE:BOOL=OFF \
+			-DOSG_GLES1_AVAILABLE:BOOL=OFF \
+			-DOSG_GLES2_AVAILABLE:BOOL=ON \
+			-DOPENGL_INCLUDE_DIR:PATH=${QTDIR}/include/QtANGLE \
+			-DOPENGL_LIBRARY:PATH=${QTDIR}/lib/liblibGLESv2.a \
+			-DOPENGL_egl_LIBRARY:PATH=${QTDIR}/lib/liblibEGL.a \
+			-DOSG_GL_DISPLAYLISTS_AVAILABLE:BOOL=OFF \
+			-DOSG_GL_MATRICES_AVAILABLE:BOOL=OFF \
+			-DOSG_GL_VERTEX_FUNCS_AVAILABLE:BOOL=OFF \
+			-DOSG_GL_VERTEX_ARRAY_FUNCS_AVAILABLE:BOOL=OFF \
+			-DOSG_GL_FIXED_FUNCTION_AVAILABLE:BOOL=OFF \
+			-DOSG_CPP_EXCEPTIONS_AVAILABLE:BOOL=OFF" \
+		) \
+		-DCMAKE_INSTALL_PREFIX=$PREFIX
+		-DBUILD_OSG_EXAMPLES:BOOL=ON
+		-DCOLLADA_INCLUDE_DIR=$PREFIX/include/collada-dom2.4
+		-DCOLLADA_DYNAMIC_LIBRARY=$PREFIX/lib/libcollada-dom2.4-dp.dll.a
+		-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/lib/libboost_filesystem-mt.dll.a
+		-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/lib/libboost_system-mt.dll.a
+		-DGIFLIB_DIR=$PREFIX
+		-DFREETYPE_DIR=$PREFIX
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
+
+	unset COLLADA_DIR
+	unset USE_COIN
 }
 
 pkg_build() {
@@ -115,8 +107,6 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allmake" \
 		"building..." \
 		"built"
@@ -129,8 +119,6 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		${P_V} \
-		"/bin/make" \
 		"$_allinstall" \
 		"installing..." \
 		"installed"

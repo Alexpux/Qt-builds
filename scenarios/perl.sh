@@ -37,10 +37,10 @@
 
 P="perl"
 P_V=${P}-${PERL_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://www.cpan.org/src/5.0/${SRC_FILE}
-DEPENDS=(dmake)
+PKG_EXT=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_EXT}"
+PKG_URL=http://www.cpan.org/src/5.0/${PKG_SRC_FILE}
+PKG_DEPENDS=(dmake)
 
 change_paths() {
 	OLD_PATH=$PATH
@@ -53,11 +53,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download $P_V $PKG_EXT $PKG_URL
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress $P_V $PKG_EXT
 }
 
 src_patch() {
