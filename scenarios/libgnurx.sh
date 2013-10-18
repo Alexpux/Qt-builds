@@ -49,7 +49,7 @@ src_download() {
 }
 
 src_unpack() {
-	func_uncompress "mingw-${P}-${LIBGNURX_VERSION}-src"
+	func_uncompress
 }
 
 src_patch() {
