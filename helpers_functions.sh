@@ -40,6 +40,13 @@ die() {
 
 # **************************************************************************
 
+function func_show_log {
+	# $1 - log file
+	[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $1 &
+}
+
+# **************************************************************************
+
 clear_env() {
 	unset PKG_CONFIGURE
 	unset PKG_LNDIR
@@ -48,7 +55,7 @@ clear_env() {
 	unset PKG_SRC_SUBDIR
 	unset P_V
 	unset P
-	unset PKG_EXT
+	unset PKG_TYPE
 	unset PKG_SRC_FILE
 	unset PKG_URL
 	unset PKG_DEPENDS
@@ -73,48 +80,57 @@ get_filename_extension() {
 
 # **************************************************************************
 
+func_get_filename_extension() {
+	# $1 - filename
+	
+	local _filename=$1
+	local _ext=
+	local _finish=0
+	case "${_filename##*.}" in
+		bz2|gz|lzma|xz) 
+			_ext=$_ext'.'${_filename##*.}
+			_filename=${_filename%$_ext}
+			local _sub_ext=$(func_get_filename_extension $_filename)
+			[[ "$_sub_ext" == ".tar" ]] && _ext=$_sub_ext$_ext
+		;;
+		*)
+			_ext='.'${_filename##*.}
+		;;
+	esac
+	echo "$_ext"
+}
+
+# **************************************************************************
+
+function func_abstract_toolchain {
+	# $1 - toolchain URL
+	# $2 - install path
+	# $3 - toolchain arch
+	local -a _url=( "$2|root:$TOOLCHAINS_DIR" )
+	local _filename=$(basename $2)
+	local _do_install=no
+
+	echo -e "-> \E[32;40m$3 toolchain\E[37;40m"
+	[[ ! -f $1/${_filename}-unpack.marker ]] && {
+		[[ -d $2 ]] && {
+			echo "--> Found previously installed $3 toolchain."
+			echo -n "---> Remove previous $3 toolchain..."
+			rm -rf $2
+			echo " done"
+		} || {
+			echo -n "--> $3 toolchain is not installed."
+		}
+		func_download _url[@]
+		func_uncompress _url[@]
+	} || {
+		echo "--> Toolchain installed."
+	}
+}
+
 # install toolchains
 toolchains_prepare() {
-
-	local _file_mingw32=$(basename $URL_MINGW32)
-	local _ext_mingw32=$(get_filename_extension $_file_mingw32)
-
-	local _file_mingw64=$(basename $URL_MINGW64)
-	local _ext_mingw64=$(get_filename_extension $_file_mingw64)
-
-	pushd $TOOLCHAINS_DIR > /dev/null
-
-	[[ ! -f $TOOLCHAINS_DIR/${_file_mingw32%.$_ext_mingw32}-unpack.marker ]] && {
-		echo "-> Prepare 32-bit toolchain..."
-		[[ -d $TOOLCHAINS_DIR/mingw32 ]] && {
-			echo -n "--> Remove previous toolchain..."
-			rm -rf $TOOLCHAINS_DIR/mingw32
-			echo " done"
-		}
-
-		func_download ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $URL_MINGW32
-		func_uncompress ${_file_mingw32%.$_ext_mingw32} ".$_ext_mingw32" $TOOLCHAINS_DIR
-		echo "--> Preparing 32-bit toolchain done"
-	} || {
-		echo "-> 32-bit toolchain prepared"
-	}
-
-	[[ ! -f $TOOLCHAINS_DIR/${_file_mingw64%.$_ext_mingw64}-unpack.marker ]] && {
-		echo "-> Prepare 64-bit toolchain..."
-		[[ -d $TOOLCHAINS_DIR/mingw64 ]] && {
-			echo -n "--> Remove previous toolchain..."
-			rm -rf $TOOLCHAINS_DIR/mingw64
-			echo " done"
-		}
-
-		func_download ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $URL_MINGW64
-		func_uncompress ${_file_mingw64%.$_ext_mingw64} ".$_ext_mingw64" $TOOLCHAINS_DIR
-		echo "--> Preparing 64-bit toolchain done"
-	} || {
-		echo "-> 64-bit toolchain prepared"
-	}
-
-	popd > /dev/null
+	func_abstract_toolchain $URL_MINGW32 $TOOLCHAINS_DIR/mingw32 "i686"
+	func_abstract_toolchain $URL_MINGW64 $TOOLCHAINS_DIR/mingw64 "x86_64"
 }
 
 # **************************************************************************
@@ -144,167 +160,231 @@ function func_absolute_to_relative {
 
 # download the sources
 function func_download {
-	# $1 - package name
-	# $2 - sources type: .tar.gz, .tar.bz2 e.t.c...
-	#      if sources get from a repository, choose it's type: cvs, svn, hg, git
-	# $3 - URL
-	# $4 - revision
-
-	[[ -z $3 ]] && {
-		die "URL is empty. terminate."
+	[[ -n $1 ]] && {
+		local -a _list=( "${!1}" )
+	} || {
+		local -a _list=( "${!PKG_URL}" )
+	}
+	[[ ${#_list[@]} == 0 ]] && {
+		echo "--> Doesn't need to download."
+		return 0
 	}
 
 	local _WGET_TIMEOUT=5
 	local _WGET_TRIES=10
 	local _WGET_WAIT=2
 	local _result=0
-	local _log_name=$MARKERS_DIR/${1//\//_}-download.log
-	local _marker_name=$MARKERS_DIR/${1//\//_}-download.marker
-	local _repo_update=no
-
-	local _filename=$(basename $3)
+	local _it=
 	
-	[[ "$2" == "cvs" || "$2" == "svn" || "$2" == "hg" || "$2" == "git" ]] && {
-		local _lib_name=$UNPACK_DIR/$1
-		if [[ $UPDATE_SOURCES == yes ]]
-		then
-			_repo_update=yes
-		fi
-	} || {
-		local _lib_name=$SRC_DIR/$1
-	}
-	[[ ! -f $_marker_name || "$_repo_update" == "yes" ]] && {
-		[[ -f $SRC_DIR/$_filename ]] && {
-			echo -n "---> Delete corrupted download..."
-			rm -f $SRC_DIR/$_filename
-			echo " done"
+	for _it in ${_list[@]} ; do
+		local _params=( ${_it//|/ } )
+
+		local _filename=
+		local _marker_name=
+		local _log_name=
+		local _url=${_params[0]}
+		local _repo=
+		local _branch=
+		local _rev=
+		local _dir=
+		local _root=$SRC_DIR
+		local _module=
+		local _lib_name=
+		
+		local _index=1
+		while [ "$_index" -lt "${#_params[@]}" ]; do
+			local _params2=( $(echo ${_params[$_index]} | sed 's|:| |g') )
+			case ${_params2[0]} in
+				branch) _branch=${_params2[1]} ;;
+				dir)    _dir=${_params2[1]} ;;
+				module) _module=${_params2[1]} ;;
+				repo)   _repo=${_params2[1]} ;;
+				rev)    _rev=${_params2[1]} ;;
+				root)   _root=${_params2[1]} ;;
+			esac
+			_index=$(($_index+1))
+		done
+
+		[[ -n $_module && -n $_repo ]] && {
+			_filename=$_module
+		} || {
+			_filename=$(basename $_url)
 		}
-		pushd $SRC_DIR > /dev/null
-		echo -n "---> download $1..."
-		case $2 in
-			cvs)
-				#local _prev_dir=$PWD
-				#cd $1
-				[[ -n $4 ]] && {
-					cvs -z9 -d $3 co -D$4 $1 > $_log_name 2>&1
+
+		_log_name=$MARKERS_DIR/${_filename//\//_}-download.log
+		_marker_name=$MARKERS_DIR/${_filename//\//_}-download.marker
+		local _repo_update=no
+		local _is_repo=no
+		[[ $_repo == cvs || $_repo == svn || $_repo == hg || $_repo == git ]] && {
+			_is_repo=yes
+			[[ $UPDATE_SOURCES == yes ]] && { _repo_update=yes; }
+		}
+		[[ ! -f $_marker_name || $_repo_update == yes ]] && {
+			[[ $_is_repo == yes ]] && {
+				echo -n "--> checkout $_filename..."
+
+				[[ -n $_dir ]] && {
+					_lib_name=$UNPACK_DIR/$P_V/$_filename
 				} || {
-					cvs -z9 -d $3 co $1 > $_log_name 2>&1
+					_lib_name=$UNPACK_DIR/$P_V/$_dir/$_filename
 				}
-				#cd $_prev_dir
-				_result=$?
-			;;
-			svn)
-				[[ -d $_lib_name/.svn ]] && {
-					pushd $_lib_name > /dev/null
-					svn-clean -f > $_log_name 2>&1
-					svn revert -R ./ >> $_log_name 2>&1
-					svn up >> $_log_name 2>&1
-					popd > /dev/null
-				} || {
-					[[ -n $4 ]] && {
-						svn co -r $4 $3 $_lib_name > $_log_name 2>&1
-					} || {
-						svn co $3 $_lib_name > $_log_name 2>&1
-					}
+				case $_repo in
+					cvs)
+						local _prev_dir=$PWD
+						cd $UNPACK_DIR
+						[[ -n $_rev ]] && {
+							cvs -z9 -d $_url co -D$_rev $_module > $_log_name 2>&1
+						} || {
+							cvs -z9 -d $_url co $_module > $_log_name 2>&1
+						}
+						cd $_prev_dir
+						_result=$?
+					;;
+					svn)
+						[[ -d $_lib_name/.svn ]] && {
+							pushd $_lib_name > /dev/null
+							svn-clean -f > $_log_name 2>&1
+							svn revert -R ./ >> $_log_name 2>&1
+							[[ -n $_rev ]] && {
+								svn up -r $_rev >> $_log_name 2>&1
+							} || {
+								svn up >> $_log_name 2>&1
+							}
+							popd > /dev/null
+						} || {
+							[[ -n $_rev ]] && {
+								svn co -r $_rev $_url $_lib_name > $_log_name 2>&1
+							} || {
+								svn co $_url $_lib_name > $_log_name 2>&1
+							}
+						}
+						_result=$?
+					;;
+					hg)
+						hg clone $_url $_lib_name > $_log_name 2>&1
+						_result=$?
+					;;
+					git)
+						[[ -d $_lib_name/.git ]] && {
+							pushd $_lib_name > /dev/null
+							git clean -f > $_log_name 2>&1
+							git reset --hard >> $_log_name 2>&1
+							git pull >> $_log_name 2>&1
+							popd > /dev/null
+						} || {
+							[[ -n $_branch ]] && {
+								git clone --branch $_branch $_url $_lib_name > $_log_name 2>&1
+							} || {
+								git clone $_url $_lib_name > $_log_name 2>&1
+							}
+						}
+						_result=$?
+					;;
+				esac	
+			} || {
+				_lib_name=$SRC_DIR/$_filename
+				[[ -f $_lib_name ]] && {
+					echo -n "--> Delete corrupted download..."
+					rm -f $_filename
+					echo " done"
 				}
-				_result=$?
-			;;
-			hg)
-				hg clone $3 $_lib_name > $_log_name 2>&1
-				_result=$?
-			;;
-			git)
-				[[ -d $_lib_name/.git ]] && {
-					pushd $_lib_name > /dev/null
-					git clean -f > $_log_name 2>&1
-					git reset --hard >> $_log_name 2>&1
-					git pull >> $_log_name 2>&1
-					popd > /dev/null
-				} || {
-					[[ -n $4 ]] && {
-						git clone --branch $4 $3 $_lib_name > $_log_name 2>&1
-					} || {
-						git clone $3 $_lib_name > $_log_name 2>&1
-					}
-				}
-				_result=$?
-			;;
-			*)
-				[[ ! -f $_marker_name && -f $_lib_name ]] && rm -rf $_lib_name
+				echo -n "--> download $_filename..."
 				wget \
 					--tries=$_WGET_TRIES \
 					--timeout=$_WGET_TIMEOUT \
 					--wait=$_WGET_WAIT \
 					--no-check-certificate \
-					$3 > $_log_name 2>&1
+					$_url -O $_lib_name > $_log_name 2>&1
 				_result=$?
-			;;
-		esac
-		popd > /dev/null
-		[[ $_result == 0 ]] && {
-			echo " done"
-			touch $_marker_name
+			}
+			[[ $_result == 0 ]] && {
+				echo " done"
+				touch $_marker_name
+			} || {
+				func_show_log $_log_name
+				die " error $_result" $_result
+			}
 		} || {
-			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
-			die " error $_result!"
-		}
-	} || {
-		echo "---> downloaded"
-	}
+			echo "---> $_filename downloaded"
+		}	
+	done
 }
 
 # uncompress sources
 function func_uncompress {
-	# $1 - name
-	# $2 - ext
-	# $3 - src dir name
-	# $4 - ignore unpack errors
+	[[ -n $1 ]] && {
+		local -a _list=( "${!1}" )
+	} || {
+		local -a _list=( "${!PKG_URL}" )
+	}
+	local _it=
+	[[ ${#_list[@]} == 0 ]] && {
+		echo "--> Unpack doesn't need."
+		return 0
+	}
 
-	local _src_dir=$UNPACK_DIR
-	local _ignore_error=0
-	local _marker_location=$MARKERS_DIR
-	[[ "x$3" != "x" && "x$3" == "x--ignore" ]] && {
-		_ignore_error=1
-	}
-	[[ "x$4" != "x" && "x$4" == "x--ignore" ]] && {
-		_ignore_error=1
-	}
-	[[ "x$3" != "x" && "x$3" != "x--ignore" ]] && {
-		_src_dir=$3
-		_marker_location=$3
-	}
-	local _result=0
-	local _unpack_cmd
-	local _marker_name=$_marker_location/$1-unpack.marker
-	local _log_name=$_marker_location/$1-unpack.log
-
-	[[ $2 == .tar.gz || $2 == .tgz || $2 == .tar.bz2 || $2 == .tar.lzma \
-	|| $2 == .tar.xz || $2 == .tar.7z || $2 == .7z || $2 == .zip ]] && {
-		[[ ! -f $_marker_name ]] && {
-			echo -n "---> unpack..."
-			case $2 in
-				.tar.gz|.tgz) _unpack_cmd="tar xvf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
-				.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
-				.tar.lzma) _unpack_cmd="tar xvJf $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
-				.tar.xz) _unpack_cmd="tar -xv --xz -f $SRC_DIR/$1$2 -C $_src_dir > $_log_name 2>&1" ;;
-				.tar.7z) die "unimplemented. terminate." ;;
-				.7z) _unpack_cmd="7za x -y $SRC_DIR/$1$2 -o$_src_dir > $_log_name 2>&1" ;;
-				.zip) _unpack_cmd="unzip $SRC_DIR/$1$2 -d $_src_dir > $_log_name 2>&1" ;;
-				*) die " error. bad archive type: $2" ;;
+	for _it in ${_list[@]} ; do
+		local _params=( ${_it//|/ } )
+		local _result=0
+		local _unpack_cmd
+		local _marker_name=
+		local _log_name=
+		local _filename=
+		local _ext=
+		local _url=${_params[0]}
+		local _module=
+		local _dir=
+		local _root=$UNPACK_DIR
+		local _lib_name=
+		
+		local _index=1
+		while [ "$_index" -lt "${#_params[@]}" ]
+		do
+			local _params2=( $(echo ${_params[$_index]} | sed 's|:| |g') )
+			case ${_params2[0]} in
+				dir)    _dir=${_params2[1]} ;;
+				root)   _root=${_params2[1]} ;;
+				module) _module=${_params2[1]} ;;
 			esac
-			eval ${_unpack_cmd}
-			_result=$?
-			[[ $_result == 0 || $_ignore_error == 1 ]] && {
-				echo " done"
-				touch $_marker_name
-			} || {
-				[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
-				die " error $_result!"
-			}
-		} || {
-			echo "---> unpacked"
+			_index=$(($_index+1))
+		done
+
+		_lib_name=${_root}/${_dir}
+		_filename=$(basename ${_params[0]})
+		local _log_dir=$MARKERS_DIR
+		[[ -n $2 ]] && {
+			_log_dir=$2
 		}
-	}
+		_log_name=$_log_dir/${_filename}-unpack.log
+		_marker_name=$_log_dir/${_filename}-unpack.marker
+		_ext=$(func_get_filename_extension $_filename)
+		[[ $_ext == .tar.gz || $_ext == .tar.bz2 || $_ext == .tar.lzma || $_ext == .tar.xz \
+		|| $_ext == .tar.7z || $_ext == .7z || $_ext == .tgz || $_ext == .zip ]] && {
+			[[ ! -f $_marker_name ]] && {
+				echo -n "--> unpack $_filename..."
+				case $_ext in
+					.tar.gz|.tgz) _unpack_cmd="tar xvf $SRC_DIR/$_filename -C $_lib_name > $_log_name 2>&1" ;;
+					.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$_filename -C $_lib_name > $_log_name 2>&1" ;;
+					.tar.lzma|.tar.xz) _unpack_cmd="tar xvJf $SRC_DIR/$_filename -C $_lib_name > $_log_name 2>&1" ;;
+					.tar.7z) die "unimplemented. terminate." ;;
+					.7z) _unpack_cmd="7za x $SRC_DIR/$_filename -o$_lib_name > $_log_name 2>&1" ;;
+					.zip) _unpack_cmd="unzip $SRC_DIR/$_filename -d $_lib_name > $_log_name 2>&1" ;;
+					*) die " error. bad archive type: $_ext" ;;
+				esac
+				eval ${_unpack_cmd}
+				_result=$?
+				[[ $_result == 0 ]] && {
+					echo " done"
+					touch $_marker_name
+				} || {
+					func_show_log $_log_name
+					die " error $_result" $_result
+				}
+			} || {
+				echo "---> $_filename unpacked"
+			}
+		}
+	done
 }
 
 # **************************************************************************
@@ -400,7 +480,7 @@ function func_apply_patches {
 	[[ $_result == 0 ]] && {
 		echo " done"
 	} || {
-		[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_src_dir/patch-$_index.log &
+		func_show_log $_src_dir/patch-$_index.log
 		die "Failed to apply patch ${it} at level $applevel"
 	}
 }
@@ -458,7 +538,7 @@ function func_configure {
 			echo " done"
 			touch $_marker
 		} || {
-			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
+			func_show_log $_log_name
 			die " error $_result!"
 		}
 		popd > /dev/null
@@ -502,7 +582,7 @@ function func_make {
 			echo " done"
 			touch $_marker
 		} || {
-			[[ $SHOW_LOG_ON_ERROR == yes ]] && $LOGVIEWER $_log_name &
+			func_show_log $_log_name
 			die " error $_result!"
 		}
 	} || {
