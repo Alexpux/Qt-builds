@@ -106,12 +106,12 @@ function func_abstract_toolchain {
 	# $1 - toolchain URL
 	# $2 - install path
 	# $3 - toolchain arch
-	local -a _url=( "$2|root:$TOOLCHAINS_DIR" )
-	local _filename=$(basename $2)
+	local -a _url=( "$1|root:$TOOLCHAINS_DIR" )
+	local _filename=$(basename $1)
 	local _do_install=no
 
 	echo -e "-> \E[32;40m$3 toolchain\E[37;40m"
-	[[ ! -f $1/${_filename}-unpack.marker ]] && {
+	[[ ! -f $MARKERS_DIR/${_filename}-unpack.marker ]] && {
 		[[ -d $2 ]] && {
 			echo "--> Found previously installed $3 toolchain."
 			echo -n "---> Remove previous $3 toolchain..."
