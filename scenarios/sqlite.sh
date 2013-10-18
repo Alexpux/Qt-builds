@@ -37,17 +37,19 @@
 
 P=sqlite
 P_V=${P}-autoconf-${SQLITE_VERSION}
-PKG_EXT=".tar.gz"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://www.sqlite.org/2013/${PKG_SRC_FILE}
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://www.sqlite.org/2013/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=("icu" "readline")
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

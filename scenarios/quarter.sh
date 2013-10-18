@@ -37,14 +37,16 @@
 
 P=quarter
 P_V=${P}
-PKG_EXT="git"
+PKG_TYPE="git"
 PKG_SRC_FILE=""
-PKG_URL=https://github.com/Alexpux/Quarter.git
+PKG_URL=(
+	"https://github.com/Alexpux/Quarter.git|repo:$PKG_TYPE"
+)
 PKG_DEPENDS=()
 PKG_LNDIR_DEST=${P_V}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {

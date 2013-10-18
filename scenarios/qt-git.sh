@@ -37,31 +37,34 @@
 
 P=qt
 P_V=$P-$QTVER
-EXT="git"
-SRC_FILE=
-MAINMODULE=qt5
-URL_QT5=git://gitorious.org/qt/$MAINMODULE.git
-SUBMODULES=(qtactiveqt
-			qtbase
-			qtdeclarative
-			qtdoc
-			qtgraphicaleffects
-			qtimageformats
-			qtjsbackend
-			qtmultimedia
-			qtquick1
-			qtquickcontrols
-			qtscript
-			qtserialport
-			qtsvg
-			qttools
-			qttranslations
-			qtwebkit
-			qtwebkit-examples
-			qtxmlpatterns
+PKG_TYPE="git"
+PKG_SRC_FILE=
+
+PKG_TYPE=git
+
+PKG_URLS=(
+	"git://gitorious.org/qt/qt5.git|repo:$PKG_TYPE|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtactiveqt.git|repo:$PKG_TYPE|dir:qtactiveqt|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtbase.git|repo:$PKG_TYPE|dir:qtbase|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtdeclarative.git|repo:$PKG_TYPE|dir:qtdeclarative|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtdoc.git|repo:$PKG_TYPE|dir:qtdoc|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtgraphicaleffects.git|repo:$PKG_TYPE|dir:qtgraphicaleffects|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtimageformats.git|repo:$PKG_TYPE|dir:qtimageformats|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtjsbackend.git|repo:$PKG_TYPE|dir:qtjsbackend|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtmultimedia.git|repo:$PKG_TYPE|dir:qtmultimedia|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtquick1.git|repo:$PKG_TYPE|dir:qtquick1|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtquickcontrols.git|repo:$PKG_TYPE|dir:qtquickcontrols|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtscript.git|repo:$PKG_TYPE|dir:qtscript|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtserialport.git|repo:$PKG_TYPE|dir:qtserialport|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtsvg.git|repo:$PKG_TYPE|dir:qtsvg|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qttools.git|repo:$PKG_TYPE|dir:qttools|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qttranslations.git|repo:$PKG_TYPE|dir:qttranslations|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtwebkit.git|repo:$PKG_TYPE|dir:qtwebkit|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtwebkit-examples.git|repo:$PKG_TYPE|dir:qtwebkit-examples|branch:$QT_GIT_BRANCH"
+	"git://gitorious.org/qt/qtxmlpatterns.git|repo:$PKG_TYPE|dir:qtxmlpatterns|branch:$QT_GIT_BRANCH"
 )
 
-DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
+PKG_DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 change_paths() {
 	local _sql_include=
@@ -89,24 +92,7 @@ restore_paths() {
 }
 
 src_download() {
-	
-	[[ -d $SRC_DIR/$P_V ]] && {
-		pushd $SRC_DIR/$P_V > /dev/null
-			git clean -f > /dev/null
-		popd > /dev/null
-	}
-	func_download $P_V $EXT $URL_QT5 $QT_GIT_BRANCH
-	
-	local mod=
-	for mod in ${SUBMODULES[@]}; do
-		[[ -d $SRC_DIR/$P_V/$mod ]] && {
-			pushd $SRC_DIR/$P_V/$mod > /dev/null
-				git clean -f > /dev/null
-				git reset --hard > /dev/null
-			popd > /dev/null
-		}
-		func_download $P_V/$mod $EXT git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
-	done
+	func_download
 }
 
 src_unpack() {

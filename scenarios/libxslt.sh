@@ -38,16 +38,18 @@
 P=libxslt
 P_V=${P}-${LIBXSLT_VERSION}
 EXT=".tar.gz"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=ftp://xmlsoft.org/libxslt/${PKG_SRC_FILE}
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"ftp://xmlsoft.org/libxslt/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=("libxml2")
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

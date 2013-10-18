@@ -37,14 +37,16 @@
 
 P=simvoleon
 P_V=${P}
-PKG_EXT="git"
+PKG_TYPE="git"
 PKG_SRC_FILE=""
-PKG_URL=https://github.com/Alexpux/SIMVoleon.git
+PKG_URL=(
+	"https://github.com/Alexpux/SIMVoleon.git|repo:$PKG_TYPE"
+	"https://github.com/Alexpux/CoinCodeShare.git|repo:$PKG_TYPE|dir:lib/VolumeViz/Coin"
+)
 PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
-	func_download $P_V/lib/VolumeViz/Coin $PKG_EXT https://github.com/Alexpux/CoinCodeShare.git
+	func_download
 }
 
 src_unpack() {

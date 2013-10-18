@@ -37,9 +37,11 @@
 
 P=qbs
 P_V=${P}
-PKG_EXT="git"
+PKG_TYPE="git"
 PKG_SRC_FILE=""
-PKG_URL=git://gitorious.org/qt-labs/${P}.git
+PKG_URL=(
+	"git://gitorious.org/qt-labs/${P}.git|repo:$PKG_TYPE"
+)
 PKG_DEPENDS=()
 PKG_USE_QMAKE=yes
 PKG_CONFIGURE=qbs.pro
@@ -47,7 +49,7 @@ PKG_MAKE=mingw32-make
 PKG_LNDIR_DEST=${P_V}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {

@@ -37,18 +37,20 @@
 
 P=icu
 P_V=${P}4c-${ICU_VERSION//./_}-src
-PKG_EXT=".tgz"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://download.icu-project.org/files/icu4c/${ICU_VERSION}/${PKG_SRC_FILE}
+PKG_TYPE=".tgz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://download.icu-project.org/files/icu4c/${ICU_VERSION}/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=()
 PKG_SRC_SUBDIR=source
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 	
 	pushd $UNPACK_DIR > /dev/null
 	[[ ! -f $P_V/post-unpack.marker ]] && {

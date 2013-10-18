@@ -37,18 +37,20 @@
 
 P=zlib
 P_V=${P}-${ZLIB_VERSION}
-PKG_EXT=".tar.gz"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIB_VERSION}/${PKG_SRC_FILE}
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://sourceforge.net/projects/libpng/files/zlib/${ZLIB_VERSION}/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=()
 PKG_LNDIR=yes
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

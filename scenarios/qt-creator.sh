@@ -37,24 +37,26 @@
 
 P=qt-creator
 P_V=${P}-${QT_CREATOR_VERSION}-src
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 # Release versions
-URL=http://download.qt-project.org/official_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
+PKG_URL=(
+	"http://download.qt-project.org/official_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
+)
 # Beta versions
-#URL=http://download.qt-project.org/development_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${SRC_FILE}
-DEPENDS=(qt)
+#PKG_URL=( "http://download.qt-project.org/development_releases/qtcreator/2.8/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}" )
+PKG_DEPENDS=(qt)
 PKG_USE_QMAKE=yes
 PKG_CONFIGURE=qtcreator.pro
 PKG_MAKE=mingw32-make
 PKG_LNDIR_DEST=${P_V}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download 
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT "--ignore"
+	func_uncompress
 }
 
 src_patch() {

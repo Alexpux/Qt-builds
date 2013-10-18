@@ -37,20 +37,22 @@
 
 P=tcl
 P_V=${P}${TCL_VERSION}
-PKG_EXT=".tar.gz"
-PKG_SRC_FILE="${P_V}-src${PKG_EXT}"
-PKG_URL=http://prdownloads.sourceforge.net/tcl/${PKG_SRC_FILE}
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="${P_V}-src${PKG_TYPE}"
+PKG_URL=(
+	"http://prdownloads.sourceforge.net/tcl/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=()
 
 PKG_LNDIR=yes
 PKG_SRC_SUBDIR=win
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V-src $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

@@ -37,17 +37,19 @@
 
 P=tiff
 P_V=${P}-${TIFF_VERSION}
-EXT=".tar.gz"
-SRC_FILE="${P_V}${EXT}"
-URL=http://download.osgeo.org/libtiff/${SRC_FILE}
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://download.osgeo.org/libtiff/${PKG_SRC_FILE}"
+)
 DEPENDS=()
 
 src_download() {
-	func_download $P_V $EXT $URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $EXT
+	func_uncompress
 }
 
 src_patch() {

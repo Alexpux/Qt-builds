@@ -37,21 +37,23 @@
 
 P=freetype
 P_V=${P}-${FREETYPE_VERSION}
-PKG_EXT=".tar.bz2"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-#PKG_DOC_FILE="${P}-doc-2.5.0${PKG_EXT}"
-PKG_URL=http://download.savannah.gnu.org/releases/${P}/${PKG_SRC_FILE}
+PKG_TYPE=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+#PKG_DOC_FILE="${P}-doc-2.5.0${PKG_TYPE}"
+PKG_URL=(
+	"http://download.savannah.gnu.org/releases/${P}/${PKG_SRC_FILE}"
+)
 #PKG_URL_DOC=http://download.savannah.gnu.org/releases/${P}/${PKG_DOC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
-#	func_download ${P}-doc-2.5.0 $PKG_EXT $PKG_URL_DOC
+	func_download
+#	func_download ${P}-doc-2.5.0 $PKG_TYPE $PKG_URL_DOC
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
-#	func_uncompress ${P}-doc-2.5.0 $PKG_EXT
+	func_uncompress
+#	func_uncompress ${P}-doc-2.5.0 $PKG_TYPE
 }
 
 src_patch() {

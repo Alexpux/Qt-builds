@@ -37,19 +37,21 @@
 
 P=discount
 P_V=${P}-${DISCOUNT_VERSION}
-PKG_EXT=".tar.bz2"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://www.pell.portland.or.us/~orc/Code/${P}/${PKG_SRC_FILE}
+PKG_TYPE=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://www.pell.portland.or.us/~orc/Code/${P}/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=()
 PKG_CONFIGURE=configure.sh
 PKG_LNDIR=yes
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

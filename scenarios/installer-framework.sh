@@ -37,9 +37,11 @@
 
 P=installer-framework
 P_V=$P
-PKG_EXT="git"
+PKG_TYPE="git"
 PKG_SRC_FILE=
-PKG_URL=git://gitorious.org/${P}/${P}.git
+PKG_URL=(
+	"git://gitorious.org/${P}/${P}.git|repo:$PKG_TYPE"
+)
 PKG_USE_QMAKE=yes
 PKG_CONFIGURE=installerfw.pro
 PKG_LNDIR_DEST=${P_V}-${QTVER}
@@ -47,12 +49,7 @@ PKG_MAKE=mingw32-make
 DEPENDS=(qt)
 
 src_download() {
-	[[ -d $SRC_DIR/$P_V ]] && {
-		pushd $SRC_DIR/$P_V > /dev/null
-			git clean -f > /dev/null
-		popd > /dev/null
-	}
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {

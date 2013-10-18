@@ -37,18 +37,20 @@
 
 P=OpenSceneGraph
 P_V=${P}-${OPENSCENEGRAPH_VERSION}
-PKG_EXT=".zip"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://www.openscenegraph.org/downloads/developer_releases/${PKG_SRC_FILE}
+PKG_TYPE=".zip"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://www.openscenegraph.org/downloads/developer_releases/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=()
 PKG_USE_CMAKE=true
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

@@ -37,13 +37,15 @@
 
 P=coin3d
 P_V=${P}
-PKG_EXT="git"
+PKG_TYPE="git"
 PKG_SRC_FILE=""
-PKG_URL=https://github.com/Alexpux/Coin3D.git
+PKG_URL=(
+	"https://github.com/Alexpux/Coin3D.git|repo:$PKG_TYPE"
+)
 PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {

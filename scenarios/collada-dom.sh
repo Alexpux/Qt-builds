@@ -37,14 +37,16 @@
 
 P=collada-dom
 P_V=${P}-${COLLADA_DOM_VERSION}
-PKG_EXT="svn"
+PKG_TYPE="svn"
 PKG_SRC_FILE=
-PKG_URL=svn://svn.code.sf.net/p/collada-dom/code/trunk
+PKG_URL=(
+	"svn://svn.code.sf.net/p/collada-dom/code/trunk|repo:$PKG_TYPE"
+)
 PKG_DEPENDS=()
 PKG_USE_CMAKE=yes
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 
 }
 

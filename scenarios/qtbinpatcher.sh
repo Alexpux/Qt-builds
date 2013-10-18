@@ -37,9 +37,9 @@
 
 P=qtbinpatcher
 P_V=${P}-1.1.0
-PKG_EXT=
+PKG_TYPE=
 PKG_SRC_FILE=
-PKG_URL=
+PKG_URL=()
 PKG_LNDIR_DEST=${P}-${QTVER}-${QTDIR_PREFIX}
 
 src_download() {

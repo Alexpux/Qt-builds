@@ -37,17 +37,19 @@
 
 P=giflib
 P_V=${P}-${GIFLIB_VERSION}
-PKG_EXT=".tar.bz2"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://download.sourceforge.net/${P}/${PKG_SRC_FILE}
+PKG_TYPE=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://download.sourceforge.net/${P}/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

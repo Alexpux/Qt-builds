@@ -37,10 +37,12 @@
 
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}-alpha
-PKG_EXT=".tar.xz"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://download.qt-project.org/development_releases/qt/5.2/5.2.0-alpha/single/$PKG_SRC_FILE
-#PKG_URL=http://download.qt-project.org/official_releases/qt/5.2/${QT_VERSION}/single/$PKG_SRC_FILE
+PKG_TYPE=".tar.xz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://download.qt-project.org/development_releases/qt/5.2/5.2.0-alpha/single/$PKG_SRC_FILE"
+)
+#PKG_URL=( "http://download.qt-project.org/official_releases/qt/5.2/${QT_VERSION}/single/$PKG_SRC_FILE" )
 PKG_DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 PKG_LNDIR=yes
@@ -75,11 +77,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {

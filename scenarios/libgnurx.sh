@@ -37,17 +37,19 @@
 
 P=libgnurx
 P_V=mingw-${P}-${LIBGNURX_VERSION}
-PKG_EXT=".tar.gz"
-PKG_SRC_FILE="mingw-${P}-${LIBGNURX_VERSION}-src${PKG_EXT}"
-PKG_URL=http://sourceforge.net/projects/mingw/files/Other/UserContributed/regex/mingw-regex-2.5.1/$PKG_SRC_FILE
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="mingw-${P}-${LIBGNURX_VERSION}-src${PKG_TYPE}"
+PKG_URL=(
+	"http://sourceforge.net/projects/mingw/files/Other/UserContributed/regex/mingw-regex-2.5.1/$PKG_SRC_FILE"
+)
 PKG_DEPENDS=()
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress "mingw-${P}-${LIBGNURX_VERSION}-src" $PKG_EXT
+	func_uncompress "mingw-${P}-${LIBGNURX_VERSION}-src"
 }
 
 src_patch() {

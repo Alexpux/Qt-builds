@@ -37,17 +37,19 @@
 
 P=pcre
 P_V=${P}-${PCRE_VERSION}
-PKG_EXT=".tar.bz2"
-PKG_SRC_FILE="${P_V}${PKG_EXT}"
-PKG_URL=http://sourceforge.net/projects/pcre/files/${P}/${PCRE_VERSION}/${PKG_SRC_FILE}
+PKG_TYPE=".tar.bz2"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"http://sourceforge.net/projects/pcre/files/${P}/${PCRE_VERSION}/${PKG_SRC_FILE}"
+)
 PKG_DEPENDS=("bzip2" "readline" "zlib")
 
 src_download() {
-	func_download $P_V $PKG_EXT $PKG_URL
+	func_download
 }
 
 src_unpack() {
-	func_uncompress $P_V $PKG_EXT
+	func_uncompress
 }
 
 src_patch() {
