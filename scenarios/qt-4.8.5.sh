@@ -96,7 +96,6 @@ src_patch() {
 	)
 	
 	func_apply_patches \
-		$P-$QT_VERSION \
 		_patches[@]
 }
 

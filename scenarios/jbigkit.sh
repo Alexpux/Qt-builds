@@ -43,7 +43,6 @@ PKG_URL=(
 	"http://www.cl.cam.ac.uk/~mgk25/download/${PKG_SRC_FILE}"
 )
 PKG_DEPENDS=()
-PKG_LNDIR_SRC=$P
 
 src_download() {
 	func_download
@@ -51,6 +50,15 @@ src_download() {
 
 src_unpack() {
 	func_uncompress
+	
+	pushd $UNPACK_DIR > /dev/null
+	[[ ! -f $P_V/post-unpack.marker ]] && {
+		echo -n "---> Move icu to $P_V..."
+		mv -f $P $P_V
+		echo "done"
+	}
+	touch $P_V/post-unpack.marker
+	popd > /dev/null
 }
 
 src_patch() {
@@ -59,7 +67,6 @@ src_patch() {
 	)
 	
 	func_apply_patches \
-		$P \
 		_patches[@]
 }
 
