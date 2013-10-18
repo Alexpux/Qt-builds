@@ -113,17 +113,17 @@ function func_abstract_toolchain {
 	echo -e "-> \E[32;40m$3 toolchain\E[37;40m"
 	[[ ! -f $MARKERS_DIR/${_filename}-unpack.marker ]] && {
 		[[ -d $2 ]] && {
-			echo "--> Found previously installed $3 toolchain."
-			echo -n "---> Remove previous $3 toolchain..."
+			echo "---> Found previously installed $3 toolchain."
+			echo -n "-----> Remove previous $3 toolchain..."
 			rm -rf $2
 			echo " done"
 		} || {
-			echo -n "--> $3 toolchain is not installed."
+			echo -n "---> $3 toolchain is not installed."
 		}
 		func_download _url[@]
 		func_uncompress _url[@]
 	} || {
-		echo "--> Toolchain installed."
+		echo "---> Toolchain installed."
 	}
 }
 
@@ -166,7 +166,7 @@ function func_download {
 		local -a _list=${PKG_URL}
 	}
 	[[ ${#_list[@]} == 0 ]] && {
-		echo "--> Doesn't need to download."
+		echo "---> Doesn't need to download."
 		return 0
 	}
 
@@ -221,7 +221,7 @@ function func_download {
 		}
 		[[ ! -f $_marker_name || $_repo_update == yes ]] && {
 			[[ $_is_repo == yes ]] && {
-				echo -n "--> checkout $_filename..."
+				echo -n "---> checkout $_filename..."
 
 				[[ -n $_dir ]] && {
 					_lib_name=$UNPACK_DIR/$P_V/$_filename
@@ -284,11 +284,11 @@ function func_download {
 			} || {
 				_lib_name=$SRC_DIR/$_filename
 				[[ -f $_lib_name ]] && {
-					echo -n "--> Delete corrupted download..."
+					echo -n "---> Delete corrupted download..."
 					rm -f $_filename
 					echo " done"
 				}
-				echo -n "--> download $_filename..."
+				echo -n "---> download $_filename..."
 				wget \
 					--tries=$_WGET_TRIES \
 					--timeout=$_WGET_TIMEOUT \
@@ -319,7 +319,7 @@ function func_uncompress {
 	}
 	local _it=
 	[[ ${#_list[@]} == 0 ]] && {
-		echo "--> Unpack doesn't need."
+		echo "---> Unpack doesn't need."
 		return 0
 	}
 
@@ -361,7 +361,7 @@ function func_uncompress {
 		[[ $_ext == .tar.gz || $_ext == .tar.bz2 || $_ext == .tar.lzma || $_ext == .tar.xz \
 		|| $_ext == .tar.7z || $_ext == .7z || $_ext == .tgz || $_ext == .zip ]] && {
 			[[ ! -f $_marker_name ]] && {
-				echo -n "--> unpack $_filename..."
+				echo -n "---> unpack $_filename..."
 				case $_ext in
 					.tar.gz|.tgz) _unpack_cmd="tar xvf $SRC_DIR/$_filename -C $_lib_name > $_log_name 2>&1" ;;
 					.tar.bz2) _unpack_cmd="tar xvjf $SRC_DIR/$_filename -C $_lib_name > $_log_name 2>&1" ;;
