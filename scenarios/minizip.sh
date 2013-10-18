@@ -35,8 +35,8 @@
 
 # **************************************************************************
 
-P=zlib
-P_V=${P}-${ZLIB_VERSION}
+P=minizip
+P_V=zlib-${ZLIB_VERSION}
 PKG_TYPE=".tar.gz"
 PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
@@ -44,6 +44,7 @@ PKG_URL=(
 )
 PKG_DEPENDS=()
 PKG_LNDIR=yes
+PKG_SRC_SUBDIR=contrib/minizip
 
 src_download() {
 	func_download
@@ -67,9 +68,21 @@ src_patch() {
 }
 
 src_configure() {
+	[[ ! -f $BUILD_DIR/$P_V/minizip_reconf.marker ]] && {
+		pushd $BUILD_DIR/$P_V/contrib/minizip > /dev/null
+		autoreconf -fi > $BUILD_DIR/$P_V/autoreconf_minizip.log 2>&1 || die "Fail autoreconf minizip"
+		popd > /dev/null
+		touch $BUILD_DIR/$P_V/minizip_reconf.marker
+	}
 	local _conf_flags=(
 		--prefix=${PREFIX}
-		--sharedlibdir="${PREFIX}/bin"
+		--host=${HOST}
+		-enable-demos
+		${LNKDEPS}
+		CFLAGS="\"${HOST_CFLAGS} -DHAVE_BZIP2\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+		LIBS="\"-lbz2\""
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure "$_allconf"
@@ -77,49 +90,23 @@ src_configure() {
 
 pkg_build() {
 	local _make_flags=(
-		${MAKE_OPTS}
-		STRIP=true
-		all
+		-j1
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
 		"$_allmake" \
 		"building..." \
 		"built"
-
-	[[ ! -f $BUILD_DIR/$P_V/pkgconfig.marker ]] && {
-		pushd $BUILD_DIR/$P_V > /dev/null
-		sed \
-			-e 's|@prefix@|'${PREFIX}'|g' \
-			-e 's|@exec_prefix@|${prefix}|g' \
-			-e 's|@libdir@|${prefix}/lib|g' \
-			-e 's|@sharedlibdir@|${prefix}/bin|g' \
-			-e 's|@includedir@|${prefix}/include|g' \
-			-e 's|@VERSION@|'${ZLIB_VERSION}'|g' \
-			zlib.pc.in > zlib.pc || die "SED error"
-		touch pkgconfig.marker
-		popd > /dev/null
-	}
 }
 
 pkg_install() {
-
 	local _install_flags=(
-		STRIP=true
+		${MAKE_OPTS}
 		install
 	)
-
 	local _allinstall="${_install_flags[@]}"
 	func_make \
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-
-	[[ ! -f $BUILD_DIR/$P_V/pkg_install.marker ]] && {
-		cp -f $BUILD_DIR/$P_V/zlib.pc ${PREFIX}/lib/pkgconfig/
-		[[ $STATIC_DEPS == no ]] && {
-			rm -f ${PREFIX}/lib/libz.a
-		}
-		touch $BUILD_DIR/$P_V/pkg_install.marker
-	}
 }

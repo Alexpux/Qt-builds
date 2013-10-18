@@ -36,7 +36,7 @@
 PACKAGES=(
 	pkg-config
 	bzip2
-	zlib
+	zlib minizip
 	gperf
 	libgnurx
 	lzo
