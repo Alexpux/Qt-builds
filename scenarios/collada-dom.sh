@@ -47,7 +47,6 @@ PKG_USE_CMAKE=yes
 
 src_download() {
 	func_download
-
 }
 
 src_unpack() {

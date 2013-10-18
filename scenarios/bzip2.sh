@@ -46,6 +46,7 @@ PKG_DEPENDS=()
 
 src_download() {
 	func_download
+}
 
 src_unpack() {
 	func_uncompress
