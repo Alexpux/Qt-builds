@@ -37,7 +37,7 @@
 
 P=libxslt
 P_V=${P}-${LIBXSLT_VERSION}
-EXT=".tar.gz"
+PKG_TYPE=".tar.gz"
 PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
 	"ftp://xmlsoft.org/libxslt/${PKG_SRC_FILE}"
