@@ -38,7 +38,7 @@
 P=libpng
 P_V=${P}-${LIBPNG_VERSION}
 PKG_TYPE=".tar.gz"
-PKG_SRC_FILE="${P_V}${EXT}"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
 	"http://download.sourceforge.net/${P}/${PKG_SRC_FILE}"
 )
