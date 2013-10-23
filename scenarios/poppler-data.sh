@@ -37,16 +37,17 @@
 
 P=poppler-data
 P_V=${P}-${POPPLER_DATA_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://poppler.freedesktop.org/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -59,11 +60,11 @@ src_patch() {
 }
 
 src_configure() {
-	echo "--> Configure empty"
+	lndirs
 }
 
 pkg_build() {
-	echo "--> Make empty"
+	echo "---> Make empty"
 }
 
 pkg_install() {

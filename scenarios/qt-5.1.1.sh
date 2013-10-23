@@ -37,7 +37,8 @@
 
 P=qt
 P_V=qt-everywhere-opensource-src-${QT_VERSION}
-SRC_FILE="${P_V}.tar.xz"
+EXT=".tar.xz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://download.qt-project.org/official_releases/qt/5.1/${QT_VERSION}/single/$SRC_FILE
 DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
@@ -53,8 +54,8 @@ change_paths() {
 	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P-$QT_VERSION/qtbase/bin:$BUILD_DIR/$P-$QT_VERSION/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
-	#$BUILD_DIR/$P-$QT_VERSION/gnuwin32/bin:
+	export PATH=$BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/bin:$BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	#$BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/gnuwin32/bin:
 }
 
 restore_paths() {
@@ -67,16 +68,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V ".tar.xz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.xz" $BUILD_DIR
-
-	if [ -d $BUILD_DIR/$P_V ]
-	then 
-		mv $BUILD_DIR/$P_V $BUILD_DIR/$P-$QT_VERSION
-	fi
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -84,51 +80,51 @@ src_patch() {
 		$P/5.0.x/qt-5.0.0-use-fbclient-instead-of-gds32.patch
 		$P/5.0.x/qt-5.0.0-oracle-driver-prompt.patch
 		$P/5.1.x/qt-5.1.0-win32-g++-mkspec-optimization.patch
-		$P/5.1.x/qt-5.1.x-fix-configure-tests.patch
+		#$P/5.1.x/qt-5.1.x-fix-configure-tests.patch
 		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
 		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 		$P/5.1.x/qt-5.1.1-fix-mingw-file_id_128.patch
 		$P/5.1.x/qt-5.1.1-fix-mingw-SHSTOCKICONINFO.patch
-		$P/5.1.x/qt-5.1.x-workaround-pkgconfig-install-issue.patch
+		#$P/5.1.x/qt-5.1.x-workaround-pkgconfig-install-issue.patch
 	)
-	
+
 	func_apply_patches \
-		$P-$QT_VERSION \
-		_patches[@] \
-		$BUILD_DIR
-		
-	touch $BUILD_DIR/$P-$QT_VERSION/qtbase/.gitignore
-	
-	pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/mkspecs/win32-g++ > /dev/null
-		if [ -f qmake.conf.patched ]
-		then
+		$P_V \
+		_patches[@]
+
+	touch $UNPACK_DIR/$P_V/qtbase/.gitignore
+}
+
+src_configure() {
+
+	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
+		mkdir -p ${QTDIR}/databases
+		echo "---> Sync database folder... "
+		rsync -av ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/ ${QTDIR}/databases/ > /dev/null
+		echo "done"
+	}
+
+	lndirs $P_V $P-$QT_VERSION-$QTDIR_PREFIX
+
+	pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/mkspecs/win32-g++ > /dev/null
+		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
-		else
+		} || {
 			cp -f qmake.conf qmake.conf.patched
-		fi
+		}
 
 		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
 					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
 		rm -f qmake.conf
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
-	
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
-	then
-		mkdir -p ${QTDIR}/databases
-		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
-	fi
-}
 
-src_configure() {
-
-	if [ -f $BUILD_DIR/$P-$QT_VERSION/configure.marker ]
-	then
-		echo "--> configured"
-	else
-		pushd $BUILD_DIR/$P-$QT_VERSION > /dev/null
-		echo -n "--> configure..."
+	[[ -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/configure.marker ]] && {
+		echo "---> configured"
+	} || {
+		pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX > /dev/null
+		echo -n "---> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
 			_opengl="-opengl desktop"
@@ -174,13 +170,13 @@ src_configure() {
 		local _allconf="${_conf_flags[@]}"
 		./configure.bat \
 			$_allconf \
-			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
+			> ${LOG_DIR}/${P_V}-$QTDIR_PREFIX_configure.log 2>&1 || die "Qt configure error"
 	
 		restore_paths
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {
@@ -188,17 +184,16 @@ pkg_build() {
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
 		# Workaround for
 		# https://bugreports.qt-project.org/browse/QTBUG-28845
-		pushd $BUILD_DIR/$P-$QT_VERSION/qtbase/src/angle/src/libGLESv2 > /dev/null
-		if [ -f workaround.marker ]
-		then
-			echo "--> Workaround applied"
-		else
-			echo -n "--> Applying workaround..."
+		pushd $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qtbase/src/angle/src/libGLESv2 > /dev/null
+		[[ -f workaround.marker ]] && {
+			echo "---> Workaround applied"
+		} || {
+			echo -n "---> Applying workaround..."
 			qmake libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
 			touch workaround.marker
-		fi
+		}
 		popd > /dev/null
 	} 
 	
@@ -207,7 +202,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -225,7 +220,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
@@ -234,13 +229,20 @@ pkg_install() {
 	install_docs
 
 	# Workaround for build other components (qbs, qtcreator, etc)
-	if [[ ! -f $BUILD_DIR/$P-$QT_VERSION/qwindows.marker && $STATIC_DEPS == yes ]]
-	then
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qwindows.marker && $STATIC_DEPS == yes ]] && {
 		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
 		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
-		touch $BUILD_DIR/$P-$QT_VERSION/qwindows.marker
-	fi
+		touch $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/qwindows.marker
+	}
 
+	# Workaround for installing empty .pc files
+	[[ ! -f $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/pkgconfig.marker ]] && {
+		echo -n "---> Fix pkgconfig files..."
+		local _pc_files=( $(find $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX -type f -name Qt5*.pc) )
+		cp -f ${_pc_files[@]} ${QTDIR}/lib/pkgconfig/ > /dev/null 2>&1
+		echo " done"
+		touch $BUILD_DIR/$P-$QT_VERSION-$QTDIR_PREFIX/pkgconfig.marker
+	}
 	restore_paths
 }
 
@@ -252,7 +254,7 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
@@ -264,7 +266,7 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		$P-$QT_VERSION \
+		$P-$QT_VERSION-$QTDIR_PREFIX \
 		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \

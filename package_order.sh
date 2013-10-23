@@ -35,16 +35,18 @@
 
 PACKAGES=(
 	pkg-config
+	bzip2
 	zlib
 	gperf
 	libgnurx
-	bzip2
 	lzo
 	ncurses
 	readline
 	xz
 	expat
 	sqlite
+	tcl
+	tk
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "pcre \
 				 icu \
@@ -64,7 +66,7 @@ PACKAGES=(
 		&& echo "dmake \
 				 perl" \
 	)
-	# gettext
+	gettext
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "libpng \
 				 freetype \
@@ -72,7 +74,9 @@ PACKAGES=(
 	)
 	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "nasm \
+				hunspell \
 				libjpeg-turbo \
+				giflib \
 				jbigkit \
 				freeglut \
 				tiff \
@@ -96,6 +100,18 @@ PACKAGES=(
 	)
 	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "poppler-data \
-				poppler" \
+				poppler \
+				boost" \
+	)
+	$( [[ $BUILD_COIN3D == yes && $STATIC_DEPS == no ]] \
+		&& echo "simage \
+				coin3d \
+				quarter \
+				simvoleon" \
+	)
+	$( [[ $BUILD_OSG == yes && $STATIC_DEPS == no ]] \
+		&& echo "SDL \
+				collada-dom \
+				openscenegraph" \
 	)
 )

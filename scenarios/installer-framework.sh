@@ -37,23 +37,23 @@
 
 P=installer-framework
 P_V=$P
+EXT="git"
 SRC_FILE=
 URL=git://gitorious.org/${P}/${P}.git
 
 DEPENDS=(qt)
 
 src_download() {
-	if [ -d $SRC_DIR/$P_V ]
-	then
+	[[ -d $SRC_DIR/$P_V ]] && {
 		pushd $SRC_DIR/$P_V > /dev/null
 			git clean -f > /dev/null
 		popd > /dev/null
-	fi
-	func_download $P_V "git" $URL
+	}
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	echo "--> Empty unpack"
+	echo "---> Empty unpack"
 }
 
 src_patch() {
@@ -69,19 +69,18 @@ src_patch() {
 src_configure() {
 	mkdir -p $BUILD_DIR/${P_V}-${QTVER}
 
-	if [ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]
-	then
-		echo "--> configured"
-	else
+	[[ -f $BUILD_DIR/${P_V}-${QTVER}/configure.marker ]] && {
+		echo "---> configured"
+	} || {
 		pushd $BUILD_DIR/${P_V}-${QTVER} > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTVER} $SRC_DIR/$P_V ) 
 		${QTDIR}/bin/qmake.exe $_rel_path/installerfw.pro CONFIG+=release \
 			> ${LOG_DIR}/${P_V}-${QTVER}-configure.log 2>&1 || die "QMAKE failed"
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {

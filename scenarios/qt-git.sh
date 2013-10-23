@@ -37,6 +37,7 @@
 
 P=qt
 P_V=$P-$QTVER
+EXT="git"
 SRC_FILE=
 MAINMODULE=qt5
 URL_QT5=git://gitorious.org/qt/$MAINMODULE.git
@@ -74,8 +75,8 @@ change_paths() {
 	export CPATH="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIBRARY_PATH="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
 	OLD_PATH=$PATH
-	export PATH=$BUILD_DIR/$P_V/qtbase/bin:$BUILD_DIR/$P_V/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
-	#$SRC_DIR/$P_V/gnuwin32/bin:
+	export PATH=$BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/bin:$BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/lib:$MINGW_PART_PATH:$MSYS_PART_PATH:$WINDOWS_PART_PATH
+	#$SRC_DIR/$P_V-${QTDIR_PREFIX}/gnuwin32/bin:
 }
 
 restore_paths() {
@@ -89,28 +90,27 @@ restore_paths() {
 
 src_download() {
 	
-	if [ -d $SRC_DIR/$P_V ]
-	then
+	[[ -d $SRC_DIR/$P_V ]] && {
 		pushd $SRC_DIR/$P_V > /dev/null
 			git clean -f > /dev/null
 		popd > /dev/null
-	fi
-	func_download $P_V "git" $URL_QT5 $QT_GIT_BRANCH
+	}
+	func_download $P_V $EXT $URL_QT5 $QT_GIT_BRANCH
 	
+	local mod=
 	for mod in ${SUBMODULES[@]}; do
-		if [ -d $SRC_DIR/$P_V/$mod ]
-		then
+		[[ -d $SRC_DIR/$P_V/$mod ]] && {
 			pushd $SRC_DIR/$P_V/$mod > /dev/null
 				git clean -f > /dev/null
 				git reset --hard > /dev/null
 			popd > /dev/null
-		fi
-		func_download $P_V/$mod "git" git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
+		}
+		func_download $P_V/$mod $EXT git://gitorious.org/qt/${mod}.git $QT_GIT_BRANCH
 	done
 }
 
 src_unpack() {
-	echo "--> Empty unpack"
+	echo "---> Empty unpack"
 }
 
 src_patch() {
@@ -122,20 +122,20 @@ src_patch() {
 		$P/5.1.x/qt-5.1.x-syncqt-fix.patch
 		$P/5.1.x/qt-5.1.x-win_flex-replace.patch
 	)
-	
+
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$SRC_DIR
-	
-	pushd $SRC_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
-		if [ -f qmake.conf.patched ]
-		then
+		_patches[@]
+}
+
+src_configure() {
+	pushd $UNPACK_DIR/$P_V/qtbase/mkspecs/win32-g++ > /dev/null
+		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
-		else
+		} || {
 			cp -f qmake.conf qmake.conf.patched
-		fi
+		}
 
 		cat qmake.conf | sed 's|%OPTIMIZE_OPT%|'"$OPTIM"'|g' \
 					| sed 's|%STATICFLAGS%|'"$STATIC_LD"'|g' > qmake.conf.tmp
@@ -143,22 +143,19 @@ src_patch() {
 		mv qmake.conf.tmp qmake.conf
 	popd > /dev/null
 	
-	if [[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]]
-	then
+	[[ ! -d ${QTDIR}/databases && $STATIC_DEPS == no ]] && {
 		mkdir -p ${QTDIR}/databases
-		cp -rf ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/* ${QTDIR}/databases/
-	fi
-}
+		echo "---> Sync database folder... "
+		rsync -av ${PATCH_DIR}/${P}/databases-${ARCHITECTURE}/ ${QTDIR}/databases/ > /dev/null
+		echo "done"
+	}
 
-src_configure() {
-
-	if [ -f $BUILD_DIR/$P_V/configure.marker ]
-	then
-		echo "--> configured"
-	else
-		mkdir -p $BUILD_DIR/$P_V
-		pushd $BUILD_DIR/$P_V > /dev/null
-		echo -n "--> configure..."
+	[[ -f $BUILD_DIR/$P_V-${QTDIR_PREFIX}/configure.marker ]] && {
+		echo "---> configured"
+	} || {
+		mkdir -p $BUILD_DIR/$P_V-${QTDIR_PREFIX}
+		pushd $BUILD_DIR/$P_V-${QTDIR_PREFIX} > /dev/null
+		echo -n "---> configure..."
 		local _opengl
 		[[ $USE_OPENGL_DESKTOP == yes ]] && {
 			_opengl="-opengl desktop"
@@ -200,7 +197,7 @@ src_configure() {
 			-nomake examples
 		)
 		local _allconf="${_conf_flags[@]}"
-		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V} $SRC_DIR/${P_V} )
+		local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTDIR_PREFIX} $UNPACK_DIR/${P_V} )
 		$_rel_path/configure.bat \
 			$_allconf \
 			> ${LOG_DIR}/${P_V}_configure.log 2>&1 || die "Qt configure error"
@@ -209,7 +206,7 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {
@@ -217,19 +214,18 @@ pkg_build() {
 	[[ $USE_OPENGL_DESKTOP == no ]] && {
 		#Workaround for
 		#https://bugreports.qt-project.org/browse/QTBUG-28845
-		mkdir -p $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2
-		pushd $BUILD_DIR/$P_V/qtbase/src/angle/src/libGLESv2 > /dev/null
-		if [ -f workaround.marker ]
-		then
-			echo "--> Workaround applied"
-		else
-			echo -n "--> Applying workaround..."
-			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
+		mkdir -p $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/src/angle/src/libGLESv2
+		pushd $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qtbase/src/angle/src/libGLESv2 > /dev/null
+		[[ -f workaround.marker ]] && {
+			echo "---> Workaround applied"
+		} || {
+			echo -n "---> Applying workaround..."
+			local _rel_path=$( func_absolute_to_relative $BUILD_DIR/${P_V}-${QTDIR_PREFIX}/qtbase/src/angle/src/libGLESv2 $SRC_DIR/${P_V}/qtbase/src/angle/src/libGLESv2 )
 			qmake $_rel_path/libGLESv2.pro
 			cat Makefile.Debug | grep fxc.exe | cmd > workaround.log 2>&1
 			echo " done"
 			touch workaround.marker
-		fi
+		}
 		popd > /dev/null
 	} 
 	
@@ -238,7 +234,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building..." \
@@ -256,7 +252,7 @@ pkg_install() {
 	)
 	local _allinstall="${_install_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allinstall" \
 		"installing..." \
@@ -266,12 +262,11 @@ pkg_install() {
 	put_sha1
 
 	# Workaround for build other components (qbs, qtcreator, etc)
-	if [[ ! -f $BUILD_DIR/$P_V/qwindows.marker && $STATIC_DEPS == yes ]]
-	then
+	[[ ! -f $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qwindows.marker && $STATIC_DEPS == yes ]] && {
 		cp -f ${QTDIR}/plugins/platforms/libqwindows.a ${QTDIR}/lib/
 		cp -f ${QTDIR}/plugins/platforms/libqwindowsd.a ${QTDIR}/lib/
-		touch $BUILD_DIR/$P_V/qwindows.marker
-	fi
+		touch $BUILD_DIR/$P_V-${QTDIR_PREFIX}/qwindows.marker
+	}
 
 	restore_paths
 }
@@ -284,7 +279,7 @@ install_docs() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"building docs..." \
@@ -296,7 +291,7 @@ install_docs() {
 	)
 	_allmake="${_make_flags[@]}"
 	func_make \
-		$P_V \
+		$P_V-${QTDIR_PREFIX} \
 		"mingw32-make" \
 		"$_allmake" \
 		"installing docs..." \
@@ -304,23 +299,22 @@ install_docs() {
 }
 
 put_sha1() {
-	if [ -d $SRC_DIR/$P_V ]
-	then
+	[[ -d $SRC_DIR/$P_V ]] && {
 		pushd $SRC_DIR/$P_V > /dev/null
 			echo -n "$MAINMODULE SHA1: " > $QTDIR/sha1s
 			git log -1 --pretty=format:%H >> $QTDIR/sha1s
 			echo " ;" >> $QTDIR/sha1s
 		popd > /dev/null
-	fi
-	
+	}
+
+	local mod=
 	for mod in ${SUBMODULES[@]}; do
-		if [ -d $SRC_DIR/$P_V/$mod ]
-		then
+		[[ -d $SRC_DIR/$P_V/$mod ]] && {
 			pushd $SRC_DIR/$P_V/$mod > /dev/null
 				echo -n "$mod SHA1: " >> $QTDIR/sha1s
 				git log -1 --pretty=format:%H >> $QTDIR/sha1s
 				echo " ;" >> $QTDIR/sha1s
 			popd > /dev/null
-		fi
+		}
 	done
 }

@@ -1,9 +1,44 @@
 #!/bin/bash
-set -e
 
-P=perl
+#
+# The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
+#
+# This file is part of 'Qt-builds' project.
+# Copyright (c) 2013 by Alexpux (alexpux@gmail.com)
+# All rights reserved.
+#
+# Project: Qt-builds ( https://github.com/Alexpux/Qt-builds )
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# - Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# - Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in
+#     the documentation and/or other materials provided with the distribution.
+# - Neither the name of the 'Qt-builds' nor the names of its contributors may
+#     be used to endorse or promote products derived from this software
+#     without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+# **************************************************************************
+
+P="perl"
 P_V=${P}-${PERL_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.cpan.org/src/5.0/${SRC_FILE}
 DEPENDS=(dmake)
 
@@ -18,11 +53,11 @@ restore_paths() {
 }
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -33,27 +68,26 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$BUILD_DIR
+		_patches[@]
 }
 
 src_configure() {
+	lndirs
 
-	if [ -f $BUILD_DIR/$P_V/win32/configure.marker ]
-	then
-		echo "--> configured"
-	else
+	[[ -f $BUILD_DIR/$P_V/win32/configure.marker ]] && {
+		echo "---> configured"
+	} || {
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		
 		local DRV=`expr substr $MINGW_PERL_PREFIX_W 1 2`
-		local NOTDRV=${MINGW_PERL_PREFIX_W#$DRV}
+		local NOTDRV=${PREFIX_WIN#$DRV}
 		NOTDRV=$(echo $NOTDRV | sed 's|/|\\\\|g')
 		local MINGWHOME_WIN_P=$(echo $MINGWHOME_WIN | sed 's|/|\\\\|g')
 
 		local COMMA=
 		local EXTRA=$MINGWHOME_WIN/$TARGET/lib
-		[[ $ARCHITECTURE == x32 ]] && {
+		[[ $ARCHITECTURE == i686 ]] && {
 			COMMA=""	
 		} || {
 			COMMA="#"
@@ -71,39 +105,37 @@ src_configure() {
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_build() {
 
-	if [ -f $BUILD_DIR/$P_V/win32/make.marker ]
-	then
-		echo "--> Builded"
-	else
+	[[ -f $BUILD_DIR/$P_V/win32/make.marker ]] && {
+		echo "---> Builded"
+	} || {
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
-		echo "--> Building..."
+		echo "---> Building..."
 		change_paths
-		$MINGW_PERL_PREFIX_W/bin/dmake || die "Error building PERL"
+		$PREFIX_WIN/bin/dmake || die "Error building PERL"
 		restore_paths
-		echo "done"
+		echo " done"
 		touch make.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_install() {
 
-	if [ -f $BUILD_DIR/$P_V/win32/install.marker ]
-	then
-		echo "--> Installed"
-	else
+	[[ -f $BUILD_DIR/$P_V/win32/install.marker ]] && {
+		echo "---> Installed"
+	} || {
 		pushd $BUILD_DIR/$P_V/win32 > /dev/null
-		echo "--> Installing..."
+		echo "---> Installing..."
 		change_paths
-		$MINGW_PERL_PREFIX_W/bin/dmake install || die "Error installing PERL"
+		$PREFIX_WIN/bin/dmake install || die "Error installing PERL"
 		restore_paths
-		echo "done"
+		echo " done"
 		touch install.marker
 		popd > /dev/null
-	fi
+	}
 }

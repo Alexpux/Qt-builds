@@ -37,16 +37,17 @@
 
 P=pcre
 P_V=${P}-${PCRE_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://sourceforge.net/projects/pcre/files/${P}/${PCRE_VERSION}/${SRC_FILE}
 DEPENDS=("bzip2" "readline" "zlib")
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -58,16 +59,15 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
-		echo -n "--> Execute after patch..."
+		echo -n "---> Execute after patch..."
 		libtoolize --copy --force > execute.log 2>&1
 		autoreconf >> execute.log 2>&1
 		echo " done"
 		touch pre-configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 src_configure() {

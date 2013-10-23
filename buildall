@@ -104,6 +104,9 @@ URL_MINGW64=${URL_MINGW64_POSIX}
 # Use system installed toolchains
 USER_DEFINED_TOOLCHAINS=no
 
+# Update sources from repositories
+UPDATE_SOURCES=no
+
 # MinGW-builds contain prebuilded python in opt subdirectory.
 # Does we use msys-python, mingw-builds python or build python yourself.
 USE_PYTHON=msys
@@ -119,6 +122,8 @@ BUILD_QTCREATOR=yes
 
 # Build some extra libraries
 BUILD_EXTRA_STUFF=no
+BUILD_OSG=no
+BUILD_COIN3D=no
 
 # Build Flags
 MAKE_OPTS="-j3"
@@ -132,7 +137,10 @@ STATIC_SUFFIX=""
 STATIC_LD=""
 
 # Default Qt version to build
-QT_VERSION="5.0.2"
+QT_VERSION="5.1.1"
+
+#Use different folders for building Qt with different opengl options
+QTDIR_PREFIX="angle"
 
 # Qt5 git branch to build
 QT_GIT_BRANCH="stable"
@@ -143,7 +151,7 @@ USE_OPENGL_DESKTOP=no
 RUN_ARGS="$@"
 [[ $# == 1 && $1 == --help	|| $[ $# == 0 ] == 1 ]] && {
 	echo "usage:"
-	echo "  ./${0##*/} <x32|x64> [OPTIONS]"
+	echo "  ./${0##*/} <i686|x86_64> [OPTIONS]"
 	echo "  help:"
 	echo "    --buildroot=<path>      - specifies the build root directory"
 	echo "                              Default is $ROOT_DIR/work"
@@ -151,6 +159,7 @@ RUN_ARGS="$@"
 	echo "                              Default is $PREFIX_TOP"
 	echo "    --toolchains-dir=<path> - specifies directory where installed Mingw 32-bit and 64-bit toolchains"
 	echo "                              You must have mingw32 and mingw64 directories there"
+	echo "    --update-sources        - try update sources from repositories"
 	echo "    --opengl-desktop        - build Qt with opengl=desktop (for Qt-5.x only)"
 	echo "    --qt-version=<version>  - specifies the Qt version to build"
 	echo "                              Default Qt version is $QT_VERSION"
@@ -165,6 +174,8 @@ RUN_ARGS="$@"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
+	echo "    --osg                   - build OpenSceneGraph"
+	echo "    --coin3d                - build Coin3D"
 	echo "    --version               - print the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
 	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, 5.1.1, git"
@@ -221,7 +232,11 @@ while [[ $# > 0 ]]; do
 			popd > /dev/null
 			USER_DEFINED_TOOLCHAINS=yes
 		;;
-		--opengl-desktop) USE_OPENGL_DESKTOP=yes ;;
+		--update-sources) UPDATE_SOURCES=yes ;;
+		--opengl-desktop)
+			USE_OPENGL_DESKTOP=yes
+			QTDIR_PREFIX="opengl"
+		;;
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--qt-git-branch=*) QT_GIT_BRANCH=${1/--qt-git-branch=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
@@ -248,13 +263,21 @@ while [[ $# > 0 ]]; do
 			URL_MINGW64=${URL_MINGW64_WIN32}
 		;;
 		--extra-stuff) BUILD_EXTRA_STUFF=yes ;;
-		x32)
-			[[ ${BUILD_ARCHITECTURES[@]} =~ x32 ]] && { shift; continue; }
-			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x32 )
+		--osg) 
+			BUILD_EXTRA_STUFF=yes
+			BUILD_OSG=yes
 		;;
-		x64)
-			[[ ${BUILD_ARCHITECTURES[@]} =~ x64 ]] && { shift; continue; }
-			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x64 )
+		--coin3d)
+			BUILD_EXTRA_STUFF=yes
+			BUILD_COIN3D=yes
+		;;
+		i686)
+			[[ ${BUILD_ARCHITECTURES[@]} =~ i686 ]] && { shift; continue; }
+			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} i686 )
+		;;
+		x86_64)
+			[[ ${BUILD_ARCHITECTURES[@]} =~ x86_64 ]] && { shift; continue; }
+			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} x86_64 )
 		;;
 		
 		*)
@@ -276,7 +299,7 @@ mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 	die "error in build architectures(${BUILD_ARCHITECTURES[@]}). terminate."
 }
 
-[[ $IS_64BIT_HOST == no && ${BUILD_ARCHITECTURES[@]} =~ x64 ]] && {
+[[ $IS_64BIT_HOST == no && ${BUILD_ARCHITECTURES[@]} =~ x86_64 ]] && {
 	die "you can't build 64-bit programs using 32-bit OS. terminate."
 }
 
@@ -284,33 +307,31 @@ mkdir -p $SRC_DIR $MARKERS_DIR $TOOLCHAINS_DIR $UNPACK_DIR
 	die "Can't find script to build version $QT_VERSION of Qt."
 }
 
-x32_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw32
-x64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
+i686_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw32
+x86_64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 
 [[ $USER_DEFINED_TOOLCHAINS == no ]] && {
 	toolchains_prepare
 }
 
-[[ ! -d $x32_HOST_MINGW_PATH || ! -d $x64_HOST_MINGW_PATH ]] && {
+[[ ! -d $i686_HOST_MINGW_PATH || ! -d $x86_64_HOST_MINGW_PATH ]] && {
 	die "Host toolchains is not installed. Terminate!"
 }
 
-if [ $USE_PYTHON=msys ]
-then 
+[[ $USE_PYTHON == msys ]] && {
     command -v "python" > /dev/null 2>&1 || { USE_PYTHON=self; }
-fi
+}
 
-if [ $BUILD_RUBY=no ]
-then 
+[[ $BUILD_RUBY == no ]] && {
     command -v "ruby" > /dev/null 2>&1 || { BUILD_RUBY=yes; }
-fi
+}
 	
 source versions.sh
 source package_order.sh
 
 for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 
-	PREFIX=${PREFIX_TOP}/ported${ARCHITECTURE//x/}${STATIC_SUFFIX}
+	PREFIX=${PREFIX_TOP}/prerequisites-${ARCHITECTURE}${STATIC_SUFFIX}
 	[[ $QT_VERSION == git ]] && {
 		QTVER=${QT_VERSION}${STATIC_SUFFIX}-${QT_GIT_BRANCH}
 		QTVER=${QTVER//debug/deb}
@@ -318,28 +339,28 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	} || {
 		QTVER=${QT_VERSION}${STATIC_SUFFIX}
 	}
-	QTDIR=${PREFIX_TOP}/Qt${ARCHITECTURE//x/}-${QTVER}
+	QTDIR=${PREFIX_TOP}/Qt-${QTVER}-${ARCHITECTURE}-${QTDIR_PREFIX}
 	BUILD_DIR=${ROOT_DIR}/build-$ARCHITECTURE${STATIC_SUFFIX}
 	LOG_DIR=${ROOT_DIR}/logs-$ARCHITECTURE${STATIC_SUFFIX}
 
-	[[ $ARCHITECTURE == x32 ]] && {
+	[[ $ARCHITECTURE == i686 ]] && {
 		HOST=i686-w64-mingw32
 		BUILD=i686-w64-mingw32
 		TARGET=i686-w64-mingw32
 		OPTIM="-march=i686 -mtune=core2"
-		[[ ! -f $x32_HOST_MINGW_PATH/bin/gcc.exe ]] && {
-			die "gcc.exe is not exists in the \"$x32_HOST_MINGW_PATH/bin\" directory. terminate."
+		[[ ! -f $i686_HOST_MINGW_PATH/bin/gcc.exe ]] && {
+			die "gcc.exe is not exists in the \"$i686_HOST_MINGW_PATH/bin\" directory. terminate."
 		}
-		MINGWHOME=$x32_HOST_MINGW_PATH
+		MINGWHOME=$i686_HOST_MINGW_PATH
 	} || {
 		HOST=x86_64-w64-mingw32
 		BUILD=x86_64-w64-mingw32
 		TARGET=x86_64-w64-mingw32
 		OPTIM="-march=nocona -mtune=core2"
-		[[ ! -f $x64_HOST_MINGW_PATH/bin/gcc.exe ]] && {
-			die "gcc.exe is not exists in the \"$x64_HOST_MINGW_PATH/bin\" directory. terminate."
+		[[ ! -f $x86_64_HOST_MINGW_PATH/bin/gcc.exe ]] && {
+			die "gcc.exe is not exists in the \"$x86_64_HOST_MINGW_PATH/bin\" directory. terminate."
 		}
-		MINGWHOME=$x64_HOST_MINGW_PATH
+		MINGWHOME=$x86_64_HOST_MINGW_PATH
 	}
 
 	pushd $MINGWHOME > /dev/null
@@ -354,32 +375,12 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 	
 	MINGW_PART_PATH=$PREFIX/bin:$QTDIR/bin:$MINGWHOME/bin
 
-	if [ $USE_PYTHON == self ]
-	then
-		MINGW_PYTHON2_PREFIX=$PREFIX/python2
-		MINGW_PYTHON2_PREFIX_W=$PREFIX_WIN/python2
-		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
-	elif [ $USE_PYTHON == toolchain ]
-	then
+	[[ $USE_PYTHON == toolchain ]] && {
 		MINGW_PYTHON2_PREFIX=$MINGWHOME/opt
 		MINGW_PYTHON2_PREFIX_W=$MINGWHOME_WIN/opt
 		export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
 		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PYTHON2_PREFIX/bin
-	fi
-
-	if [ $BUILD_RUBY == yes ]
-	then
-		MINGW_RUBY_PREFIX=$PREFIX/ruby
-		MINGW_RUBY_PREFIX_W=$PREFIX_WIN/ruby
-		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_RUBY_PREFIX/bin
-	fi
-
-	if [ $BUILD_PERL == yes ]
-	then
-		MINGW_PERL_PREFIX=$PREFIX/perl
-		MINGW_PERL_PREFIX_W=$PREFIX_WIN/perl
-		MINGW_PART_PATH=$MINGW_PART_PATH:$MINGW_PERL_PREFIX/bin
-	fi
+	}
 
 	export PATH=$MINGW_PART_PATH:$PATH
 
@@ -411,6 +412,5 @@ for ARCHITECTURE in ${BUILD_ARCHITECTURES[@]}; do
 		pkg_install
 
 	done
-
 done
 

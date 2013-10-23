@@ -37,16 +37,17 @@
 
 P=libffi
 P_V=${P}-${LIBFFI_VERSION}
-SRC_FILE="${P_V}.tar.gz"
-URL=ftp://sourceware.org/pub/libffi/libffi-${LIBFFI_VERSION}.tar.gz
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
+URL=ftp://sourceware.org/pub/libffi/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

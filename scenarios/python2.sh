@@ -37,16 +37,17 @@
 
 P=Python
 P_V=${P}-${PYTHON2_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.python.org/ftp/python/${PYTHON2_VERSION}/$SRC_FILE
 DEPENDS=("expat" "libffi" "zlib")
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -89,10 +90,9 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $UNPACK_DIR/$P_V/post-patch.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/post-patch.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
-		echo -n "--> Executing..."
+		echo -n "---> Executing..."
 		rm -rf Modules/expat
 		rm -rf Modules/_ctypes/libffi*
 		rm -rf Modules/zlib
@@ -110,7 +110,7 @@ src_patch() {
 		echo " done"
 		touch post-patch.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 src_configure() {
@@ -118,7 +118,7 @@ src_configure() {
 	export ac_cv_working_tzset=no
 	
 	local _conf_flags=(
-		--prefix=${MINGW_PYTHON2_PREFIX}
+		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
 		--enable-shared
@@ -130,9 +130,9 @@ src_configure() {
 		LIBFFI_INCLUDEDIR="$PREFIX_WIN/lib/libffi-$LIBFFI_VERSION/include"
 		OPT=""
 		CFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$MINGWHOME_WIN/$HOST/include\""
-		CXXFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncurses -I$MINGWHOME_WIN/$HOST/include\""
-		CPPFLAGS="\"$HOST_CPPFLAGS -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncurses -I$MINGWHOME_WIN/$HOST/include\""
-		LDFLAGS="\"-pipe -s -L$MINGWHOME_WIN/$HOST/lib -L$MINGW_PYTHON2_PREFIX/lib -L$PREFIX_WIN/lib\""
+		CXXFLAGS="\"$HOST_CFLAGS -fwrapv -DNDEBUG -D__USE_MINGW_ANSI_STDIO=1 -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncursesw -I$MINGWHOME_WIN/$HOST/include\""
+		CPPFLAGS="\"$HOST_CPPFLAGS -I$PREFIX_WIN/include -I$PREFIX_WIN/include/ncursesw -I$MINGWHOME_WIN/$HOST/include\""
+		LDFLAGS="\"-pipe -s -L$MINGWHOME_WIN/$HOST/lib -L$PREFIX_WIN/lib\""
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure $P_V $P_V "$_allconf"
@@ -162,5 +162,5 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
-	export PYTHONHOME=$MINGW_PYTHON2_PREFIX_W
+	export PYTHONHOME=$PREFIX
 }

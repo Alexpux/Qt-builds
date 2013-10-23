@@ -37,16 +37,17 @@
 
 P=bzip2
 P_V=bzip2-${BZIP2_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.bzip.org/${BZIP2_VERSION}/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -63,15 +64,14 @@ src_patch() {
 }
 
 src_configure() {
-	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "--> Execute before configure..."
 		./autogen.sh > execute.log 2>&1
 		echo " done"
 		touch pre-configure.marker
 		popd > /dev/null
-	fi
+	}
 	
 	local _conf_flags=(
 		--prefix=${PREFIX}

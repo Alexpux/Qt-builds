@@ -37,16 +37,17 @@
 
 P=ncurses
 P_V=${P}-${NCURSES_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://ftp.gnu.org/pub/gnu/ncurses/$SRC_FILE
 DEPENDS=("libgnurx")
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -63,7 +64,7 @@ src_configure() {
 		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
-		--target=${HOST}
+		#--target=${HOST}
 		--without-ada
 		--with-cxx
 		--enable-pc-files
@@ -77,7 +78,7 @@ src_configure() {
 		--enable-sp-funcs
 		--enable-term-driver
 		--enable-interop
-		--disable-widec
+		--enable-widec
 		CFLAGS="\"${HOST_CFLAGS} -D__USE_MINGW_ANSI_STDIO=1\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
@@ -111,4 +112,9 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
+
+	[[ ! -f $BUILD_DIR/${P_V}/post-install.marker ]] && {
+		cp -f ${PREFIX}/lib/libncursesw.a ${PREFIX}/lib/libncurses.a
+		touch $BUILD_DIR/${P_V}/post-install.marker
+	}
 }

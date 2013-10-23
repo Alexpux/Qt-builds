@@ -37,16 +37,17 @@
 
 P=sqlite
 P_V=${P}-autoconf-${SQLITE_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.sqlite.org/2013/${SRC_FILE}
 DEPENDS=("icu" "readline")
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -57,15 +58,14 @@ src_patch() {
 		$P_V \
 		_patches[@]
 
-	if ! [ -f $UNPACK_DIR/$P_V/pre-configure.marker ]
-	then
+	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
-		echo -n "--> Execute after patch..."
+		echo -n "---> Execute after patch..."
 		perl -pi -e 's#archive_cmds_need_lc=yes#archive_cmds_need_lc=no#g' configure > execute.log 2>&1
 		echo " done"
 		touch pre-configure.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 src_configure() {

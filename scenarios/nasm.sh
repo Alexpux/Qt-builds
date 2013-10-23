@@ -37,16 +37,17 @@
 
 P=nasm
 P_V=${P}-${NASM_VERSION}
-SRC_FILE="$P_V.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2" $BUILD_DIR
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -59,6 +60,8 @@ src_patch() {
 }
 
 src_configure() {
+	lndirs
+
 	local _conf_flags=(
 		--prefix=${PREFIX}
 		--build=${HOST}

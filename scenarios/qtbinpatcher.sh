@@ -37,31 +37,32 @@
 
 P=qtbinpatcher
 P_V=${P}-1.1.0
+EXT=
 SRC_FILE=
 URL=
 
 src_download() {
-	echo "--> Local sources"
+	echo "---> Local sources"
 }
 
 src_unpack() {
-	if [ -f $BUILD_DIR/$P_V.marker ]
-	then
-		echo "--> Sources copied"
-	else
-		echo -n "--> Copy sources..."
-		cp -rf $PROG_DIR/$P $BUILD_DIR/ || die "Error copy $P to $PROG_DIR"
-		touch $BUILD_DIR/$P_V.marker
+	[[ -f ${BUILD_DIR}/${P}-${QTVER}-${QTDIR_PREFIX}/$P_V.marker ]] && {
+		echo "---> Sources copied"
+	} || {
+		echo -n "---> Copy sources..."
+		mkdir -p ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX}
+		lndir ${PROG_DIR}/$P ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX} || die "Error copy $P to $BUILD_DIR"
+		touch ${BUILD_DIR}/$P-${QTVER}-${QTDIR_PREFIX}/${P_V}.marker
 		echo " done"
-	fi
+	}
 }
 
 src_patch() {
-	echo "--> No patches needed"
+	echo "---> No patches needed"
 }
 
 src_configure() {
-	echo "--> Don't need configure"
+	echo "---> Don't need configure"
 }
 
 pkg_build() {
@@ -70,7 +71,7 @@ pkg_build() {
 	)
 	local _allmake="${_make_flags[@]}"
 	func_make \
-		${P} \
+		${P}-${QTVER}-${QTDIR_PREFIX} \
 		"/bin/make" \
 		"$_allmake" \
 		"building..." \
@@ -78,9 +79,8 @@ pkg_build() {
 }
 
 pkg_install() {
-	if [ ! -f $BUILD_DIR/$P/install-${QTVER}.marker ]
-	then
-		cp -f $BUILD_DIR/$P/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
-		touch $BUILD_DIR/$P/install-${QTVER}.marker
-	fi
+	[[ ! -f $BUILD_DIR/$P-${QTVER}-${QTDIR_PREFIX}/install-${QTVER}.marker ]] && {
+		cp -f $BUILD_DIR/$P-${QTVER}-${QTDIR_PREFIX}/out/${P}.exe ${QTDIR}/ || die "Error copying ${P}.exe"
+		touch $BUILD_DIR/$P-${QTVER}-${QTDIR_PREFIX}/install-${QTVER}.marker
+	}
 }

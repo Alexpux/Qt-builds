@@ -37,16 +37,17 @@
 
 P=postgresql
 P_V=${P}-${POSTGRESQL_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://ftp.postgresql.org/pub/source/v${POSTGRESQL_VERSION}/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -79,8 +80,7 @@ src_configure() {
 	func_configure $P_V $P_V "$_allconf"
 	
 	pushd $BUILD_DIR/$P_V > /dev/null
-		if [ ! -f defs.marker ]
-		then
+		[[ ! -f defs.marker ]] && {
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/blibecpg_compatdll.def src/interfaces/ecpg/compatlib/blibecpg_compatdll.def
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/libecpg_compatddll.def src/interfaces/ecpg/compatlib/libecpg_compatddll.def
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/ecpg/compatlib/libecpg_compatdll.def src/interfaces/ecpg/compatlib/libecpg_compatdll.def
@@ -98,13 +98,12 @@ src_configure() {
 			cp -rf $UNPACK_DIR/$P_V/src/interfaces/libpq/libpqdll.def src/interfaces/libpq/libpqdll.def
 			
 			touch defs.marker
-		fi
+		}
 	popd > /dev/null
 }
 
 pkg_build() {
 	local _make_flags=(
-		PYTHON_DIR=$MINGW_PYTHON2_PREFIX
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -130,10 +129,9 @@ pkg_install() {
 		"installed"
 
 	pushd $BUILD_DIR/$P_V > /dev/null
-		if [ ! -f postinstall.marker ]
-		then
+		[[ ! -f postinstall.marker ]] && {
 			cp -f $PREFIX/lib/*.dll $PREFIX/bin/
 			touch postinstall.marker
-		fi
+		}
 	popd > /dev/null	
 }

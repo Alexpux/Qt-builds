@@ -37,15 +37,16 @@
 
 P=dmake
 P_V=${P}-${DMAKE_VERSION}
-SRC_FILE="${P_V}.tar.bz2"
+EXT=".tar.bz2"
+SRC_FILE="${P_V}${EXT}"
 URL=http://dmake.apache-extras.org.codespot.com/files/${SRC_FILE}
 
 src_download() {
-	func_download $P_V ".tar.bz2" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.bz2"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -60,7 +61,7 @@ src_patch() {
 
 src_configure() {
 	local _conf_flags=(
-		--prefix=${MINGW_PERL_PREFIX}
+		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
 		--target=${HOST}
@@ -98,9 +99,8 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if ! [ -f $BUILD_DIR/$P_V/post-install.marker ]
-	then
-		cp -rf $MINGW_PERL_PREFIX/share/startup $MINGW_PERL_PREFIX/bin/
+	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
+		cp -rf $PREFIX/share/startup $PREFIX/bin/
 		touch $BUILD_DIR/$P_V/post-install.marker
-	fi
+	}
 }

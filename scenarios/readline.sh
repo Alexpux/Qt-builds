@@ -37,16 +37,17 @@
 
 P=readline
 P_V=${P}-${READLINE_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://ftp.gnu.org/gnu/${P}/${SRC_FILE}
 DEPENDS=(ncurses)
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -69,6 +70,7 @@ src_configure() {
 		--host=${HOST}
 		--target=${HOST}
 		${LNKDEPS}
+		--with-curses
 		CFLAGS="\"${HOST_CFLAGS} -D__USE_MINGW_ANSI_STDIO=1\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""

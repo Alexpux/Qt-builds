@@ -37,15 +37,16 @@
 
 P=openssl
 P_V=${P}-${OPENSSL_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.openssl.org/source/${SRC_FILE}
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -61,12 +62,12 @@ src_patch() {
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$BUILD_DIR
+		_patches[@]
 }
 
 src_configure() {
-	[[ $ARCHITECTURE == x64 ]] &&
+	lndirs
+	[[ $ARCHITECTURE == x86_64 ]] &&
 	{
 		TOOLSET=mingw64
 	} || {
@@ -82,12 +83,11 @@ src_configure() {
 	unset SCRIPTS
 	unset CROSS_COMPILE
 
-	if [ -f $BUILD_DIR/$P_V/configure.marker ]
-	then
-		echo "--> configured"
-	else
+	[[ -f $BUILD_DIR/$P_V/configure.marker ]] && {
+		echo "---> configured"
+	} || {
 		pushd $BUILD_DIR/$P_V > /dev/null
-		echo -n "--> configure..."
+		echo -n "---> configure..."
 		sh Configure --prefix=${PREFIX} \
 			$_mode \
 			threads \
@@ -100,11 +100,11 @@ src_configure() {
 			${TOOLSET} \
 			> ${LOG_DIR}/${P_V}-configure.log 2>&1 || die "configure error!"
 		
-		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch
+		patch -p1 -b < ${PATCH_DIR}/${P}/Makefile.patch > Makefile_patch.log 2>&1
 		echo " done"
 		touch configure.marker
 		popd > /dev/null
-	fi
+	}
 	unset TOOLSET
 }
 

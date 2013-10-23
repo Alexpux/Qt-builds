@@ -37,16 +37,17 @@
 
 P=pkg-config
 P_V=${P}-${PKG_CONFIG_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://pkgconfig.freedesktop.org/releases/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -63,7 +64,7 @@ src_configure() {
 		--prefix=${PREFIX}
 		--build=${HOST}
 		--host=${HOST}
-		--target=${HOST}
+		#--target=${HOST}
 		${LNKDEPS}
 		--disable-rpath
 		--with-internal-glib

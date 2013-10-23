@@ -37,16 +37,17 @@
 
 P=xz
 P_V=${P}-${XZ_TOOLS_VERSION}
-SRC_FILE="$P_V.tar.xz"
+EXT=".tar.xz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://tukaani.org/${P}/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.xz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.xz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {

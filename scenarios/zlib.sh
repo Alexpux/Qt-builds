@@ -37,57 +37,48 @@
 
 P=zlib
 P_V=${P}-${ZLIB_VERSION}
-SRC_FILE="${P_V}.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIB_VERSION}/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
 	local _patches=(
-		$P/zlib-1.2.5-nostrip.patch
-		$P/zlib-1.2.5-tml.patch
+		$P/01-zlib-1.2.7-1-buildsys.mingw.patch
+		$P/02-no-undefined.mingw.patch
+		$P/03-dont-put-sodir-into-L.mingw.patch
+		$P/04-wrong-w8-check.mingw.patch
+		$P/05-fix-a-typo.mingw.patch
 	)
 	
 	func_apply_patches \
 		$P_V \
-		_patches[@] \
-		$BUILD_DIR
+		_patches[@]
 }
 
 src_configure() {
-	# local _conf_flags=(
-		# --prefix=${PREFIX}
-		# --host=${HOST}
-		# ${SHARED_LINK_FLAGS}
-		# --disable-rpath
-		# CFLAGS="\"${HOST_CFLAGS}\""
-		# LDFLAGS="\"${HOST_LDFLAGS}\""
-		# CPPFLAGS="\"${HOST_CPPFLAGS}\""
-	# )
-	# local _allconf="${_conf_flags[@]}"
-	# func_configure $P_V $P_V "$_allconf"
-	echo "--> Configure empty"
+	lndirs
+	
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--sharedlibdir="${PREFIX}/bin"
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V $P_V "$_allconf"
 }
 
 pkg_build() {
 	local _make_flags=(
 		${MAKE_OPTS}
-		-f win32/Makefile.gcc
-		CC=${HOST}-gcc
-		AR=ar
-		RC=windres
-		DLLWRAP=dllwrap
-		STRIP=strip
-		$( [[ $STATIC_DEPS == yes ]] \
-			&& echo "LOC=\"${HOST_LDFLAGS}\"" \
-		)
+		STRIP=true
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -98,8 +89,10 @@ pkg_build() {
 		"building..." \
 		"built"
 
-	if ! [ -f $BUILD_DIR/$P_V/pkgconfig.marker ]
-	then
+	minizip_configure
+	minizip_build
+
+	[[ ! -f $BUILD_DIR/$P_V/pkgconfig.marker ]] && {
 		pushd $BUILD_DIR/$P_V > /dev/null
 		sed \
 			-e 's|@prefix@|'${PREFIX}'|g' \
@@ -111,19 +104,13 @@ pkg_build() {
 			zlib.pc.in > zlib.pc || die "SED error"
 		touch pkgconfig.marker
 		popd > /dev/null
-	fi
+	}
 }
 
 pkg_install() {
 
 	local _install_flags=(
-		-f win32/Makefile.gcc
-		INCLUDE_PATH=${PREFIX}/include
-		LIBRARY_PATH=${PREFIX}/lib
-		BINARY_PATH=${PREFIX}/bin
-		$( [[ $STATIC_DEPS == no ]] \
-			&& echo "SHARED_MODE=1" \
-		)
+		STRIP=true
 		install
 	)
 
@@ -135,12 +122,60 @@ pkg_install() {
 		"installing..." \
 		"installed"
 
-	if ! [ -f $BUILD_DIR/$P_V/pkg_install.marker ]
-	then
+	minizip_install
+	[[ ! -f $BUILD_DIR/$P_V/pkg_install.marker ]] && {
 		cp -f $BUILD_DIR/$P_V/zlib.pc ${PREFIX}/lib/pkgconfig/
 		[[ $STATIC_DEPS == no ]] && {
 			rm -f ${PREFIX}/lib/libz.a
 		}
 		touch $BUILD_DIR/$P_V/pkg_install.marker
-	fi
+	}
+}
+
+minizip_configure() {
+	[[ ! -f $BUILD_DIR/$P_V/minizip_reconf.marker ]] && {
+		pushd $BUILD_DIR/$P_V/contrib/minizip > /dev/null
+		autoreconf -fi > $BUILD_DIR/$P_V/autoreconf_minizip.log 2>&1 || die "Fail autoreconf minizip"
+		popd > /dev/null
+		touch $BUILD_DIR/$P_V/minizip_reconf.marker
+	}
+	local _conf_flags=(
+		--prefix=${PREFIX}
+		--host=${HOST}
+		-enable-demos
+		${LNKDEPS}
+		CFLAGS="\"${HOST_CFLAGS} -DHAVE_BZIP2\""
+		LDFLAGS="\"${HOST_LDFLAGS}\""
+		CPPFLAGS="\"${HOST_CPPFLAGS}\""
+		LIBS="\"-lbz2\""
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure $P_V/contrib/minizip contrib/minizip "$_allconf" $BUILD_DIR/$P_V
+}
+
+minizip_build() {
+	local _make_flags=(
+		-j1
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		${P_V}/contrib/minizip \
+		"/bin/make" \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+minizip_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		${P_V}/contrib/minizip \
+		"/bin/make" \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
 }

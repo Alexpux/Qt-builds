@@ -1,0 +1,108 @@
+Index: include/osg/GraphicsContext
+===================================================================
+--- a/include/osg/GraphicsContext	(revision 13311)
++++ b/include/osg/GraphicsContext	(working copy)
+@@ -336,7 +336,12 @@
+         /** Return true if the graphics context has been realized and is ready to use.*/
+         inline bool isRealized() const { return isRealizedImplementation(); }
+ 
++		/** Move the context to the worker thread. */
++		virtual void moveToThread(void* thread) {}
+ 
++		/** Move the context back from the worker thread. */
++        virtual void moveBack() {}
++
+         /** Make this graphics context current.
+           * Implemented by calling makeCurrentImplementation().
+           * Returns true on success. */
+Index: include/osg/GraphicsThread
+===================================================================
+--- a/include/osg/GraphicsThread	(revision 13311)
++++ b/include/osg/GraphicsThread	(working copy)
+@@ -28,6 +28,9 @@
+ 
+         GraphicsThread();
+ 
++		/** Prepares the thread before running. */
++		virtual void prepare();
++
+         /** Run does the graphics thread run loop.*/
+         virtual void run();
+ };
+Index: include/osgQt/GraphicsWindowQt
+===================================================================
+--- a/include/osgQt/GraphicsWindowQt	(revision 13311)
++++ b/include/osgQt/GraphicsWindowQt	(working copy)
+@@ -167,6 +167,9 @@
+ 
+     virtual void requestWarpPointer( float x, float y );
+ 
++	virtual void moveToThread(void* thread);
++    virtual void moveBack();
++
+ protected:
+ 
+     friend class GLWidget;
+Index: src/osg/GraphicsThread.cpp
+===================================================================
+--- a/src/osg/GraphicsThread.cpp	(revision 13311)
++++ b/src/osg/GraphicsThread.cpp	(working copy)
+@@ -24,6 +24,16 @@
+ {
+ }
+ 
++void GraphicsThread::prepare()
++{
++    // move the graphics context to the new thread.
++    GraphicsContext* graphicsContext = dynamic_cast<GraphicsContext*>(_parent.get());
++    if (graphicsContext)
++    {
++        graphicsContext->moveToThread(getImplementation());
++    }
++}
++
+ void GraphicsThread::run()
+ {
+     // make the graphics context current.
+@@ -42,6 +52,7 @@
+ 
+     if (graphicsContext)
+     {
++        graphicsContext->moveBack();
+         graphicsContext->releaseContext();
+     }
+ 
+Index: src/osgQt/GraphicsWindowQt.cpp
+===================================================================
+--- a/src/osgQt/GraphicsWindowQt.cpp	(revision 13311)
++++ b/src/osgQt/GraphicsWindowQt.cpp	(working copy)
+@@ -703,6 +703,7 @@
+ 
+ void GraphicsWindowQt::swapBuffersImplementation()
+ {
++    _widget->makeCurrent();
+     _widget->swapBuffers();
+ 
+     // FIXME: the processDeferredEvents should really be executed in a GUI (main) thread context but
+@@ -724,7 +725,21 @@
+         QCursor::setPos( _widget->mapToGlobal(QPoint((int)x,(int)y)) );
+ }
+ 
++void GraphicsWindowQt::moveToThread(void *thread)
++{
++    QThread* qThread = static_cast<QThread*>(thread);
++    if (qThread)
++    {
++        _widget->context()->moveToThread(qThread);
++    }
++}
+ 
++void GraphicsWindowQt::moveBack()
++{
++    _widget->context()->moveToThread(_widget->thread());
++}
++
++
+ class QtWindowingSystem : public osg::GraphicsContext::WindowingSystemInterface
+ {
+ public:

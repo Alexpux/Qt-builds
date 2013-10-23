@@ -37,26 +37,17 @@
 
 P=jbigkit
 P_V=${P}-${JBIGKIT_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.cl.cam.ac.uk/~mgk25/download/${SRC_FILE}
 DEPENDS=()
 
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz" $BUILD_DIR
-
-	pushd $BUILD_DIR > /dev/null
-	if ! [ -f $P_V/post-unpack.marker ]
-		then
-		echo -n "--> Move ${P} to ${P_V}..."
-		mv -f $P $P_V
-		echo "done"
-	fi
-	touch $P_V/post-unpack.marker
-	popd > /dev/null
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -65,13 +56,12 @@ src_patch() {
 	)
 	
 	func_apply_patches \
-		$P_V \
-		_patches[@] \
-		$BUILD_DIR
+		$P \
+		_patches[@]
 }
 
 src_configure() {
-	echo "--> Configure empty"
+	lndirs $P $P_V
 }
 
 pkg_build() {

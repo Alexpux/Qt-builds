@@ -37,16 +37,27 @@
 
 P=cmake
 P_V=${P}-${CMAKE_VERSION}
-SRC_FILE="$P_V.tar.gz"
+EXT=".tar.gz"
+SRC_FILE="${P_V}${EXT}"
 URL=http://www.cmake.org/files/v2.8/${SRC_FILE}
 DEPENDS=(curl expat libarchive ncurses pkg-config zlib)
 
+change_paths() {
+	OLD_PATH=$PATH
+	export PATH=${PATH//$QTDIR\/bin:/}
+}
+
+restore_paths() {
+	export PATH=$OLD_PATH
+	unset OLD_PATH
+}
+
 src_download() {
-	func_download $P_V ".tar.gz" $URL
+	func_download $P_V $EXT $URL
 }
 
 src_unpack() {
-	func_uncompress $P_V ".tar.gz"
+	func_uncompress $P_V $EXT
 }
 
 src_patch() {
@@ -65,7 +76,9 @@ src_configure() {
 		--no-qt-gui
 	)
 	local _allconf="${_conf_flags[@]}"
+	change_paths
 	func_configure $P_V $P_V "$_allconf"
+	restore_paths
 }
 
 pkg_build() {
