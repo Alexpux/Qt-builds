@@ -69,6 +69,9 @@ src_configure() {
 		--host=${HOST}
 		--target=${HOST}
 		--prefix=${PREFIX}
+		$( [[ $ARCHITECTURE == x86_64 ]] \
+			&& echo "--enable-64bit"
+		)
 		--with-tcl=$PREFIX/lib
 		--enable-shared
 	)
