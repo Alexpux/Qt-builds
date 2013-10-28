@@ -36,13 +36,13 @@
 # **************************************************************************
 
 P=qt
-P_V=qt-everywhere-opensource-src-${QT_VERSION}-alpha
+P_V=qt-everywhere-opensource-src-${QT_VERSION}-beta1
 PKG_TYPE=".tar.xz"
 PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
-	"http://download.qt-project.org/development_releases/qt/5.2/5.2.0-alpha/single/$PKG_SRC_FILE"
+	"http://download.qt-project.org/development_releases/qt/5.2/5.2.0-beta1/single/$PKG_SRC_FILE"
+	# "http://download.qt-project.org/official_releases/qt/5.2/${QT_VERSION}/single/$PKG_SRC_FILE"
 )
-#PKG_URL=( "http://download.qt-project.org/official_releases/qt/5.2/${QT_VERSION}/single/$PKG_SRC_FILE" )
 PKG_DEPENDS=(gperf icu fontconfig freetype libxml2 libxslt pcre perl ruby)
 
 PKG_LNDIR=yes
