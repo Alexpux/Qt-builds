@@ -106,7 +106,7 @@ src_configure() {
 		echo "done"
 	}
 
-	pushd $BUILD_DIR/$P-$QT_VERSION/mkspecs/win32-g++ > /dev/null
+	pushd $UNPACK_DIR/$P_V/mkspecs/win32-g++ > /dev/null
 		[[ -f qmake.conf.patched ]] && {
 			rm -f qmake.conf
 			cp -f qmake.conf.patched qmake.conf
