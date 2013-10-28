@@ -59,9 +59,6 @@ PACKAGES=(
 		&& echo "libffi python2" \
 	)
 	yaml
- 	$( [[ $BUILD_RUBY == yes ]] \
-		&& echo "ruby" \
-	)
  	$( [[ $BUILD_PERL == yes ]] \
 		&& echo "dmake \
 				 perl" \
@@ -87,6 +84,9 @@ PACKAGES=(
 				libarchive \
 				cmake \
 				discount" \
+	)
+ 	$( [[ $BUILD_RUBY == yes ]] \
+		&& echo "ruby" \
 	)
 	qt-$QT_VERSION
 	qtbinpatcher
