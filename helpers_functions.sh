@@ -223,8 +223,8 @@ function func_download {
 			;;
 		esac
 
-		_log_name=$MARKERS_DIR/${_filename//\//_}-download.log
-		_marker_name=$MARKERS_DIR/${_filename//\//_}-download.marker
+		_log_name=$MARKERS_DIR/$(basename ${_url})-download.log
+		_marker_name=$MARKERS_DIR/$(basename ${_url})-download.marker
 
 		[[ ! -f $_marker_name || $_repo_update == yes ]] && {
 			[[ $_is_repo == yes ]] && {
