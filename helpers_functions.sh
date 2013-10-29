@@ -219,7 +219,7 @@ function func_download {
 				fi
 			;;
 			*)
-				_filename=$_module
+				_filename=$(basename ${_url})
 			;;
 		esac
 
