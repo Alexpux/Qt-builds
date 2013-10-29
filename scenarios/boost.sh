@@ -153,4 +153,16 @@ pkg_install() {
 		"$_allinstall" \
 		"installing..." \
 		"installed"
+
+	[[ ! -f $BUILD_DIR/${P_V}/post-install.marker ]] && {
+		local binary=
+		pushd ${PREFIX}/lib > /dev/null
+		find * -type f -name 'libboost*.dll' -print0 | \
+		while read -d $'\0' binary
+		do
+			mv -f $binary ${PREFIX}/bin/$binary
+		done
+		popd > /dev/null
+		touch $BUILD_DIR/${P_V}/post-install.marker
+	}
 }
