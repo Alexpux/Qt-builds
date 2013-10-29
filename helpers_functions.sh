@@ -164,7 +164,7 @@ function func_download {
 	[[ -n $1 ]] && {
 		local -a _list=( "${!1}" )
 	} || {
-		local -a _list=${PKG_URL}
+		local -a _list=( "${PKG_URL[@]}" )
 	}
 	[[ ${#_list[@]} == 0 ]] && {
 		echo "---> Doesn't need to download."
