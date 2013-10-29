@@ -502,14 +502,13 @@ function func_apply_patches {
 function func_configure {
 	# $1 - configure flags
 
-	local _src_dir=$UNPACK_DIR
+	local _src_dir=$UNPACK_DIR/$P_V
 	local _bld_dir=$BUILD_DIR
 
 	[[ -n $PKG_LNDIR_DEST ]] && {
 		_bld_dir=$_bld_dir/$PKG_LNDIR_DEST
 	} || {
 		_bld_dir=$_bld_dir/$P_V
-		_src_dir=$_src_dir/$P_V
 	}
 	
 	[[ -n $PKG_SRC_SUBDIR ]] && {
@@ -517,7 +516,6 @@ function func_configure {
 		_src_dir=$_src_dir/$PKG_SRC_SUBDIR
 		local _log_name=$LOG_DIR/${P_V}_${PKG_SRC_SUBDIR//\//_}-configure.log
 	} || {
-		_src_dir=$_src_dir/$P_V
 		local _log_name=$LOG_DIR/${P_V}-configure.log
 	}
 
