@@ -208,30 +208,38 @@ function func_download {
 
 		local _repo_update=no
 		local _is_repo=no
+		local _log_basename=
 		case $_repo in
 			cvs|svn|git|hg)
 				_is_repo=yes
+				_log_basename=$P_V
 				if [[ $UPDATE_SOURCES = "yes" ]]; then
 					_repo_update=yes
 				fi
-				if ( [[ -n $_module ]] && [[ -n $_repo ]] ); then
+				[[ -n $_module ]] && {
 					_filename=$_module
-				fi
+					_log_basename=${_log_basename}_${_module}
+				}
+				[[ -n $_dir ]] && {
+					_lib_name=$_lib_name/$_dir
+					_log_basename=${_log_basename}/${_dir}
+				}
+				[[ -n $_filename ]] && { _lib_name=$_lib_name/$_filename; }
 			;;
 			*)
 				_filename=$(basename ${_url})
+				_lib_name=$SRC_DIR/$_filename
+				_log_basename=$_filename
 			;;
 		esac
 
-		_log_name=$MARKERS_DIR/$(basename ${_url})-download.log
-		_marker_name=$MARKERS_DIR/$(basename ${_url})-download.marker
+		_log_name=$MARKERS_DIR/${_log_basename//\//_}-download.log
+		_marker_name=$MARKERS_DIR/${_log_basename//\//_}-download.marker
 
 		[[ ! -f $_marker_name || $_repo_update == yes ]] && {
 			[[ $_is_repo == yes ]] && {
-				echo -n "---> checkout $_filename..."
+				echo -n "---> checkout $_log_basename..."
 
-				[[ -n $_dir ]] && { _lib_name=$_lib_name/$_dir; }
-				[[ -n $_filename ]] && { _lib_name=$_lib_name/$_filename; }
 				case $_repo in
 					cvs)
 						local _prev_dir=$PWD
@@ -286,7 +294,6 @@ function func_download {
 					;;
 				esac	
 			} || {
-				_lib_name=$SRC_DIR/$_filename
 				[[ -f $_lib_name ]] && {
 					echo -n "---> Delete corrupted download..."
 					rm -f $_filename
