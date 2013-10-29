@@ -64,7 +64,7 @@ src_patch() {
 
 src_configure() {
 	local _conf_flags=(
-		-G 'MSYS Makefiles'
+		-G "\"MSYS Makefiles\""
 		-DCMAKE_INSTALL_PREFIX=$PREFIX
 		-DOPT_COLLADA15:BOOL=OFF
 		-DCMAKE_BUILD_TYPE=Release

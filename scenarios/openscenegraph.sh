@@ -43,7 +43,7 @@ PKG_URL=(
 	"http://www.openscenegraph.org/downloads/developer_releases/${PKG_SRC_FILE}"
 )
 PKG_DEPENDS=()
-PKG_USE_CMAKE=true
+PKG_USE_CMAKE=yes
 
 src_download() {
 	func_download
@@ -67,7 +67,7 @@ src_configure() {
 	export COLLADA_DIR=$PREFIX
 	export USE_COIN=1
 	local _conf_flags=(
-		-G 'MSYS Makefiles'
+		-G "\"MSYS Makefiles\""
 		-DCMAKE_BUILD_TYPE=Release
 		$( [[ $USE_OPENGL_DESKTOP == no ]] \
 			&& echo " \
@@ -90,8 +90,8 @@ src_configure() {
 		-DBUILD_OSG_EXAMPLES:BOOL=ON
 		-DCOLLADA_INCLUDE_DIR=$PREFIX/include/collada-dom2.4
 		-DCOLLADA_DYNAMIC_LIBRARY=$PREFIX/lib/libcollada-dom2.4-dp.dll.a
-		-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/lib/libboost_filesystem-mt.dll.a
-		-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/lib/libboost_system-mt.dll.a
+		-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=$PREFIX/lib/libboost_filesystem-mt.a
+		-DCOLLADA_BOOST_SYSTEM_LIBRARY=$PREFIX/lib/libboost_system-mt.a
 		-DGIFLIB_DIR=$PREFIX
 		-DFREETYPE_DIR=$PREFIX
 	)
