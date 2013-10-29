@@ -83,17 +83,17 @@ SHOW_LOG_ON_ERROR=yes
 # MinGW toolchain links
 
 # setup toolchain details
-GCC_VERSION=4.8.1
-REV_VERSION=rev5
-ROOT_URL=http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases
+GCC_VERSION=4.8.2
+REV_VERSION=rev0
+ROOT_URL=http://sourceforge.net/projects/mingw-w64/files
 
 # threads=posix
-URL_MINGW32_POSIX=${ROOT_URL}/${GCC_VERSION}/32-bit/threads-posix/dwarf/x32-${GCC_VERSION}-release-posix-dwarf-${REV_VERSION}.7z
-URL_MINGW64_POSIX=${ROOT_URL}/${GCC_VERSION}/64-bit/threads-posix/seh/x64-${GCC_VERSION}-release-posix-seh-${REV_VERSION}.7z
+URL_MINGW32_POSIX=${ROOT_URL}/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/${GCC_VERSION}/threads-posix/dwarf/i686-${GCC_VERSION}-release-posix-dwarf-rt_v3-${REV_VERSION}.7z
+URL_MINGW64_POSIX=${ROOT_URL}/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/${GCC_VERSION}/threads-posix/seh/x86_64-${GCC_VERSION}-release-posix-seh-rt_v3-${REV_VERSION}.7z
 TOOLCHAINS_DIR_POSIX=${TOP_DIR}/toolchains_posix
 # threads=win32
-URL_MINGW32_WIN32=${ROOT_URL}/${GCC_VERSION}/32-bit/threads-win32/dwarf/x32-${GCC_VERSION}-release-win32-dwarf-${REV_VERSION}.7z
-URL_MINGW64_WIN32=${ROOT_URL}/${GCC_VERSION}/64-bit/threads-win32/seh/x64-${GCC_VERSION}-release-win32-seh-${REV_VERSION}.7z
+URL_MINGW32_WIN32=${ROOT_URL}/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/${GCC_VERSION}/threads-win32/dwarf/i686-${GCC_VERSION}-release-win32-dwarf-rt_v3-${REV_VERSION}.7z
+URL_MINGW64_WIN32=${ROOT_URL}/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/${GCC_VERSION}/threads-win32/seh/x86_64-${GCC_VERSION}-release-win32-seh-rt_v3-${REV_VERSION}.7z
 TOOLCHAINS_DIR_WIN32=${TOP_DIR}/toolchains_win32
 
 # By default use posix toolchains
