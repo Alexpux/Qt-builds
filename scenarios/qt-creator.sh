@@ -43,6 +43,7 @@ PKG_URL=(
 	"http://download.qt-project.org/official_releases/qtcreator/3.0/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
 	# "http://download.qt-project.org/development_releases/qtcreator/3.0/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
 )
+PKG_UNCOMPRESS_SKIP_ERRORS=yes
 PKG_DEPENDS=(qt)
 PKG_USE_QMAKE=yes
 PKG_CONFIGURE=qtcreator.pro

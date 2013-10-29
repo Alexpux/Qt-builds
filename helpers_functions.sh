@@ -62,6 +62,7 @@ clear_env() {
 	unset PKG_MAKE
 	unset PKG_USE_CMAKE
 	unset PKG_USE_QMAKE
+	unset PKG_UNCOMPRESS_SKIP_ERRORS
 }
 
 # **************************************************************************
@@ -189,7 +190,7 @@ function func_download {
 		local _dir=
 		local _root=$SRC_DIR
 		local _module=
-		local _lib_name=
+		local _lib_name=$UNPACK_DIR/$P_V
 		
 		local _index=1
 		while [ "$_index" -lt "${#_params[@]}" ]; do
@@ -205,29 +206,32 @@ function func_download {
 			_index=$(($_index+1))
 		done
 
-		[[ -n $_module && -n $_repo ]] && {
-			_filename=$_module
-		} || {
-			_filename=$(basename $_url)
-		}
+		local _repo_update=no
+		local _is_repo=no
+		case $_repo in
+			cvs|svn|git|hg)
+				_is_repo=yes
+				if [[ $UPDATE_SOURCES = "yes" ]]; then
+					_repo_update=yes
+				fi
+				if ( [[ -n $_module ]] && [[ -n $_repo ]] ); then
+					_filename=$_module
+				fi
+			;;
+			*)
+				_filename=$_module
+			;;
+		esac
 
 		_log_name=$MARKERS_DIR/${_filename//\//_}-download.log
 		_marker_name=$MARKERS_DIR/${_filename//\//_}-download.marker
-		local _repo_update=no
-		local _is_repo=no
-		[[ $_repo == cvs || $_repo == svn || $_repo == hg || $_repo == git ]] && {
-			_is_repo=yes
-			[[ $UPDATE_SOURCES == yes ]] && { _repo_update=yes; }
-		}
+
 		[[ ! -f $_marker_name || $_repo_update == yes ]] && {
 			[[ $_is_repo == yes ]] && {
 				echo -n "---> checkout $_filename..."
 
-				[[ -n $_dir ]] && {
-					_lib_name=$UNPACK_DIR/$P_V/$_filename
-				} || {
-					_lib_name=$UNPACK_DIR/$P_V/$_dir/$_filename
-				}
+				[[ -n $_dir ]] && { _lib_name=$_lib_name/$_dir; }
+				[[ -n $_filename ]] && { _lib_name=$_lib_name/$_filename; }
 				case $_repo in
 					cvs)
 						local _prev_dir=$PWD
@@ -495,10 +499,10 @@ function func_configure {
 	local _bld_dir=$BUILD_DIR
 
 	[[ -n $PKG_LNDIR_DEST ]] && {
-		local _bld_dir=$_bld_dir/$PKG_LNDIR_DEST
+		_bld_dir=$_bld_dir/$PKG_LNDIR_DEST
 	} || {
-		local _bld_dir=$_bld_dir/$P_V
-		local _src_dir=$_src_dir/$P_V
+		_bld_dir=$_bld_dir/$P_V
+		_src_dir=$_src_dir/$P_V
 	}
 	
 	[[ -n $PKG_SRC_SUBDIR ]] && {
@@ -506,6 +510,7 @@ function func_configure {
 		_src_dir=$_src_dir/$PKG_SRC_SUBDIR
 		local _log_name=$LOG_DIR/${P_V}_${PKG_SRC_SUBDIR//\//_}-configure.log
 	} || {
+		_src_dir=$_src_dir/$P_V
 		local _log_name=$LOG_DIR/${P_V}-configure.log
 	}
 
@@ -521,10 +526,10 @@ function func_configure {
 	
 	local _conf_cmd="${_rell}/${PKG_CONFIGURE} ${1}"
 	[[ $PKG_USE_CMAKE == yes ]] && {
-		local _conf_cmd="cmake ${_rell} ${1}"
+		_conf_cmd="cmake ${_rell} ${1}"
 	}
 	[[ $PKG_USE_QMAKE == yes ]] && {
-		local _conf_cmd="qmake ${_rell}/${PKG_CONFIGURE} ${1}"
+		_conf_cmd="qmake ${_rell}/${PKG_CONFIGURE} ${1}"
 	}
 	
 	[[ ! -f $_marker ]] && {
