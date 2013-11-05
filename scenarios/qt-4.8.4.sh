@@ -136,8 +136,7 @@ src_configure() {
 			&& echo "-plugin-sql-ibase \
 					 -plugin-sql-mysql \
 					 -plugin-sql-psql \
-					 -plugin-sql-odbc \
-					 -plugin-sql-oci" \
+					 -plugin-sql-odbc" \
 			|| echo "-qt-sql-sqlite \
 					 -qt-zlib" \
 		)
@@ -154,11 +153,9 @@ src_configure() {
 			&& echo "-I $QTDIR/databases/firebird/include \
 					-I $QTDIR/databases/mysql/include/mysql \
 					-I $QTDIR/databases/pgsql/include \
-					-I $QTDIR/databases/oci/include \
 					-L $QTDIR/databases/firebird/lib \
 					-L $QTDIR/databases/mysql/lib \
-					-L $QTDIR/databases/pgsql/lib \
-					-L $QTDIR/databases/oci/lib" \
+					-L $QTDIR/databases/pgsql/lib" \
 		)
 	)
 	local _allconf="${_conf_flags[@]}"
