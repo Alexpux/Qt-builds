@@ -93,6 +93,7 @@ src_patch() {
 		$P/4.8.x/qt-4.8.x-win32-g++-mkspec-optimization.patch
 		$P/4.8.x/qt-4.8.5-fix-0-width-polylines.patch
 		$P/4.8.x/qt-4.8.5-fix-data-corruption-in-readData.patch
+		$P/4.8.x/mingw-w64-i686-x86_64-intrinsics.patch
 	)
 	
 	func_apply_patches \
