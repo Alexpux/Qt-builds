@@ -10,7 +10,7 @@ In order to use the scripts provided by the Qt-builds project it is needed:
 2. Notepad++ (http://notepad-plus-plus.org) for viewing log files.
 
 3. Install MSYS2 (choose latest snapshot):
-  http://sourceforge.net/projects/msys2/files/Base/
+  https://sourceforge.net/projects/msys2/files/Base/
 
 4. Get the scripts into '<msys root>/home/<user>/Qt-builds':
   "cd && git clone git://github.com/Alexpux/Qt-builds.git"
