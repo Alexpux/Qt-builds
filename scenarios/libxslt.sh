@@ -54,10 +54,16 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/libxslt.m4-libxslt-1.1.26.patch
+		$P/libxslt-1.1.26-w64.patch
 		$P/libxslt-1.1.27-disable_static_modules.patch
 		$P/libxslt-1.1.28-win32-shared.patch
-		$P/libxslt-1.1.26-w64.patch
+		$P/libxslt.m4-libxslt-1.1.26.patch
+		$P/0002-python-linking-on.mingw.patch
+		$P/0003-fix-concurrent-directory-creation.all.patch
+		$P/0004-add-missing-include-for-python.all.patch
+		$P/0005-fix-freelocales-export.all.patch
+		$P/0006-no-undefined-tests.patch
+		$P/0007-use-mingw-C99-compatible-functions-{v}snprintf.patch
 	)
 	
 	func_apply_patches \
@@ -85,6 +91,9 @@ src_configure() {
 		--target=${HOST}
 		${LNKDEPS}
 		--without-python
+		--with-crypto
+		--with-plugins
+		--with-libxml-prefix=${PREFIX}
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
