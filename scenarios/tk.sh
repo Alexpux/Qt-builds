@@ -57,12 +57,24 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/tk-8.6.1-mingwexcept.patch
-		$P/tk-8.6.1-prevent-tclStubsPtr-segfault.patch
+		$P/002-implib-name.mingw.patch
+		$P/003-fix-forbidden-colon-in-paths.mingw.patch
+		$P/004-install-man.mingw.patch
+		$P/005-fix-redefinition.mingw.patch
+		$P/006-prevent-tclStubsPtr-segfault.patch
 	)
 	
 	func_apply_patches \
 		_patches[@]
+	
+	[[ ! -f $UNPACK_DIR/$P_V/win/post-patch.marker ]] && {
+		pushd $UNPACK_DIR/$P_V/win > /dev/null
+		echo -n "---> Executing..."
+		autoreconf -fi
+		echo " done"
+		touch post-patch.marker
+		popd > /dev/null
+	}
 }
 
 src_configure() {
@@ -79,25 +91,11 @@ src_configure() {
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure "$_allconf"
-	
-	[[ ! -f $BUILD_DIR/$P_V/post-conf.marker ]] && {
-		pushd $BUILD_DIR/$P_V > /dev/null
-		sed -i -e 's,mingw-tcl,tcl,g' win/Makefile
-		sed -i -e 's,/usr/include,$LIBS_DIR/include,g' win/Makefile
-		sed -i -e 's,libtclstub86.a,libtclstub86.dll.a,g' win/Makefile
-		sed -i -e 's,tcl8.5/libtclstub86,libtclstub86,g' win/Makefile
-		sed -i -e 's,libtcl86.a,libtcl86.dll.a,g' win/Makefile
-		sed -i -e 's,tcl8.6/libtcl86,libtcl86,g' win/Makefile
-		popd > /dev/null
-
-		touch $BUILD_DIR/$P_V/post-conf.marker
-	}
 }
 
 pkg_build() {
 	local _make_flags=(
 		-j1
-		TCL_LIBRARY=$PREFIX/lib/tk8.6
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -110,7 +108,6 @@ pkg_build() {
 pkg_install() {
 
 	local _install_flags=(
-		TK_LIBRARY=$PREFIX/lib/tk8.6
 		install
 	)
 
@@ -122,12 +119,32 @@ pkg_install() {
 
 	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
 		ln -s $PREFIX/bin/wish86.exe $PREFIX/bin/wish.exe
-		mv $PREFIX/lib/libtk86.a $PREFIX/lib/libtk86.dll.a
-		mv $PREFIX/lib/libtkstub86.a $PREFIX/lib/libtkstub86.dll.a
-		ln -s $PREFIX/lib/libtk86.dll.a $PREFIX/lib/libtk.dll.a
-		ln -s $PREFIX/lib/tkConfig.sh $PREFIX/lib/tk8.6/tkConfig.sh
-		mkdir -p $PREFIX/include/tk-private/{generic,win}
-		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win -name \"*.h\" -exec cp -p '{}' $PREFIX/include/tcl-private/'{}' ';'
+		ln -s "${PREFIX}/lib/libtk86.dll.a" "${PREFIX}/lib/libtk.dll.a"
+		mkdir -p "${PREFIX}/include/tk${TK_VERSION%.*}/tk-private/"{generic/ttk,win}
+		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win -name "*.h" -exec cp -p '{}' "${PREFIX}"/include/tk${pkgver%.*}/tk-private/'{}' ';'
+		( cd "${PREFIX}/include"
+			for i in *.h ; do
+				cp -f $i ${PREFIX}/include/tk${pkgver%.*}/tk-private/generic/
+			done
+		)
+		chmod a-x "${PREFIX}/lib/"*/pkgIndex.tcl
+  
+		local _libver=${TK_VERSION%.*}
+		_libver=${_libver//./}
+		sed \
+			-e "s|^\(TK_BUILD_LIB_SPEC\)='.*|\1='-Wl,${PREFIX}/lib/libtk${_libver}.dll.a'|" \
+			-e "s|^\(TK_SRC_DIR\)='.*'|\1='${PREFIX}/include/tk${TK_VERSION%.*}/tk-private'|" \
+			-e "s|^\(TK_BUILD_STUB_LIB_SPEC\)='.*|\1='-Wl,${PREFIX}/lib/libtkstub${_libver}.a'|" \
+			-e "s|^\(TK_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib/libtkstub${_libver}.a'|" \
+			-e "s|^\(TK_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib -ltkstub${_libver}'|" \
+			-i ${PREFIX}/lib/tkConfig.sh
+
+		# Add missing entry to tkConfig.sh
+		echo "# String to pass to the compiler so that an extension can" >> ${PREFIX}/lib/tkConfig.sh
+		echo "# find installed Tcl headers." >> ${PREFIX}/lib/tkConfig.sh
+		echo "TK_INCLUDE_SPEC='-I${PREFIX}/include/tk${TK_VERSION%.*}'" >> ${PREFIX}/lib/tkConfig.sh
+
+		rm "${PREFIX}/lib/tk${TK_VERSION%.*}/tkAppInit.c"
 
 		touch $BUILD_DIR/$P_V/post-install.marker
 	}
