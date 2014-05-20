@@ -59,10 +59,6 @@ PACKAGES=(
 		&& echo "libffi python2" \
 	)
 	yaml
- 	$( [[ $BUILD_PERL == yes ]] \
-		&& echo "dmake \
-				 perl" \
-	)
 	gettext
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "libpng \
@@ -82,8 +78,7 @@ PACKAGES=(
 				libssh2 \
 				curl \
 				libarchive \
-				cmake \
-				discount" \
+				cmake" \
 	)
  	$( [[ $BUILD_RUBY == yes ]] \
 		&& echo "ruby" \
@@ -103,16 +98,5 @@ PACKAGES=(
 		&& echo "poppler-data \
 				poppler \
 				boost" \
-	)
-	$( [[ $BUILD_COIN3D == yes && $STATIC_DEPS == no ]] \
-		&& echo "simage \
-				coin3d \
-				quarter \
-				simvoleon" \
-	)
-	$( [[ $BUILD_OSG == yes && $STATIC_DEPS == no ]] \
-		&& echo "SDL \
-				collada-dom \
-				openscenegraph" \
 	)
 )

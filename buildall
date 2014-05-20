@@ -174,11 +174,9 @@ RUN_ARGS="$@"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
 	echo "    --static-qt             - build Qt to static libraries"
 	echo "    --extra-stuff           - build extra libraries"
-	echo "    --osg                   - build OpenSceneGraph"
-	echo "    --coin3d                - build Coin3D"
 	echo "    --version               - print the version of the Qt-builds scripts"
 	echo "  Available Qt versions:"
-	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, 5.1.1, git"
+	echo "    4.8.4, 4.8.5, 5.0.0, 5.0.1, 5.0.2, 5.1.0, 5.1.1, 5.2.0, 5.3.0, git"
 
 	exit 0
 }
@@ -263,14 +261,6 @@ while [[ $# > 0 ]]; do
 			URL_MINGW64=${URL_MINGW64_WIN32}
 		;;
 		--extra-stuff) BUILD_EXTRA_STUFF=yes ;;
-		--osg) 
-			BUILD_EXTRA_STUFF=yes
-			BUILD_OSG=yes
-		;;
-		--coin3d)
-			BUILD_EXTRA_STUFF=yes
-			BUILD_COIN3D=yes
-		;;
 		i686)
 			[[ ${BUILD_ARCHITECTURES[@]} =~ i686 ]] && { shift; continue; }
 			BUILD_ARCHITECTURES=( ${BUILD_ARCHITECTURES[@]} i686 )
