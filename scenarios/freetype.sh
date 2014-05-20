@@ -58,8 +58,9 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/freetype-2.3.0-enable-spr.patch
 		$P/freetype-2.2.1-enable-valid.patch
+		$P/freetype-2.5.1-enable-spr.patch
+		$P/mingw-config.patch
 	)
 	
 	func_apply_patches \
@@ -74,7 +75,10 @@ src_configure() {
 		--target=${HOST}
 		${LNKDEPS}
 		--disable-rpath
-		--without-zlib
+		--with-zlib=${PREFIX}
+		--with-png=${PREFIX}
+		--with-bzip2=${PREFIX}
+		--with-harfbuzz=${PREFIX}
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
