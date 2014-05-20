@@ -137,11 +137,11 @@ pkg_install() {
 
 		sed \
 			-e "s|^\(TCL_BUILD_LIB_SPEC\)='.*|\1='-Wl,${PREFIX}/lib/libtcl${_libver}.dll.a'|" \
-			-e "s|^\(TCL_SRC_DIR\)='.*'|\1='${PREFIX}/include/tcl${pkgver%.*}/tcl-private'|" \
+			-e "s|^\(TCL_SRC_DIR\)='.*'|\1='${PREFIX}/include/tcl${TCL_VERSION%.*}/tcl-private'|" \
 			-e "s|^\(TCL_BUILD_STUB_LIB_SPEC\)='.*|\1='-Wl,${PREFIX}/lib/libtclstub${_libver}.a'|" \
 			-e "s|^\(TCL_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib'|" \
 			-e "s|^\(TCL_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib -ltclstub${_libver}'|" \
-			-e "s|^\(TCL_INCLUDE_SPEC\)='.*|\1='-I${PREFIX}/include/tcl${pkgver%.*}'|" \
+			-e "s|^\(TCL_INCLUDE_SPEC\)='.*|\1='-I${PREFIX}/include/tcl${TCL_VERSION%.*}'|" \
 			-i "${MINGW_PREFIX}/lib/tclConfig.sh"
 
 		sed \
@@ -163,22 +163,22 @@ pkg_install() {
 			-i "${PREFIX}/lib/itcl4.0.0/itclConfig.sh"
 
 		ln -s "${PREFIX}/lib/libtcl86.dll.a" "${PREFIX}/lib/libtcl.dll.a"
-		ln -s "${PREFIX}/lib/tclConfig.sh" "${PREFIX}/lib/tcl${pkgver%.*.*}/tclConfig.sh"
+		ln -s "${PREFIX}/lib/tclConfig.sh" "${PREFIX}/lib/tcl${TCL_VERSION%.*.*}/tclConfig.sh"
 
 		# Install private headers
-		mkdir -p "${PREFIX}/include/tcl${pkgver%.*}/tcl-private/"{generic,win}
-		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win  -name "*.h" -exec cp -p '{}' "${PREFIX}"/include/tcl${pkgver%.*}/tcl-private/'{}' ';'
+		mkdir -p "${PREFIX}/include/tcl${TCL_VERSION%.*}/tcl-private/"{generic,win}
+		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win  -name "*.h" -exec cp -p '{}' "${PREFIX}"/include/tcl${TCL_VERSION%.*}/tcl-private/'{}' ';'
 		( cd "${PREFIX}/include"
 			for i in *.h ; do
-				cp -f $i ${PREFIX}/include/tcl${pkgver%.*}/tcl-private/generic/
+				cp -f $i ${PREFIX}/include/tcl${TCL_VERSION%.*}/tcl-private/generic/
 			done
 		)
-		chmod a-x "${PREFIX}/lib/tcl${pkgver%.*}/encoding/"*.enc
+		chmod a-x "${PREFIX}/lib/tcl${TCL_VERSION%.*}/encoding/"*.enc
 		chmod a-x "${PREFIX}/lib/"*/pkgIndex.tcl
 
 		cp -rf ${PREFIX}/man ${pkgdir}${PREFIX}/share/
 		rm -rf ${PREFIX}/man
-		install -Dm644 $UNPACK_DIR/$P_V/win/tcl.m4 ${PREFIX}/share/aclocal/tcl${pkgver%.*}.m4
+		install -Dm644 $UNPACK_DIR/$P_V/win/tcl.m4 ${PREFIX}/share/aclocal/tcl${TCL_VERSION%.*}.m4
 
 		touch $BUILD_DIR/$P_V/post-install.marker
 	}
