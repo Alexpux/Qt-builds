@@ -53,22 +53,10 @@ src_unpack() {
 }
 
 src_patch() {
-	local _patches=(
-		$P/pcre-8.21-multilib.patch
-	)
+	local _patches=()
 	
 	func_apply_patches \
 		_patches[@]
-
-	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
-		pushd $UNPACK_DIR/$P_V > /dev/null
-		echo -n "---> Execute after patch..."
-		libtoolize --copy --force > execute.log 2>&1
-		autoreconf >> execute.log 2>&1
-		echo " done"
-		touch pre-configure.marker
-		popd > /dev/null
-	}
 }
 
 src_configure() {
