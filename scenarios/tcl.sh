@@ -57,15 +57,27 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/tcl-8.5.14-autopath.patch
-		$P/tcl-8.5.14-conf.patch
-		$P/tcl-8.5.14-hidden.patch
-		$P/tcl-mingw-w64-compatibility.patch
-		$P/tcl-8.6.1-mingwexcept.patch
+		$P/002-fix-forbidden-colon-in-paths.mingw.patch
+		$P/003-fix-redefinition.mingw.patch
+		$P/004-use-system-zlib.mingw.patch
+		$P/005-no-xc.mingw.patch
+		$P/006-proper-implib-name.mingw.patch
+		$P/007-install.mingw.patch
+		$P/008-tcl-8.5.14-hidden.patch
+		$P/009-fix-using-gnu-print.patch
 	)
 	
 	func_apply_patches \
 		_patches[@]
+	
+	[[ ! -f $UNPACK_DIR/$P_V/win/post-patch.marker ]] && {
+		pushd $UNPACK_DIR/$P_V/win > /dev/null
+		echo -n "---> Executing..."
+		autoreconf -fi
+		echo " done"
+		touch post-patch.marker
+		popd > /dev/null
+	}
 }
 
 src_configure() {
@@ -77,7 +89,7 @@ src_configure() {
 		$( [[ $ARCHITECTURE == x86_64 ]] \
 			&& echo "--enable-64bit"
 		)
-		--with-tcl=$PREFIX/lib
+		--enable-threads
 		--enable-shared
 	)
 	local _allconf="${_conf_flags[@]}"
@@ -87,7 +99,6 @@ src_configure() {
 pkg_build() {
 	local _make_flags=(
 		-j1
-		TCL_LIBRARY=$PREFIX/lib/tcl8.6
 		all
 	)
 	local _allmake="${_make_flags[@]}"
@@ -95,12 +106,20 @@ pkg_build() {
 		"$_allmake" \
 		"building..." \
 		"built"
+	
+	[[ ! -f $BUILD_DIR/$P_V/post-make.marker ]] && {
+		pushd $BUILD_DIR/$P_V > /dev/null
+		echo -n "---> Executing..."
+		cp tclsh86.exe tclsh.exe
+		echo " done"
+		touch post-make.marker
+		popd > /dev/null
+	}
 }
 
 pkg_install() {
 
 	local _install_flags=(
-		TCL_LIBRARY=$PREFIX/lib/tcl8.6
 		install
 	)
 
@@ -112,12 +131,54 @@ pkg_install() {
 
 	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
 		ln -s $PREFIX/bin/tclsh86.exe $PREFIX/bin/tclsh.exe
-		mv $PREFIX/lib/libtcl86.a $PREFIX/lib/libtcl86.dll.a
-		mv $PREFIX/lib/libtclstub86.a $PREFIX/lib/libtclstub86.dll.a
-		ln -s $PREFIX/lib/libtcl86.dll.a $PREFIX/lib/libtcl.dll.a
-		ln -s $PREFIX/lib/tclConfig.sh $PREFIX/lib/tcl8.6/tclConfig.sh
-		mkdir -p $PREFIX/include/tcl-private/{generic,win}
-		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win -name \"*.h\" -exec cp -p '{}' $PREFIX/include/tcl-private/'{}' ';'
+		
+		local _libver=${TCL_VERSION%.*}
+		_libver=${_libver//./}
+
+		sed \
+			-e "s|^\(TCL_BUILD_LIB_SPEC\)='.*|\1='-Wl,${PREFIX}/lib/libtcl${_libver}.dll.a'|" \
+			-e "s|^\(TCL_SRC_DIR\)='.*'|\1='${PREFIX}/include/tcl${pkgver%.*}/tcl-private'|" \
+			-e "s|^\(TCL_BUILD_STUB_LIB_SPEC\)='.*|\1='-Wl,${PREFIX}/lib/libtclstub${_libver}.a'|" \
+			-e "s|^\(TCL_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib'|" \
+			-e "s|^\(TCL_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib -ltclstub${_libver}'|" \
+			-e "s|^\(TCL_INCLUDE_SPEC\)='.*|\1='-I${PREFIX}/include/tcl${pkgver%.*}'|" \
+			-i "${MINGW_PREFIX}/lib/tclConfig.sh"
+
+		sed \
+			-e "s|^\(tdbc_BUILD_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib/tdbc1.0.0 -ltdbcstub100'|" \
+			-e "s|^\(TDBC_BUILD_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib/tdbc1.0.0 -ltdbcstub100'|" \
+			-e "s|^\(tdbc_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib/tdbc1.0.0/libtdbcstub100.a'|" \
+			-e "s|^\(TDBC_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib/tdbc1.0.0/libtdbcstub100.a'|" \
+			-e "s|^\(tdbc_INCLUDE_SPEC\)='.*|\1='${PREFIX}/lib/tdbc1.0.0/libtdbcstub100.a'|" \
+			-e "s|^\(tdbc_INCLUDE_SPEC\)='.*|\1='${PREFIX}/lib/tdbc1.0.0/libtdbcstub100.a'|" \
+			-i "${PREFIX}/lib/tdbc1.0.0/tdbcConfig.sh"
+
+		sed \
+			-e "s|^\(itcl_BUILD_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib/itcl4.0.0 -litcl400'|" \
+			-e "s|^\(ITCL_BUILD_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib/itcl4.0.0 -litcl400'|" \
+			-e "s|^\(itcl_BUILD_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib/itcl4.0.0 -litclstub400'|" \
+			-e "s|^\(ITCL_BUILD_STUB_LIB_SPEC\)='.*|\1='-L${PREFIX}/lib/itcl4.0.0 -litclstub400'|" \
+			-e "s|^\(itcl_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib/itcl4.0.0/libitclstub400.a'|" \
+			-e "s|^\(ITCL_BUILD_STUB_LIB_PATH\)='.*|\1='${PREFIX}/lib/itcl4.0.0/libitclstub400.a'|" \
+			-i "${PREFIX}/lib/itcl4.0.0/itclConfig.sh"
+
+		ln -s "${PREFIX}/lib/libtcl86.dll.a" "${PREFIX}/lib/libtcl.dll.a"
+		ln -s "${PREFIX}/lib/tclConfig.sh" "${PREFIX}/lib/tcl${pkgver%.*.*}/tclConfig.sh"
+
+		# Install private headers
+		mkdir -p "${PREFIX}/include/tcl${pkgver%.*}/tcl-private/"{generic,win}
+		find $UNPACK_DIR/$P_V/generic $UNPACK_DIR/$P_V/win  -name "*.h" -exec cp -p '{}' "${PREFIX}"/include/tcl${pkgver%.*}/tcl-private/'{}' ';'
+		( cd "${PREFIX}/include"
+			for i in *.h ; do
+				cp -f $i ${PREFIX}/include/tcl${pkgver%.*}/tcl-private/generic/
+			done
+		)
+		chmod a-x "${PREFIX}/lib/tcl${pkgver%.*}/encoding/"*.enc
+		chmod a-x "${PREFIX}/lib/"*/pkgIndex.tcl
+
+		cp -rf ${PREFIX}/man ${pkgdir}${PREFIX}/share/
+		rm -rf ${PREFIX}/man
+		install -Dm644 $UNPACK_DIR/$P_V/win/tcl.m4 ${PREFIX}/share/aclocal/tcl${pkgver%.*}.m4
 
 		touch $BUILD_DIR/$P_V/post-install.marker
 	}
