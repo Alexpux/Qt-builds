@@ -54,10 +54,12 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
+		$P/bzgrep-debian-1.0.5-6.all.patch
 		$P/bzip2-1.0.4-bzip2recover.patch
-		$P/bzip2-1.0.6-autoconfiscated.patch
-		$P/bzip2-use-cdecl-calling-convention.patch
 		$P/bzip2-1.0.5-slash.patch
+		$P/bzip2-1.0.6-progress.all.patch
+		$P/bzip2-buildsystem.all.patch
+		$P/bzip2-cygming-1.0.6.src.all.patch
 	)
 	
 	func_apply_patches \
@@ -68,7 +70,7 @@ src_configure() {
 	[[ ! -f $UNPACK_DIR/$P_V/pre-configure.marker ]] && {
 		pushd $UNPACK_DIR/$P_V > /dev/null
 		echo -n "--> Execute before configure..."
-		./autogen.sh > execute.log 2>&1
+		autoreconf -fi > execute.log 2>&1
 		echo " done"
 		touch pre-configure.marker
 		popd > /dev/null
@@ -80,7 +82,7 @@ src_configure() {
 		--host=${HOST}
 		--target=${HOST}
 		${LNKDEPS}
-		--disable-rpath
+		--enable-shared
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
@@ -91,6 +93,7 @@ src_configure() {
 
 pkg_build() {
 	local _make_flags=(
+		all-dll-shared
 		${MAKE_OPTS}
 	)
 	local _allmake="${_make_flags[@]}"
