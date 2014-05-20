@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The BSD 3-Clause License. http://www.opensource.org/licenses/BSD-3-Clause
 #
@@ -33,50 +35,73 @@
 
 # **************************************************************************
 
-# Versions of packages
-export BZIP2_VERSION="1.0.6"
-export BOOST_VERSION="1.55.0"
-export CMAKE_VERSION="2.8.12.2"
-export CURL_VERSION="7.36.0"
-export EXPAT_VERSION="2.1.0"
-export FONTCONFIG_VERSION="2.11.1"
-export FREEGLUT_VERSION="2.8.1"
-export FREETYPE_VERSION="2.5.3"
-export GIFLIB_VERSION="5.0.6"
-export GETTEXT_VERSION="0.18.3.2"
-export GPERF_VERSION="3.0.4"
-export HARFBUZZ_VERSION="0.9.26"
-export ICU_VERSION="53.1"
-export JBIGKIT_VERSION="2.1"
-export LCMS2_VERSION="2.6"
-export LIBARCHIVE_VERSION="3.1.2"
-export LIBFFI_VERSION="3.1"
-export LIBGNURX_VERSION="2.5.1"
-export LIBICONV_VERSION="1.14"
-export LIBIDN_VERSION="1.28"
-export LIBJPEG_TURBO_VERSION="1.3.1"
-export LIBMARIADBCLIENT_VERSION="2.0.0"
-export LIBPNG_VERSION="1.6.10"
-export LIBSSH2_VERSION="1.4.3"
-export LIBXML2_VERSION="2.9.1"
-export LIBXSLT_VERSION="1.1.28"
-export LZO_VERSION="2.06"
-export NASM_VERSION="2.11.02"
-export NCURSES_VERSION="5.9"
-export OPENSSL_VERSION="1.0.1g"
-export PCRE_VERSION="8.35"
-export PKG_CONFIG_VERSION="0.28"
-export POPPLER_VERSION="0.26"
-export POPPLER_DATA_VERSION="0.4.6"
-export POSTGRESQL_VERSION="9.3.4"
-export PYTHON2_VERSION="2.7.6"
-export QT_CREATOR_VERSION="3.1.0"
-export READLINE_VERSION="6.2"
-export RUBY_VERSION="2.1.2"
-export SQLITE_VERSION="3080403" #3.8.4.3
-export TCL_VERSION="8.6.1"
-export TK_VERSION="8.6.1"
-export TIFF_VERSION="4.0.3"
-export XZ_TOOLS_VERSION="5.0.5"
-export YAML_VERSION="0.1.4"
-export ZLIB_VERSION="1.2.8"
+P=libmariadbclient
+P_V=mariadb_client-${LIBMARIADBCLIENT_VERSION}-src
+PKG_TYPE=".tar.gz"
+PKG_SRC_FILE="${P_V}${PKG_TYPE}"
+PKG_URL=(
+	"ftp://ftp.osuosl.org/pub/mariadb/client-native-${pkgver}/src/${PKG_SRC_FILE}"
+)
+PKG_DEPENDS=(cmake openssl sqlite3 zlib)
+PKG_USE_CMAKE=yes
+
+src_download() {
+	func_download
+}
+
+src_unpack() {
+	func_uncompress
+}
+
+src_patch() {
+	local _patches=(
+		$P/fix-libnames-mingw.patch
+	)
+	
+	func_apply_patches \
+		_patches[@]
+}
+
+src_configure() {
+	local _conf_flags=(
+		-G "MSYS Makefiles"
+		-DCMAKE_INSTALL_PREFIX:PATH=${PREFIX_WIN}
+		-DCMAKE_BUILD_TYPE=RELEASE
+		-DWITH_EXTERNAL_ZLIB=ON
+		-DWITH_SQLITE=OFF
+		-DWITH_OPENSSL=ON
+	)
+	local _allconf="${_conf_flags[@]}"
+	func_configure "$_allconf"
+}
+
+pkg_build() {
+	local _make_flags=(
+		${MAKE_OPTS}
+	)
+	local _allmake="${_make_flags[@]}"
+	func_make \
+		"$_allmake" \
+		"building..." \
+		"built"
+}
+
+pkg_install() {
+	local _install_flags=(
+		${MAKE_OPTS}
+		install
+	)
+	local _allinstall="${_install_flags[@]}"
+	func_make \
+		"$_allinstall" \
+		"installing..." \
+		"installed"
+		
+	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
+		cp "${PREFIX}"/lib/{libmariadb,libmysqlclient}.dll.a
+		cp "${PREFIX}"/lib/{libmariadb,libmysqlclient_r}.dll.a
+		cp "${PREFIX}"/lib/{libmariadbclient,libmysqlclient}.a
+		cp "${PREFIX}"/lib/{libmariadbclient,libmysqlclient_r}.a
+		touch $BUILD_DIR/$P_V/post-install.marker
+	}
+}
