@@ -64,11 +64,17 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/icu4c-4_9_1-crossbuild.patch
-		$P/icu4c-4_9_1-mingw-w64-mkdir-compatibility.patch
-		$P/icu-50.1-import-lib-ext.patch
-		$P/icu-config.patch
-		$P/icu-pkgconfig.patch
+		$P/0004-move-to-bin.mingw.patch
+		$P/0007-actually-move-to-bin.mingw.patch
+		$P/0008-data-install-dir.mingw.patch
+		$P/0009-fix-bindir-in-config.mingw.patch
+		$P/0010-msys-rules-for-makefiles.mingw.patch
+		$P/0011-sbin-dir.mingw.patch
+		$P/0012-libprefix.mingw.patch
+		$P/0013-dont-short-names.mingw.patch
+		$P/0014-mingwize-pkgdata.mingw.patch
+		$P/0015-debug.mingw.patch
+		$P/0016-icu-pkgconfig.patch
 	)
 	
 	func_apply_patches \
@@ -79,7 +85,7 @@ src_configure() {
 	pushd $UNPACK_DIR/$P_V/source > /dev/null
 	[[ ! -f pre-configure.marker ]] & {
 		echo -n "---> Execute before configure..."
-		autoconf --force > execute.log 2>&1
+		autoreconf -vfi > execute.log 2>&1
 		echo " done"
 	}
 	touch pre-configure.marker
@@ -124,9 +130,8 @@ pkg_install() {
 
 	[[ ! -f $BUILD_DIR/$P_V/post-install.marker ]] && {
 		echo -n "---> Execute after install..."
-		local i=
-		for i in ${PREFIX}/lib/*.dll ; \
-			do cp -f ${i} ${PREFIX}/bin/; done
+		mv "${PREFIX}"/lib/*.dll "${PREFIX}"/bin/
+		mv "${PREFIX}"/bin/*.a "${PREFIX}"/lib/
 		echo " done"
 		touch $BUILD_DIR/$P_V/post-install.marker
 	}
