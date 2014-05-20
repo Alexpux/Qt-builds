@@ -83,8 +83,8 @@ SHOW_LOG_ON_ERROR=yes
 # MinGW toolchain links
 
 # setup toolchain details
-GCC_VERSION=4.8.2
-REV_VERSION=rev0
+GCC_VERSION=4.9.0
+REV_VERSION=rev1
 ROOT_URL=http://sourceforge.net/projects/mingw-w64/files
 
 # threads=posix
@@ -113,9 +113,6 @@ USE_PYTHON=msys
 
 # Build and use Ruby
 BUILD_RUBY=no
-
-# Build and use Perl
-BUILD_PERL=yes
 
 # Build Qt-Creator
 BUILD_QTCREATOR=yes
