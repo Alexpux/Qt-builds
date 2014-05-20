@@ -42,7 +42,7 @@ PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
 	"http://www.libarchive.org/downloads/${PKG_SRC_FILE}"
 )
-PKG_DEPENDS=(bzip2 expat libgnurx libxml2 lzo xz)
+PKG_DEPENDS=(bzip2 expat libgnurx lzo xz)
 
 src_download() {
 	func_download
@@ -55,6 +55,8 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/libarchive-3.0.3-undefinedsymbols.patch
+		$P/0001-mtree-fix-line-filename-length-calculation.patch
+		$P/libarchive-3.1.3-CVE-2013-0211_read_buffer_overflow.patch
 	)
 	
 	func_apply_patches \
@@ -67,6 +69,8 @@ src_configure() {
 		--build=${HOST}
 		--host=${HOST}
 		--target=${HOST}
+		--with-expat
+		--without-xml2
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
