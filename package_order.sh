@@ -40,48 +40,34 @@ PACKAGES=(
 	gperf
 	libgnurx
 	lzo
-	ncurses
-	readline
 	xz
 	expat
 	sqlite
-	tcl
-	tk
+	openssl
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "pcre \
-				 icu \
-				 libiconv \
-				 libxml2 \
-				 libxslt" \
-	)
-	openssl
-	$( [[ $USE_PYTHON == self ]] \
-		&& echo "libffi python2" \
-	)
-	yaml
-	gettext
-	$( [[ $STATIC_DEPS == no ]] \
-		&& echo "libpng \
-				 freetype \
-				 fontconfig \
-				 harfbuzz" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "nasm \
+				icu \
+				libiconv \
+				libxml2 \
+				libxslt \
+				gettext \
+				libpng \
+				freetype \
+				fontconfig \
+				harfbuzz \
+				nasm \
 				libjpeg-turbo \
 				giflib \
 				jbigkit \
-				freeglut \
 				tiff \
 				lcms2 \
 				libidn \
 				libssh2 \
 				curl \
 				libarchive \
-				cmake" \
-	)
- 	$( [[ $BUILD_RUBY == yes ]] \
-		&& echo "ruby" \
+				cmake \
+				libmariadbclient \
+				postgresql" \
 	)
 	qt-$QT_VERSION
 	qtbinpatcher
@@ -93,10 +79,5 @@ PACKAGES=(
 	)
 	$( [[ $BUILD_QTCREATOR == yes ]] \
 		&& echo "qt-creator" \
-	)
-	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
-		&& echo "poppler-data \
-				poppler \
-				boost" \
 	)
 )

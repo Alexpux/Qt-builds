@@ -107,20 +107,11 @@ USER_DEFINED_TOOLCHAINS=no
 # Update sources from repositories
 UPDATE_SOURCES=no
 
-# MinGW-builds contain prebuilded python in opt subdirectory.
-# Does we use msys-python, mingw-builds python or build python yourself.
-USE_PYTHON=msys
-
-# Build and use Ruby
-BUILD_RUBY=no
-
 # Build Qt-Creator
 BUILD_QTCREATOR=yes
 
 # Build some extra libraries
 BUILD_EXTRA_STUFF=no
-BUILD_OSG=no
-BUILD_COIN3D=no
 
 # Build Flags
 MAKE_OPTS="-j3"
@@ -134,7 +125,7 @@ STATIC_SUFFIX=""
 STATIC_LD=""
 
 # Default Qt version to build
-QT_VERSION="5.1.1"
+QT_VERSION="5.3.0"
 
 #Use different folders for building Qt with different opengl options
 QTDIR_PREFIX="angle"
@@ -162,10 +153,6 @@ RUN_ARGS="$@"
 	echo "                              Default Qt version is $QT_VERSION"
 	echo "    --qt-git-branch=<branch> - Specify what Qt git branch to clone when building Qt from git"
 	echo "                               Default branch is - $QT_GIT_BRANCH"
-	echo "    --build-python          - specifies to the script to build Python and use it when building Qt"
-	echo "    --toolchain-python      - specifies to the script to use Python from mingw-builds toolchain"
-	echo "    --build-ruby            - specifies to the script to build Ruby and use it when building Qt"
-	echo "                              By default using MSYS2 Ruby"
 	echo "    --make-jobs=<x>         - specifies number of jobs for make command (-jx)"
 	echo "                              Default is 3"
 	echo "    --no-qtcreator          - disable building Qt-Creator"
@@ -235,9 +222,6 @@ while [[ $# > 0 ]]; do
 		--qt-version=*) QT_VERSION=${1/--qt-version=/} ;;
 		--qt-git-branch=*) QT_GIT_BRANCH=${1/--qt-git-branch=/} ;;
 		--version) echo $QT_BUILDS_VERSION; exit 0 ;;
-		--build-python) USE_PYTHON=self ;;
-		--toolchain-python) USE_PYTHON=toolchain ;;
-		--build-ruby) BUILD_RUBY=yes ;;
 		--make-jobs=*) MAKE_OPTS=${1/--make-jobs=/} ;;
 		--no-qtcreator) BUILD_QTCREATOR=no ;;
 		--static-qt)
@@ -303,14 +287,6 @@ x86_64_HOST_MINGW_PATH=${TOOLCHAINS_DIR}/mingw64
 
 [[ ! -d $i686_HOST_MINGW_PATH || ! -d $x86_64_HOST_MINGW_PATH ]] && {
 	die "Host toolchains is not installed. Terminate!"
-}
-
-[[ $USE_PYTHON == msys ]] && {
-    command -v "python" > /dev/null 2>&1 || { USE_PYTHON=self; }
-}
-
-[[ $BUILD_RUBY == no ]] && {
-    command -v "ruby" > /dev/null 2>&1 || { BUILD_RUBY=yes; }
 }
 	
 source versions.sh
