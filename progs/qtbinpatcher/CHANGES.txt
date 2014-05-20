@@ -1,3 +1,10 @@
+2014-01-04. version 1.1.2.
+    Added QT_HOST_LIBS variable to qmake patch.
+
+2013-12-24. Version 1.1.1.
+    Fixed a bug related to the inability to parse qmake output, when in 
+    paths in qmake output has a space.
+
 2013-05-21. Version 1.1.0.
     Fixed a bug when running qmake in the case of special characters in the path.
     Fixed a bug with old Qt path detection if file qt.conf is exists.

@@ -34,8 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <process.h>
 #if defined(OS_WINDOWS)
+    #include <process.h>
     #include <io.h>
 #elif defined(OS_LINUX)
     #include <sys/io.h>
@@ -94,7 +94,7 @@ bool Verbose = false;
 
 inline char native_separator()
 {
-#ifdef OS_WINDOWS
+#if defined(OS_WINDOWS) && !defined(__MINGW32__)
     return '\\';
 #else
     return '/';
@@ -498,7 +498,8 @@ void get_bin_patch_values(strmap& QmakeValues,
         { "QT_INSTALL_TESTS",        "qt_tstspath=", "tests"        },
         { "QT_HOST_PREFIX",          "qt_hpfxpath=", NULL           },
         { "QT_HOST_BINS",            "qt_hbinpath=", "bin"          },
-        { "QT_HOST_DATA",            "qt_hdatpath=", NULL           }
+        { "QT_HOST_DATA",            "qt_hdatpath=", NULL           },
+        { "QT_HOST_LIBS",            "qt_hlibpath=", "lib"          }
     };
 
     for (size_t i = 0; i < sizeof(Params)/sizeof(Params[0]); ++i)
@@ -985,8 +986,8 @@ bool remove_qtconf(const string& QtDir)
 
 int main(int argc, char* argv[])
 {
-    printf("QtBinaryPatcher v1.1.0. Tool for patching paths in Qt binaries.\n"
-           "(C) Yuri Krugloff, 2013. http://www.tver-soft.org\n\n");
+    printf("QtBinPatcher v1.1.2. Tool for patching paths in Qt binaries.\n"
+           "(C) Yuri V. Krugloff, 2013-2014. http://www.tver-soft.org\n\n");
 
     strmap CmdlineOpts;
     if (!parse_cmdline_args(argc, argv, &CmdlineOpts)) {
