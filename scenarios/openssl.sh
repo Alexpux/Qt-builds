@@ -61,7 +61,7 @@ src_patch() {
 		$P/${P}-1.0.1-parallel-build.patch
 		$P/${P}-1.0.1-x32.patch
 		$P/${P}-0.9.6-x509.patch
-		$P/${P}-1.0.1e-manfix.patch
+		$P/${P}-1.0.1f-manfix.patch
 	)
 	
 	func_apply_patches \
