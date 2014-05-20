@@ -55,7 +55,7 @@ src_unpack() {
 src_patch() {
 	local _patches=(
 		$P/postgresql-9.2.4-plperl-mingw.patch
-		$P/postgresql-9.2.4-plpython-mingw.patch
+		$P/postgresql-9.3.1-plpython-mingw.patch
 	)
 	
 	func_apply_patches \
@@ -71,8 +71,12 @@ src_configure() {
 		--with-openssl
 		--with-libxml
 		--with-libxslt
-		--with-perl
+		--without-perl
 		--with-python
+		--enable-thread-safety
+		--enable-integer-datetimes
+		--enable-nls
+		--with-ldap
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
@@ -127,7 +131,21 @@ pkg_install() {
 
 	pushd $BUILD_DIR/$P_V > /dev/null
 		[[ ! -f postinstall.marker ]] && {
-			cp -f $PREFIX/lib/*.dll $PREFIX/bin/
+			
+			# Move dll's to bin directory
+			mv "${PREFIX}/lib/"*.dll "${PREFIX}/bin/"
+
+			# Rename the .a files to .dll.a as they're actually import libraries and not static libraries
+			#for implib in "${PREFIX}/lib/"*.a; do
+			#	mv $implib ${implib/.a/.dll.a}
+			#done
+
+			# these headers are needed by the not-so-public headers of the interfaces
+			mkdir -p "${PREFIX}"/include/{libpq,postgresql/internal/libpq}  
+			install -m644 $UNPACK_DIR/$P_V/src/include/c.h "${PREFIX}/include/postgresql/internal/"
+			install -m644 $UNPACK_DIR/$P_V/src/include/port.h "${PREFIX}/include/postgresql/internal/"
+			install -m644 $UNPACK_DIR/$P_V/src/include/postgres_fe.h "${PREFIX}/include/postgresql/internal/"
+			install -m644 $UNPACK_DIR/$P_V/src/include/libpq/pqcomm.h "${PREFIX}/include/postgresql/internal/libpq/"
 			touch postinstall.marker
 		}
 	popd > /dev/null	
