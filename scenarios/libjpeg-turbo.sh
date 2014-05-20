@@ -57,6 +57,7 @@ src_patch() {
 		$P/jpeg-7-tiff-ojpeg.patch
 		$P/jpeg-typedefs.patch
 		$P/libjpeg-buf-oflo.patch
+		$P/libjpeg-turbo-match-autoconf-behavior.patch
 	)
 	
 	func_apply_patches \
@@ -72,6 +73,7 @@ src_configure() {
 		${LNKDEPS}
 		--disable-rpath
 		--with-jpeg8
+		--mandir=${PREFIX}/share/man
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
 		CPPFLAGS="\"${HOST_CPPFLAGS}\""
