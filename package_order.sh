@@ -63,11 +63,11 @@ PACKAGES=(
 	$( [[ $STATIC_DEPS == no ]] \
 		&& echo "libpng \
 				 freetype \
-				 fontconfig" \
+				 fontconfig \
+				 harfbuzz" \
 	)
 	$( [[ $BUILD_EXTRA_STUFF == yes && $STATIC_DEPS == no ]] \
 		&& echo "nasm \
-				hunspell \
 				libjpeg-turbo \
 				giflib \
 				jbigkit \
