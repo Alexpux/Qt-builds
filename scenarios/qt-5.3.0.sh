@@ -55,8 +55,8 @@ change_paths() {
 	local _sql_include=
 	local _sql_lib=
 	[[ $STATIC_DEPS == no ]] && {
-		_sql_include="$QTDIR/databases/firebird/include:$QTDIR/databases/mysql/include/mysql:$QTDIR/databases/pgsql/include:$QTDIR/databases/oci/include"
-		_sql_lib="$QTDIR/databases/firebird/lib:$QTDIR/databases/mysql/lib:$QTDIR/databases/pgsql/lib:$QTDIR/databases/oci/lib"
+		_sql_include="$QTDIR/databases/firebird/include:$PREFIX/include/mariadb:$QTDIR/databases/oci/include"
+		_sql_lib="$QTDIR/databases/firebird/lib:$QTDIR/databases/oci/lib"
 	}
 	export INCLUDE="$MINGWHOME/$HOST/include:$PREFIX/include:$PREFIX/include/libxml2:${_sql_include}"
 	export LIB="$MINGWHOME/$HOST/lib:$PREFIX/lib:${_sql_lib}"
