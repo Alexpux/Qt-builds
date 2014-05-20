@@ -40,7 +40,7 @@ P_V=${P}-autoconf-${SQLITE_VERSION}
 PKG_TYPE=".tar.gz"
 PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
-	"http://www.sqlite.org/2013/${PKG_SRC_FILE}"
+	"http://www.sqlite.org/2014/${PKG_SRC_FILE}"
 )
 PKG_DEPENDS=("icu" "readline")
 
@@ -77,9 +77,10 @@ src_configure() {
 		--target=${HOST}
 		${LNKDEPS}
 		--disable-rpath
+		--enable-threadsafe
 		CFLAGS="\"${HOST_CFLAGS}\""
 		LDFLAGS="\"${HOST_LDFLAGS}\""
-		CPPFLAGS="\"${HOST_CPPFLAGS} -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE\""
+		CPPFLAGS="\"${HOST_CPPFLAGS} -fexceptions -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_DISABLE_DIRSYNC=1 -DSQLITE_ENABLE_FTS3=3 -DSQLITE_ENABLE_RTREE=1 -fno-strict-aliasing\""
 	)
 	local _allconf="${_conf_flags[@]}"
 	func_configure "$_allconf"
