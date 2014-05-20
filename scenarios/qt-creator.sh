@@ -40,8 +40,8 @@ P_V=${P}-${QT_CREATOR_VERSION}-src
 PKG_TYPE=".tar.gz"
 PKG_SRC_FILE="${P_V}${PKG_TYPE}"
 PKG_URL=(
-	"http://download.qt-project.org/official_releases/qtcreator/3.0/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
-	# "http://download.qt-project.org/development_releases/qtcreator/3.0/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
+	"http://download.qt-project.org/official_releases/qtcreator/3.1/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
+	# "http://download.qt-project.org/development_releases/qtcreator/3.1/${QT_CREATOR_VERSION}/${PKG_SRC_FILE}"
 )
 PKG_UNCOMPRESS_SKIP_ERRORS=yes
 PKG_DEPENDS=(qt)
