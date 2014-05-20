@@ -11,6 +11,14 @@ In order to use the scripts provided by the Qt-builds project it is needed:
 
 3. Install MSYS2 (choose latest snapshot):
   https://sourceforge.net/projects/msys2/files/Base/
+  Configuring MSYS2 for Qt-builds:
+  a) Unpack MSYS2
+  b) Start MSYS2 with "msys2_shell.bat" and close it when see banner.
+  c) Run autorebase.bat
+  d) Start MSYS2 with "msys2_shell.bat" and update MSYS2 packages to latest with
+     pacman -Syu. Then restart MSYS2.
+  e) Install developer packages needed for Qt-builds:
+     pacman -S base-devel git
 
 4. Get the scripts into '<msys root>/home/<user>/Qt-builds':
   "cd && git clone git://github.com/Alexpux/Qt-builds.git"
@@ -19,14 +27,12 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   "git config --global core.eol lf"
   "git config --global --unset core.autocrlf"
 
-6. In the MSYS file structure delete the '/MinGW' directory.
+6. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
 
-7. Delete the paths pointing to any preinstalled MinGW from the 'PATH' environment variable.
-
-8. Go into the Qt-builds root directory.
+7. Start MSYS2 from "msys2_shell.bat". Go into the Qt-builds root directory.
   "cd && cd Qt-builds"
 
-9. Build script has next parameters:
+8. Build script has next parameters:
   The '--buildroot=<path>' option specifies to the script to use '<path>' as build directory.
     By default used <SCRIPTS_DIR>/work.
   The '--install-top=<path>' option specifies to the script to use '<path>' as top installation directory.
@@ -47,7 +53,7 @@ In order to use the scripts provided by the Qt-builds project it is needed:
   The '--version' option print the version of Qt-builds script.
   For all available options please run: "./buildall --help"
 
-10. Run:
+9. Run:
   "./buildall i686" - for building 32-bit Qt
   "./buildall x86_64" - for building 64-bit Qt
   "./buildall i686 x86_64" - for building both 32 and 64 bits Qt
