@@ -59,41 +59,15 @@ src_unpack() {
 
 src_patch() {
 	local _patches=(
-		$P/boost-1.50.0-fix-non-utf8-files.patch
 		$P/boost-1.48.0-add-bjam-man-page.patch
-		$P/boost-1.53.0-attribute.patch
-		#$P/boost-1.50.0-long-double-1.patch
+		$P/boost-1.50.0-fix-non-utf8-files.patch
 		$P/boost-1.50.0-pool.patch
-		#$P/boost-1.54.0-__GLIBC_HAVE_LONG_LONG.patch
-		$P/001-coroutine.patch
-		$P/002-date-time.patch
-		$P/003-log.patch
-		$P/boost-1.54.0-context-execstack.patch
 		$P/boost-1.54.0-bind-static_assert.patch
-		$P/boost-1.54.0-concept-unused_typedef.patch
-		$P/boost-1.54.0-mpl-print.patch
-		$P/boost-1.54.0-static_warning-unused_typedef.patch
-		$P/boost-1.54.0-math-unused_typedef.patch
-		$P/boost-1.54.0-math-unused_typedef-2.patch
-		$P/boost-1.54.0-tuple-unused_typedef.patch
-		$P/boost-1.54.0-random-unused_typedef.patch
-		$P/boost-1.54.0-date_time-unused_typedef.patch
-		$P/boost-1.54.0-date_time-unused_typedef-2.patch
-		$P/boost-1.54.0-spirit-unused_typedef.patch
-		$P/boost-1.54.0-spirit-unused_typedef-2.patch
-		$P/boost-1.54.0-numeric-unused_typedef.patch
-		$P/boost-1.54.0-multiprecision-unused_typedef.patch
-		$P/boost-1.54.0-unordered-unused_typedef.patch
-		$P/boost-1.54.0-algorithm-unused_typedef.patch
-		$P/boost-1.54.0-graph-unused_typedef.patch
-		$P/boost-1.54.0-locale-unused_typedef.patch
-		$P/boost-1.54.0-property_tree-unused_typedef.patch
-		$P/boost-1.54.0-xpressive-unused_typedef.patch
-		$P/boost-1.54.0-mpi-unused_typedef.patch
-		$P/boost-1.54.0-python-unused_typedef.patch
-		$P/boost-mingw.patch
-		$P/boost-include-intrin-h-on-mingw-w64.patch
 		$P/boost-1.54.0-bootstrap.patch
+		$P/boost-1.54.0-concept-unused_typedef.patch
+		$P/boost-1.55.0-log_fix_dump_avx2.patch
+		$P/boost-mingw.patch
+		$P/using-mingw-w64-python.patch
 	)
 
 	func_apply_patches \
