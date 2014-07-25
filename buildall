@@ -76,15 +76,14 @@ ROOT_DIR=${TOP_DIR}/work
 	DXSDK_DIR="C:/Program Files/Microsoft DirectX SDK (June 2010)/"
 	LOGVIEWER="c:/progra~1/notepad++/notepad++.exe"
 }
-[[ -d "$DXSDK_DIR" ]] || echo "WARNING: You need installed DirectX SDK for building Qt5..."
 [[ -f "$LOGVIEWER" ]] || LOGVIEWER="/c/Windows/system32/notepad.exe"
 SHOW_LOG_ON_ERROR=yes
 
 # MinGW toolchain links
 
 # setup toolchain details
-GCC_VERSION=4.9.0
-REV_VERSION=rev1
+GCC_VERSION=4.9.1
+REV_VERSION=rev0
 ROOT_URL=http://sourceforge.net/projects/mingw-w64/files
 
 # threads=posix
@@ -258,6 +257,9 @@ while [[ $# > 0 ]]; do
 	esac
 	shift
 done
+
+[[ $USE_OPENGL_DESKTOP == no && ! -d "$DXSDK_DIR" ]] && \
+	echo "WARNING: You need installed DirectX SDK for building Qt5..."
 
 SRC_DIR=${ROOT_DIR}/src
 MARKERS_DIR=${ROOT_DIR}/markers
